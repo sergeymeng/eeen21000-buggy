@@ -1,0 +1,11 @@
+build/
+.mbed/
+cmake-build-*/
+*.bin
+*.elf
+*.hex
+*.map
+.DS_Store
+.vscode/
+__pycache__/
+*.pyc
