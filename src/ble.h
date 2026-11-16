@@ -1,10 +1,13 @@
 #ifndef EEEN21000_BLE_H
 #define EEEN21000_BLE_H
 
-// HM-10 BLE
+#include "types.h"
+
 class Ble {
 public:
-    // TODO: receive commands, send status
+    void begin();
+    bool poll(BleCmd &out);
+    bool send(const Telemetry &t);      // false if the buffer is full
 };
 
-#endif // EEEN21000_BLE_H
+#endif

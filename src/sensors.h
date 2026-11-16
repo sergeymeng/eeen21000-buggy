@@ -1,10 +1,19 @@
 #ifndef EEEN21000_SENSORS_H
 #define EEEN21000_SENSORS_H
 
-// TCRT5000 array
+#include "config.h"
+#include "types.h"
+
 class Sensors {
 public:
-    // TODO: configure pins, read sensors
+    void begin();
+    bool calibrate(uint16_t n = cfg::cal_n);   // samples per channel per level
+    LineSample read();                         // about 60 us
+    float normalised(uint8_t i) const;         // 0 black, 1 white
+private:
+    float white_[cfg::n_sensors];
+    float black_[cfg::n_sensors];
+    float norm_[cfg::n_sensors];
 };
 
-#endif // EEEN21000_SENSORS_H
+#endif

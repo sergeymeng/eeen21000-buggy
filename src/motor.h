@@ -1,10 +1,14 @@
 #ifndef EEEN21000_MOTOR_H
 #define EEEN21000_MOTOR_H
 
-// Motor drive
+#include "types.h"
+
 class Motor {
 public:
-    // TODO: direction, PWM, enable
+    void begin(Side side);
+    void set(float u);      // -1 to +1, clamped
+    void coast();
+    void enable(bool on);
 };
 
-#endif // EEEN21000_MOTOR_H
+#endif
