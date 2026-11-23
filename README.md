@@ -6,7 +6,9 @@
 
 [打开综合极限赛道](https://20.254.34.113/eeen21000/buggy-sim/?scenario=extreme) · [仿真器源码](tools/buggy-sim/)
 
-可比较 A、B 两套车的 TCRT5000 布局、底盘净空和循迹表现。综合赛道支持全程往返和分段起跑。下载仓库后，可直接用浏览器打开 `tools/buggy-sim/index.html`。在仓库根目录运行模型测试：
+可比较 A、B 两套车的 TCRT5000 布局、底盘净空和循迹表现。综合赛道支持全程往返和分段起跑。在参数面板的“传感器与电路”中可分别设置 A、B 的探头离地高度（8–28.3 mm）。模型使用 2026-11-23 的 Sensors Lab 工作簿，13.3 和 28.3 mm 有横移实测，两个高度之间插值，低于 13.3 mm 外推。布局页的“测量结果”显示当前线宽、阈值下单颗探头的触发总宽。
+
+下载仓库后，可直接用浏览器打开 `tools/buggy-sim/index.html`。在仓库根目录运行模型测试：
 
 ```sh
 node --test tools/buggy-sim/model.test.cjs

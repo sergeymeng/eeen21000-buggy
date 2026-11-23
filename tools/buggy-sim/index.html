@@ -19,7 +19,7 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 <div class="viewport-strip" id="viewportStrip"><div class="design-selector" role="group" aria-label="显示方案"><button data-design-mode="A" aria-pressed="true">方案 A</button><button data-design-mode="B" aria-pressed="false">方案 B</button><button data-design-mode="both" aria-pressed="false">并排比较</button></div><button id="inspectorToggle" aria-expanded="true" aria-controls="properties">参数面板</button></div>
 <div id="pcbView">
 <div class="instrument-bar"><div class="bar"><h2>TCRT5000 布局</h2><span class="instrument-type">X ↑　Y →　mm</span></div>
-<details class="setup"><summary>光学设置</summary><div class="controls"><label>光学模型 <select data-shared="spatial"></select></label><label>位置列单位 <select data-shared="unitScale"></select></label><label>照明 <select data-shared="light"></select></label><label>白线 <input type="number" step="any" data-shared="line"> mm</label><label class="boxField">均匀核宽 <select data-shared="spot"></select></label><label>判定阈值 <select data-shared="threshold"></select></label></div></details>
+<details class="setup"><summary>光学设置</summary><div class="controls"><label>光学模型 <select data-shared="spatial"></select></label><label>照明 <select data-shared="light"></select></label><label>白线 <input type="number" step="any" data-shared="line"> mm</label><label class="boxField">均匀核宽 <select data-shared="spot"></select></label><label>判定阈值 <select data-shared="threshold"></select></label></div></details>
 </div><div class="twins" id="boards"></div>
 <div class="dock-tabs" role="group" aria-label="读数区"><button data-target="scanDock" aria-pressed="true">直线横移</button><button data-target="pcbData" aria-pressed="false">测量结果</button></div><div id="scanDock"><h3 class="section dock-caption">直线横移 <small>　触发通道数</small></h3>
 <canvas class="strip" id="capture" aria-label="方案 A、B 随横向位置变化的零路、单路和多路区间"></canvas>
@@ -30,7 +30,7 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 <div class="drawing-tabs" role="group" aria-label="CAD 视图"><button data-target="cadPose" aria-pressed="true">窄道净空</button><button data-target="cadTurn" aria-pressed="false">转弯占地</button></div><div id="cadPose"><div class="controls" id="poseFields"></div><div class="twins" id="poses"></div></div><div id="cadTurn" hidden><h3 class="section">转弯占地</h3><div class="controls"><label>后轴中心轨迹半径 <input id="turnInputradius" type="number" step="any" min="0" value="0"> mm</label><label>转角 <input id="turnInputangle" type="number" min="-360" max="360" step="any" value="180"> °</label></div><div class="twins" id="turns"></div><p class="foot">半径为零时绕后轴中心原地转向，负角左转。A、B 两图同一比例。虚线框给出整个转动过程在初始车头方向及其横向所需的空间，实色车身为终点姿态。</p></div>
 <div class="dock-tabs" role="group" aria-label="读数区"><button data-target="cadData" aria-pressed="true">测量结果</button><button data-target="cadMap" aria-pressed="false">偏航范围</button><button data-target="cadOutline" aria-pressed="false">底板轮廓</button></div><div id="cadData"><div id="cadMetrics"></div></div><div id="cadMap" hidden><div class="twins" id="maps"></div><p class="foot">点图可选姿态，蓝灰色为有净空区域</p></div><div id="cadOutline" hidden><details open class="pad"><summary>底板轮廓</summary><p>沿底板边缘依次输入顶点，每行一组向前、向右坐标（mm）。最靠后的点定义后缘，向右为正，车身中心线为零。改底板长或宽时，顶点沿对应方向缩放。</p><div class="twins" id="outlines"></div></details><p class="foot">窄点下限 280 mm 来自 Canvas §1.4。轮径初值 76 mm 来自组内 DR1 实测。底板、轮距、轮座和安装坐标取当前 A/B 输入。</p></div></div>
 <div id="raceView" hidden><div class="instrument-bar"><div class="bar"><h2>整车回放</h2><label>路段 <select id="scenario"><option value="s">S 弯 / 窄道</option><option value="left">左弯 / 窄道</option><option value="right">右弯 / 窄道</option><option value="gap">直道 / 断线</option><option value="extreme">综合极限赛道</option></select></label></div>
-<details class="setup"><summary>运行设置</summary><div class="controls"><label>光学模型 <select data-shared="spatial"></select></label><label>位置列单位 <select data-shared="unitScale"></select></label><label>照明 <select data-shared="light"></select></label><label>白线 <input type="number" step="any" data-shared="line"> mm</label><label class="boxField">均匀核宽 <select data-shared="spot"></select></label><label>阈值 <select data-shared="threshold"></select></label><label>纵向核倍率 <select data-shared="aspect"></select></label><label>PD 参考距离 <select data-shared="controlRef"></select></label><label>轮速上限 <select data-shared="wheelCap"></select></label><label>车速 <select data-shared="speed"></select></label><label>起步横偏 <select data-shared="startOffset"></select></label><label>起步偏航 <select data-shared="startYaw"></select></label></div></details>
+<details class="setup"><summary>运行设置</summary><div class="controls"><label>光学模型 <select data-shared="spatial"></select></label><label>照明 <select data-shared="light"></select></label><label>白线 <input type="number" step="any" data-shared="line"> mm</label><label class="boxField">均匀核宽 <select data-shared="spot"></select></label><label>阈值 <select data-shared="threshold"></select></label><label>纵向核倍率 <select data-shared="aspect"></select></label><label>PD 参考距离 <select data-shared="controlRef"></select></label><label>轮速上限 <select data-shared="wheelCap"></select></label><label>车速 <select data-shared="speed"></select></label><label>起步横偏 <select data-shared="startOffset"></select></label><label>起步偏航 <select data-shared="startYaw"></select></label></div></details>
 </div><div id="raceStartFields" class="controls" hidden><label>试跑范围 <select id="raceStart"></select></label><small id="courseLength"></small><details><summary>赛道工况</summary><p class="foot">1 起步　2 强光、6 mm 断线与 4 mm 接缝　3 双向 R50 交错弯　4 每 50 mm 最多折转 45°　5 上坡 17.9°　6 双侧距线 140 mm、挡墙高 50 mm、隧道高 200 mm　7 下坡 17.9°　8 两个 R50 直角弯　9 单次 BLE 掉头。线宽分段取 14、17、20 mm。可输入材料反射标定；台阶冲击与制动距离待实测。决赛可能出现更急弯道和其他障碍，课程未公布尺寸。</p></details></div><div class="twins" id="races"></div><div class="controls"><button class="primary" id="play">▶ 运行</button><button id="rewind">回起点</button><select id="rate" aria-label="回放倍率"><option value=".25">¼×</option><option selected value=".5">½×</option><option value="1">1×</option></select><input id="time" class="grow" type="range" min="0" step="1" aria-label="回放时间"><output id="clock"></output></div>
 <div class="dock-tabs" role="group" aria-label="读数区"><button data-target="scopeDock" aria-pressed="true">传感器响应</button><button data-target="runData" aria-pressed="false">测量结果</button></div><div id="scopeDock"><div id="scopes" class="twins"></div></div><div id="runData" hidden><div id="raceMetrics"></div><div class="controls" id="events"></div><p class="foot">主循迹有信号时负责转向，失线后备用探头接管。记录通道只输出波形。终点按首个控制探头中心越过白线端面计时。</p></div></div>
 <div id="sweepView" hidden><div class="bar"><h2>参数扫描</h2><button id="scanCSV" disabled>导出扫描 CSV</button></div>
@@ -49,12 +49,12 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 <p>课程模型含万向轮总成、轮座、轮胎和电机组件。<a href="https://canvas.manchester.ac.uk/courses/89030/modules/items/4101721">Canvas 机械模型</a></p>
 <h2>驱动与供电</h2><p>Handbook §9.3.1 给出隔离电源 5 V / 400 mA、驱动板每通道约 10 V / 1.8 A。PCB 页的电流余额还需分配给 Nucleo、编码器与接收电路。</p><p>OneDrive · Group 52 DR1，第 2、4、6 页。匀速直行按两轮均分牵引力，使用滚阻拟合斜率 0.0865、电枢电阻 1.7548 Ω、转矩拟合 T = 0.00775 I − 0.00124、反电动势拟合 E = 0.007259 ω + 0.9310。质量 0.920 kg、减速比 15、齿轮总效率 0.722 是 DR1 的计算取值。扫描分别报告直行供电和循迹结果。回放按轮速指令运动，可设置轮端 rpm 限幅。</p>
 <h2>零件与测量</h2><p>ESP Technical Handbook 2026–27 印刷页 66 给出 TCRT5000 外形 10.2 × 5.8 × 7 mm；页 61–62 描述黑白反射测试，页 72 给出差速运动关系。OneDrive 中 Group 52 的 DR1 记录轮径 76 mm，Productcost.docx 列出六个 TCRT5000，第八周周报记录六路模拟输入。安装坐标以后轴中心为原点。板上通道随 PCB 移动，独立安装通道固定在车架坐标。封装长边沿车身纵向，探头朝地面。</p>
-<h3>台架原始读数 · tcrt5000.xlsx / Sheet1!A32:C43</h3><p>原表 A 列以板面离线高度（cm）记数，F32 另注检测面到板非金属面 19 mm。两参考面一致时，2.56 cm 对应感光面高度 6.6 mm。第 42 行黑电压高于白电压，第 80 行的黑白顺序与第 34 行相反，均保留原记录。<a href="https://livemanchesterac-my.sharepoint.com/shared?id=%2Fpersonal%2Fchenxi_shen_student_manchester_ac_uk%2FDocuments%2FApps%2FEEEN21000%20Embedded%20Systems%2Flab2%20sensor">OneDrive 实验目录</a></p><div id="raw"></div><h3>横移曲线拟合</h3><div id="fitData"></div><div class="twins"><div><h3>板面 3.08 cm · 电压 V</h3><canvas class="heatplot" id="fitPlotscan308" aria-label="板高3.08厘米时原始横移电压及拟合"></canvas></div><div><h3>板面 2.08 cm · 电压 V</h3><canvas class="heatplot" id="fitPlotscan208" aria-label="板高2.08厘米时原始横移电压及拟合"></canvas></div></div><p>橙点为原始读数，蓝线为拟合。3.08 cm 扫描左端两点明显偏离曲线；留位置验证每次移除同一位置的全部读数，重新拟合并预测被移除的电压。</p>
+<h3>Sensors Lab · lab data final.xlsx / Sheet1!A14:G24</h3><p>探头离地高度和横移位置均以 mm 记录。黑、白电压为每组 3 次读数的算术平均。<a href="https://livemanchesterac-my.sharepoint.com/shared?id=%2Fpersonal%2Fchenxi_shen_student_manchester_ac_uk%2FDocuments%2FApps%2FEEEN21000%20Embedded%20Systems%2Flab2%20sensor">OneDrive 实验目录</a></p><div id="raw"></div><h3>横移曲线拟合</h3><div id="fitData"></div><div class="twins"><div><h3>13.3 mm · 横移电压 V</h3><canvas class="heatplot" id="fitPlotlow" aria-label="13.3 mm 横移电压与模型"></canvas></div><div><h3>28.3 mm · 横移电压 V</h3><canvas class="heatplot" id="fitPlothigh" aria-label="28.3 mm 横移电压与模型"></canvas></div></div><p>橙点为每个位置的三次读数均值，蓝线为回放使用的对称响应模型。</p>
 <h2>试算模型</h2><p>TCRT5000 的 950 nm 发射管与光电三极管朝向同一面。黑面也会反光，白线边缘的响应由照明与接收视场共同决定。手册第 67 页图 3 区分封装表面工作距离与台架基准；图 8 的 CTR 随 LED 电流而变。电压标定采用组内黑白面实测值。</p>
-<p>横向核：用有限宽白条与高斯核的卷积拟合各板高下的扫描电压，黑白端点取同高度的 A33:C33、A35:C35，同时估计条中心、条宽及横向 σ。采用 Huber 损失（归一化转折点 0.08），表中 RMSE 包括异常点。用 3.08 的 A48:B61、D52:E61，保留 B48 的 0.997 V 和 B49；2.08 用 A48:A60 对 H48:H60（G 列重写处数值相同）以及 J57:K60。无成对位置的散点不参加拟合。扫描单位按表头 mm 为初始值；“按 cm 试算”整体放大十倍。位置列单位尚未独立标定。</p>
+<p>Sheet1!A27:G56 给出 13.3 和 28.3 mm 的横移数据。按同高度黑白标定的 50% 阈值对两侧交点做线性插值，得到触发总宽。用两侧 25%–75% 过渡宽度估计高斯核 σ，再用幂函数使模型在参考白条（按 17 mm）上复现 50% 宽度。两个实测高度之间按线性插值，低于 13.3 mm 时外推至 8 mm。</p>
 <p>二维光学：拟合得到横向权重，纵向宽度是可调的试算假设。对随车旋转的响应核在实际白线区域积分；弯道用相邻的条带多边形，弧长步距最多 4 mm，R50 及 20 mm 线宽时外边弦误差小于 0.05 mm。断线直接挖空。高斯核在 ±4σ 截断并归一化，纵向用三点高斯积分，均匀核模式按相交面积计算。</p>
-<p>接收电路采用 OneDrive 的 Prelab list.docx 电路图：LED 侧 5 V，Vf 取 1.25 V，接收侧从发射极负载 R2 取压，基准 R2 = 3.3 kΩ。按 IF = (5 − Vf)/R 估算 LED 电流。用 A79:C81 的 5.2、42 mA 两端以及 A34:C34 作为 20 mA 的黑白锚点，按黑面、白面分别插值相对光电流（以发射极负载电流近似光电流），再迁移到所选板高。20 mA 列序、台架实际 R2 和跨高度的增益迁移均需复测。此范围之外不外推 LED 电流。</p>
-<p>暗态与环境光：室内 LED 关闭的中位数为 0.084 mV，强光三次的中位数为 0.167 V（B26:D26、B29:D29），均按基准负载换算成电流；暗电流包含在这项读数内。模型先从高度扫描中扣除室内背景，加入选定工况的背景，再乘候选负载。按假设 VCE 饱和余量 0.2 V 做接收上限，3.3 V、12 位 ADC 做量化与截顶；按室内黑白 ADC 码复标。强光保持原阈值，故有可能误触发。</p>
+<p>TCRT5000 台架反馈电阻为 2.7 kΩ（B3）。高度扫描未标注 LED 电流，模型把默认 180 Ω 作为参考工况。其他 LED 电阻按 (5 − 1.25) / R 计算电流，用两组电流扫描（A62:G71）的相对变化修正黑白电平。低于 13.3 mm 时沿用最近一组相对增益。</p>
+<p>LED 关闭时室内和强光的实测中位数分别为 0.203 和 4.345 mV（B7:D7、B9:D9）。按候选负载换算电压，接收级预留 0.2 V，ADC 为 3.3 V、12 位；判线沿用室内黑白标定。</p>
 <p>CAD 以自定义或矩形 Acetal 底板、两个后驱动轮、前万向轮座矩形外廓、PCB 和各探头封装计算净空。图上显示进入窄道的部分到侧界的横向距离。包络给出选定姿态的几何余量，未计螺头、线束、制造误差与结构变形。</p>
 <p>回放每 5 ms 更新，按当前控制组内触发探头的横向坐标与归一化输出求加权平均，用于 PD 转向。两车用相同控制律，Kp = 2/L²，其中 L 为回放中的 PD 参考距离（mm），两车共用、Kd = 0.008/mm、20 ms 微分滤波、曲率限幅 ±0.035/mm。默认起步时轴心位于直线中心，失线后维持方向，盲行 20 mm 结束。每步按实际左右轮速积分圆弧，短赛道时限 15 s；综合赛道按线长和设定速度计算时限，最多 180 s。连续净空下界按车轴速度与最大角点速度扩张窄道入口，递归细分可能更危险的帧间区段；上界取实际检查姿态中的最小值，目标上下界差 0.1 mm。</p><h2>往届对照 · 2023/24 Group 48</h2><p>该组公开的 KiCad 板上 U1–U6 单排，中心距 20 mm，首末中心相距 100 mm。他们的算法逐路归一化，用最大与最小读数之差判线，丢线后按最近一次转向的符号寻线。对照实验可在参数扫描中改变间距，观察捕获区间和内部盲区。<a href="https://www.linkedin.com/pulse/2nd-year-embedded-systems-project-final-race-winner-hakeem-jfuzf/">比赛复盘</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/tree/master/hardware/Sensor%20PCB">PCB 原文件</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/blob/master/src/sensor_array.cpp">传感器程序</a></p></section>
 </main><script>
@@ -166,11 +166,72 @@ function course(kind,c=shared){
   return {points,gate,gap,gapSize:c.gapSize,end:points.at(-1)};
 }
 const overlap=(a,b,c,d)=>Math.max(0,Math.min(b,d)-Math.max(a,c));
-// Measured lateral scan of a finite white stripe (raw ruler coordinates).
-// Columns with no paired position are deliberately not used.
-const scans={
-  scan308:{row:2,points:[[7,.997],[7.5,.992],[8,.1025],[8.5,.1245],[9,.3893],[9.5,.8934],[10,1.0082],[10.5,.943],[11,.5075],[11.5,.1252],[12,.103],[12.5,.1004],[13,.1012],[13.5,.1024],[9.1,.5056],[9.2,.5988],[9.3,.7481],[9.4,.82],[9.5,.896],[11.1,.307],[11.2,.2362],[11.3,.1777],[11.4,.1385],[11.5,.1198]]},
-  scan208:{row:0,points:[[7,.3267],[7.5,.3264],[8,.333],[8.5,.332],[9,.9381],[9.5,3.019],[10,3.057],[10.5,3.045],[11,1.356],[11.5,.34],[12,.328],[12.5,.324],[13,.327],[11.1,.6484],[11.2,.41],[11.3,.3607],[11.4,.345]]}
+// TCRT5000, lab data final.xlsx / Sheet1. Rows contain arithmetic means in mm and V.
+// A14:G24: height, black, white.
+const rawHeight = [
+  [3.3, 0.457333333, 3.97333333],
+  [8.1, 0.278333333, 2.95666667],
+  [13.3, 0.143, 1.48633333],
+  [18.3, 0.0906666667, 0.845333333],
+  [23.3, 0.0576666667, 0.513666667],
+  [28.3, 0.043, 0.329333333],
+  [33, 0.0326666667, 0.215666667],
+  [38.1, 0.027, 0.144666667],
+  [43.3, 0.0223333333, 0.117333333],
+  [48.2, 0.019, 0.081],
+  [53.4, 0.0173333333, 0.0553333333]
+];
+// A28:G56: position, voltage at 13.3 mm, voltage at 28.3 mm.
+const lateralReadings = [
+  [43.3, 0.158566667, 0.0460333333],
+  [48.3, 0.159033333, 0.0472333333],
+  [53.3, 0.161366667, 0.0570333333],
+  [58.3, 0.206233333, 0.108633333],
+  [59.3, 0.300933333, 0.135033333],
+  [60.3, 0.363733333, 0.1534],
+  [61.3, 0.493, 0.1735],
+  [62.3, 0.629266667, 0.191366667],
+  [63.3, 0.815233333, 0.213266667],
+  [64.3, 0.8898, 0.229033333],
+  [65.3, 1.04943333, 0.244466667],
+  [66.3, 1.22293333, 0.274266667],
+  [67.3, 1.3449, 0.287033333],
+  [68.3, 1.45486667, 0.3092],
+  [73.3, 1.51783333, 0.328166667],
+  [78.3, 1.38293333, 0.243933333],
+  [79.3, 1.2149, 0.216133333],
+  [80.3, 1.07783333, 0.200633333],
+  [81.3, 0.895733333, 0.185233333],
+  [82.3, 0.679366667, 0.170933333],
+  [83.3, 0.515833333, 0.1528],
+  [84.3, 0.4009, 0.132633333],
+  [85.3, 0.285266667, 0.117033333],
+  [86.3, 0.239533333, 0.105533333],
+  [87.3, 0.194533333, 0.0859666667],
+  [88.3, 0.177566667, 0.079],
+  [93.3, 0.1701, 0.0482333333],
+  [98.3, 0.1764, 0.0438333333],
+  [103.3, 0.182266667, 0.0435666667]
+];
+// A64:G66: LED current (mA), black, white at 13.3 mm.
+const ledLow = [
+  [5.2, 0.0163666667, 0.180933333],
+  [24, 0.0822666667, 0.873566667],
+  [42, 0.335, 3.4]
+];
+// A69:G71: LED current (mA), black, white at 28.3 mm.
+const ledHigh = [
+  [5.2, 0.00493333333, 0.0365333333],
+  [24, 0.0252333333, 0.1969],
+  [42, 0.335, 3.4]
+];
+
+const labStripe = 17; // Nominal width of the white stripe used for the reference scan (mm).
+const benchLoad = 2700;
+const roomV = .000203, brightV = .004345; // Median of three LED-off readings, B7:D7 and B9:D9.
+const scans = {
+  low: {height:13.3, black:rawHeight[2][1], white:rawHeight[2][2], points:lateralReadings.map(([x,v])=>[x,v])},
+  high: {height:28.3, black:rawHeight[5][1], white:rawHeight[5][2], points:lateralReadings.map(([x,,v])=>[x,v])}
 };
 function normalCDF(z){
   const x=Math.abs(z),t=1/(1+.2316419*x);
@@ -182,62 +243,66 @@ function stripeResponse(x,width,sigma){
   const lo=clamp((-width/2-x)/sigma,-4,4),hi=clamp((width/2-x)/sigma,-4,4);
   return (normalCDF(hi)-normalCDF(lo))/kernelMass;
 }
-function fitScan(scan){
-  const [,black,white]=rawHeight[scan.row];
-  function score([centre,width,sigma],full=false){
-    if(width<=.03||sigma<=.015||sigma>2)return Infinity;
-    let loss=0,squared=0;
-    for(const [x,v] of scan.points){
-      const res=(v-black)/(white-black)-stripeResponse(x-centre,width,sigma),a=Math.abs(res);
-      loss+=a<.08?res*res/2:.08*(a-.04);squared+=res*res;
-    }
-    return full?Math.sqrt(squared/scan.points.length)*(white-black):loss;
+// Intersect the rising and falling edges independently, interpolating between ruler positions.
+function crossings(scan, level){
+  const target = scan.black + level * (scan.white - scan.black);
+  const edges = [];
+  for(let i=1;i<scan.points.length;i++){
+    const [x0,v0] = scan.points[i-1], [x1,v1] = scan.points[i];
+    if((v0 < target) !== (v1 < target)) edges.push(x0 + (target-v0)*(x1-x0)/(v1-v0));
   }
-  let best=[10,1.8,.2],loss=score(best);
-  for(let step=.3;step>.0001;step/=2){
-    for(let moves=0;moves<100;moves++){
-      let next=best;
-      for(let j=0;j<3;j++)for(const dir of [-1,1]){
-        const trial=[...best];trial[j]+=dir*step;const value=score(trial);
-        if(value<loss-1e-13){loss=value;next=trial;}
-      }
-      if(next===best)break;best=next;
-    }
-  }
-  return {centre:best[0],width:best[1],sigma:best[2],rmse:score(best,true)};
+  if(edges.length !== 2)throw Error('Expected two crossings in the reference scan');
+  return edges;
 }
-function heldOutError(scan){
-  // Leave all repeats at the same ruler position out together.
-  const [,black,white]=rawHeight[scan.row];let squared=0;
-  for(const x of new Set(scan.points.map(p=>p[0]))){
-    const fit=fitScan({row:scan.row,points:scan.points.filter(p=>p[0]!==x)});
-    const predicted=black+(white-black)*stripeResponse(x-fit.centre,fit.width,fit.sigma);
-    for(const [pos,v] of scan.points)if(pos===x)squared+=(predicted-v)**2;
-  }
-  return Math.sqrt(squared/scan.points.length);
+function calibrateScan(scan){
+  const [left,right] = crossings(scan,.5);
+  const [left25,right25] = crossings(scan,.25), [left75,right75] = crossings(scan,.75);
+  // The 25–75% rise of a Gaussian step spans 1.34898 standard deviations.
+  const sigma = ((left75-left25) + (right25-right75)) / (2*1.34898);
+  return {centre:(left+right)/2, width:right-left, sigma};
 }
-const fitted={};
-const roomV=.000084,brightV=.167; // LED off, median of the three observations in each condition.
+const fitted = {low:calibrateScan(scans.low),high:calibrateScan(scans.high)};
+function tableValue(rows,x,column){
+  if(x<=rows[0][0])return rows[0][column];
+  for(let i=1;i<rows.length;i++){
+    const a=rows[i-1],b=rows[i];
+    if(x<=b[0])return a[column]+(b[column]-a[column])*(x-a[0])/(b[0]-a[0]);
+  }
+  return rows.at(-1)[column];
+}
+function opticalCalibration(height){
+  const t=(height-scans.low.height)/(scans.high.height-scans.low.height);
+  const sigma=fitted.low.sigma+t*(fitted.high.sigma-fitted.low.sigma);
+  const width=fitted.low.width+t*(fitted.high.width-fitted.low.width);
+  // A monotone empirical transfer preserves black/white endpoints and the measured half-level width.
+  const gamma=Math.log(.5)/Math.log(stripeResponse(width/2,labStripe,sigma));
+  return {sigma,gamma};
+}
+function opticalSignal(model,fraction){
+  return model.gamma===1?fraction:Math.pow(fraction,model.gamma);
+}
 function readout(model,f,background){
-  const current=(model.iBlack+(model.iWhite-model.iBlack)*f)+background/3300;
+  const current=(model.iBlack+(model.iWhite-model.iBlack)*f)+background/benchLoad;
   const unclipped=current*model.load;
   const voltage=clamp(unclipped,0,model.supply-.2);
   const adc=Math.round(clamp(voltage/3.3,0,1)*4095);
   return {current,voltage,adc,rail:unclipped>=model.supply-.2,over:voltage>3.3};
 }
 function buildSensor(c){
-  const scan=c.spatial==='scan208'?scans.scan208:scans.scan308;
-  const [,black,white]=rawHeight[scan.row];
-  const currentMA=1000*(5-1.25)/c.ledR;
-  // Relative current response, working hypothesis: the 20 mA row has reversed headers.
-  // Use the independently recorded A34:C34 black/white endpoints as its reference.
-  const levels=[[5.2,.0359,.3812],[20,.1749,1.8248],[42,.335,3.4]];
-  const [low,high]=currentMA<=20?levels.slice(0,2):levels.slice(1);
-  const lerp=j=>low[j]+(high[j]-low[j])*(currentMA-low[0])/(high[0]-low[0]);
-  const gain=j=>(lerp(j)-roomV)/(levels[1][j]-roomV);
-  const model={iBlack:(black-roomV)*gain(1)/3300,iWhite:(white-roomV)*gain(2)/3300,
-    load:c.load,supply:c.rxV,currentMA,bg:c.light==='bright'?brightV:roomV,
-    sigma:c.spatial==='box'?null:fitted[c.spatial].sigma*c.unitScale};
+  const h=c.sensorHeight, currentMA=3750/c.ledR;
+  const heightMix=clamp((h-scans.low.height)/(scans.high.height-scans.low.height),0,1);
+  // The height scan does not specify LED current. Preserve its readings at the default 180 Ω.
+  const referenceMA=3750/180;
+  function gainAt(table,column){
+    return (tableValue(table,currentMA,column)-roomV)/(tableValue(table,referenceMA,column)-roomV);
+  }
+  function endpoint(column){
+    const lo=gainAt(ledLow,column),hi=gainAt(ledHigh,column);
+    return (tableValue(rawHeight,h,column)-roomV)*(lo+(hi-lo)*heightMix)/benchLoad;
+  }
+  const optics=c.spatial==='box'?{sigma:null,gamma:1}:opticalCalibration(h);
+  const model={...optics,iBlack:endpoint(1),iWhite:endpoint(2),load:c.load,supply:c.rxV,
+    currentMA,bg:c.light==='bright'?brightV:roomV};
   model.blackCode=readout(model,0,roomV).adc;model.whiteCode=readout(model,1,roomV).adc;
   model.valid=model.whiteCode>model.blackCode;
   return model;
@@ -246,11 +311,13 @@ function normalized(m,f){
   if(!m.valid)return 0;
   return clamp((readout(m,f,m.bg).adc-m.blackCode)/(m.whiteCode-m.blackCode),0,1);
 }
+function lateralSignal(c,x){
+  const m=c.sensor;
+  const f=m.sigma===null?overlap(x-c.spot/2,x+c.spot/2,-c.line/2,c.line/2)/c.spot:stripeResponse(x,c.line,m.sigma);
+  return opticalSignal(m,f);
+}
 function fractions1D(c,pos){
-  return c.positions.map(({right})=>{
-    const x=pos-right;
-    return c.sensor.sigma===null?overlap(x-c.spot/2,x+c.spot/2,-c.line/2,c.line/2)/c.spot:stripeResponse(x,c.line,c.sensor.sigma);
-  });
+  return c.positions.map(({right})=>lateralSignal(c,pos-right));
 }
 function paintTrack(track,width){
   // Straight stretches are each one polygon; arc strips share exact radial boundaries.
@@ -324,7 +391,7 @@ function sense(p,c,track){
   const ns=[],adc=[],volts=[];
   let hits=0,primary=0,backup=0,primaryWeight=0,backupWeight=0,primaryOffset=0,backupOffset=0;
   for(const {forward,right,role} of c.positions){
-    const q=at(p,c.look+forward,right),f=paintFraction(q,p.a,c,track.paint);
+    const q=at(p,c.look+forward,right),f=opticalSignal(c.sensor,paintFraction(q,p.a,c,track.paint));
     const bg=track.sections&&inLightZone(q,track.sections[1])?brightV:track.sections&&inLightZone(q,track.sections[5])?roomV:c.sensor.bg;
     const patch=track.sections&&c.surfaceBlack!=null&&c.surfaceWhite!=null&&inLightZone(q,track.sections[1],158);
     const response=patch?c.surfaceBlack+(c.surfaceWhite-c.surfaceBlack)*f:f;
@@ -584,10 +651,10 @@ function canvasFrame(canvas){
 }
 const names=['A','B'];
 const colour={A:'#236893',B:'#a25221'};
-const shared={surfaceBlack:null,surfaceWhite:null,grade:0,regime:'course',bendRadius:50,sRadius:125,gateWidth:280,gateLength:225,gapSize:6,controlRef:104,spatial:'scan308',unitScale:1,light:'room',aspect:1,wheelCap:0,line:17,spot:5,threshold:.5,speed:.5,startOffset:0,startYaw:0};
-const choices={controlRef:[30,50,75,104,150,200],spatial:['scan308','scan208','box'],unitScale:[1,10],light:['room','bright'],aspect:[.5,1,2],wheelCap:[0,.6,1],line:[14,17,20],spot:[2,5,8],threshold:[.35,.5,.65],speed:[.2,.4,.5,.8],startOffset:[-35,-15,0,15,35],startYaw:[-20,-10,0,10,20]};
+const shared={surfaceBlack:null,surfaceWhite:null,grade:0,regime:'course',bendRadius:50,sRadius:125,gateWidth:280,gateLength:225,gapSize:6,controlRef:104,spatial:'lab',light:'room',aspect:1,wheelCap:0,line:17,spot:5,threshold:.5,speed:.5,startOffset:0,startYaw:0};
+const choices={controlRef:[30,50,75,104,150,200],spatial:['lab','box'],light:['room','bright'],aspect:[.5,1,2],wheelCap:[0,.6,1],line:[14,17,20],spot:[2,5,8],threshold:[.35,.5,.65],speed:[.2,.4,.5,.8],startOffset:[-35,-15,0,15,35],startYaw:[-20,-10,0,10,20]};
 const designFields=[
-  ['ledR','LED 电阻 / Ω',100,700,.5],['load','接收 R2 / Ω',680,10000,10],['rxV','接收供电 / V',3,5,.1],
+  ['sensorHeight','探头离地高度 / mm',8,28.3,'any'],['ledR','LED 电阻 / Ω',100,700,.5],['load','接收 R2 / Ω',680,10000,10],['rxV','接收供电 / V',3,5,.1],
   ['pitch','预设横向间距',0,null,'any'],['boardWidth','板宽',0,null,'any'],['boardDepth','板深',0,null,'any'],['hole','端孔直径',0,null,'any'],
   ['length','底板长',0,null,'any'],['width','底板宽',0,null,'any'],['axle','驱动轮中心距',0,null,'any'],
   ['driveDiameter','驱动轮直径',0,null,'any'],['tyre','轮胎宽度',0,null,'any'],['maxRPM','轮速上限 / rpm（0 关闭）',0,null,'any'],
@@ -618,11 +685,10 @@ function positionsForLayout(c){
     return {right,forward};
   });
 }
-const base={outline:null,roles:null,mass:.92,gear:15,efficiency:.722,rolling:.0865,supplyV:9,height:100,driveDiameter:76,ballDiameter:19.05,maxRPM:0,layout:'row',customPositions:null,ledR:180,load:3300,rxV:5,pitch:8,boardWidth:56,boardDepth:24,hole:2.7,boardRight:0,length:140,width:100,axle:130,tyre:26,rearInset:28,casterInset:30,sensorInset:8,housingLength:30,housingWidth:26};
+const base={outline:null,roles:null,mass:.92,gear:15,efficiency:.722,rolling:.0865,supplyV:9,height:100,driveDiameter:76,ballDiameter:19.05,maxRPM:0,layout:'row',customPositions:null,sensorHeight:8,ledR:180,load:2700,rxV:5,pitch:8,boardWidth:56,boardDepth:24,hole:2.7,boardRight:0,length:140,width:100,axle:130,tyre:26,rearInset:28,casterInset:30,sensorInset:8,housingLength:30,housingWidth:26};
 const designs={A:{...base},B:{...base,layout:'distributed'}};
 function straightGate(c){return {x:0,y:0,a:0,length:c.gateLength,half:c.gateWidth/2};}
 const pose={depth:35,offset:25,yaw:18};
-const rawHeight=[[2.08,.3422,3.27],[2.56,.1749,1.8248],[3.08,.0904,.9459],[3.58,.0544,.5332],[4.08,.0365,.3327],[4.58,.0271,.1995],[5.05,.0211,.1504],[5.56,.017,.1065],[6.08,.0139,.0802],[6.57,.121,.0611],[7.09,.0102,.0479]];
 let mode='pcb',race=null,frame=0,raf=0,playing=false,startFrame=0,startTime=0;
 function conf(n,overrides={}){const c={...designs[n],...shared,...overrides};Object.assign(c,chassis(c));c.positions=sensorPositions(c).map(p=>({...p,right:p.mount==='body'?p.right:p.right+c.boardRight,forward:p.mount==='body'?p.forward-c.look:p.forward}));c.hasBoard=c.positions.some(p=>p.mount!=='body');c.sensor=buildSensor(c);return c;}
 const format=(v,suffix=' mm')=>v==null?'—':v.toFixed(1)+suffix;
@@ -643,7 +709,7 @@ function coverage(c){
   if(!c.positions.length)return {bands:[],extent:null,one:0,multi:0,blind:0,invalid:'无传感器'};
   // Only compare meaningful detections when calibration and background discrimination hold.
   if(!m.valid || normalized(m,0)>=c.threshold)return {bands:[],extent:null,one:0,multi:0,blind:140,invalid:!m.valid?'复标无跨度':'黑底已触发'};
-  const active=x=>normalized(m,m.sigma===null?overlap(x-c.spot/2,x+c.spot/2,-c.line/2,c.line/2)/c.spot:stripeResponse(x,c.line,m.sigma))>=c.threshold;
+  const active=x=>normalized(m,lateralSignal(c,x))>=c.threshold;
   if(!active(0))return {bands:[],extent:null,one:0,multi:0,blind:140,invalid:'白线上未触发'};
   let low=0,high=c.line/2+(m.sigma===null?c.spot:12*m.sigma);
   for(let i=0;i<45;i++){const mid=(low+high)/2;if(active(mid))low=mid;else high=mid;}
@@ -655,7 +721,7 @@ function coverage(c){
     bands.push({lo,hi,hits});
     if(hits===0)blind+=hi-lo;else if(hits===1)one+=hi-lo;else multi+=hi-lo;
   }
-  return {bands,low:cuts[0],extent:cuts.at(-1),one,multi,blind};
+  return {singleWidth:2*r,bands,low:cuts[0],extent:cuts.at(-1),one,multi,blind};
 }
 function assembly(c){
   const ys=c.positions.map(p=>p.right),xs=c.positions.map(p=>p.forward);
@@ -767,7 +833,7 @@ function drawBoard(n){
   }
   ctx.textAlign='left';ctx.font='11px monospace';ctx.fillStyle='#d9e2e6';ctx.fillText('X ↑',8,16);ctx.textAlign='right';ctx.fillText('Y →',w-8,h-18);
   byId('boardsLabel'+n).textContent=c.positions.length+' 路'+(c.positions.length>courseLimits.maxSensors?' · 超出课程六路上限':'');
-  byId('boardRead'+n).textContent=countOn(ns,c.threshold)+' 路触发　'+fractions1D(c,shift).map(f=>readout(c.sensor,f,c.sensor.bg).voltage.toFixed(2)).join(' / ')+(ns.length?' V':'');
+  byId('boardRead'+n).textContent='探头高度 '+format(c.sensorHeight)+' · '+heightBasis(c)+'　'+countOn(ns,c.threshold)+' 路触发　'+fractions1D(c,shift).map(f=>readout(c.sensor,f,c.sensor.bg).voltage.toFixed(2)).join(' / ')+(ns.length?' V':'');
 }
 function scanLimit(){
   return Math.max(70,...names.map(n=>{
@@ -792,20 +858,27 @@ function drawCapture(){
   ctx.fillStyle='#ab4f22';ctx.fillRect(X(+byId('shift').value),8,1.5,60);
 }
 function sweepRows(){
-  const cases=shared.spatial==='box'?choices.spot.map(spot=>({spot})):choices.unitScale.flatMap(unitScale=>['scan308','scan208'].map(spatial=>({unitScale,spatial})));
+  const cases=shared.spatial==='box'?choices.spot.map(spot=>({spot})):[...new Set([8,13.3,28.3,...names.map(n=>designs[n].sensorHeight)])].sort((a,b)=>a-b).map(sensorHeight=>({sensorHeight}));
   return [...new Set([...choices.line,shared.line])].sort((a,b)=>a-b).flatMap(line=>cases.map(params=>{
-    const overrides={line,...params};return {line,overrides,label:params.spatial?(params.spatial==='scan308'?'3.08':'2.08')+' cm × '+params.unitScale:params.spot+' mm',stats:names.map(n=>coverage(conf(n,overrides)))};
+    const overrides={line,...params};return {line,overrides,label:params.sensorHeight!=null?'探头高度 '+params.sensorHeight+' mm':params.spot+' mm',stats:names.map(n=>coverage(conf(n,overrides)))};
   }));
+}
+function heightBasis(c){
+  if(c.spatial==='box')return '均匀核假设';
+  if(c.sensorHeight<scans.low.height)return '外推';
+  if(c.sensorHeight===scans.low.height||c.sensorHeight===scans.high.height)return '实测标定';
+  return '插值';
 }
 function updatePCB(){
   const c=names.map(n=>conf(n)),fit=c.map(assembly),stats=c.map(coverage);
 byId('shift').min=-scanLimit();byId('shift').max=scanLimit();
   names.forEach(drawBoard);drawCapture();byId('shiftValue').textContent=format(+byId('shift').value);
-  const fitOptics=fitted[shared.spatial];
-  byId('physicsHint').textContent=fitOptics?'台架板高 '+rawHeight[scans[shared.spatial].row][0]+' cm　拟合条宽 '+format(fitOptics.width*shared.unitScale)+'　横向 σ '+format(fitOptics.sigma*shared.unitScale):'均匀光斑　黑白电压标定板高 3.08 cm';
+  byId('physicsHint').textContent='Sensors Lab · 2026-11-23 · 探头高度在参数面板中设置。';
   const rule=f=>c.map((v,i)=>f(v,fit[i],stats[i]));
   metrics('pcbMetrics',[
     ['5 V / 400 mA 供电 · 扣除各路 LED 后余额',...c.map(v=>format(400-v.positions.length*v.sensor.currentMA,' mA'))],
+    ['探头高度 / 横向响应依据',...c.map(v=>format(v.sensorHeight)+' · '+heightBasis(v))],
+    ['单颗探头触发总宽（当前白线与阈值）',...stats.map(v=>v.invalid||format(v.singleWidth))],
     ['LED 电流估算',...c.map(v=>format(v.sensor.currentMA,' mA'))],
     ['黑 / 白接收电压（当前照明）',...c.map(v=>[0,1].map(f=>readout(v.sensor,f,v.sensor.bg).voltage.toFixed(3)).join(' / ')+' V')],
     ['黑底至触发阈值余量（ADC 码）',...c.map(v=>{const m=v.sensor;return m.valid?Math.ceil(m.blackCode+v.threshold*(m.whiteCode-m.blackCode))-readout(m,0,m.bg).adc:'无法标定';})],
@@ -875,10 +948,10 @@ function vehicle(ctx,c,p,scale,n,signal,hit){
   ctx.restore();
 }
 function drawFit(name){
-  const scan=scans[name],fit=fitted[name],[,black,white]=rawHeight[scan.row];
+  const scan=scans[name],fit=fitted[name],{black,white}=scan,optics=opticalCalibration(scan.height);
   const {ctx,w,h}=canvasFrame(byId('fitPlot'+name));
   const left=39,right=w-14,top=11,bottom=h-27;
-  const x0=7,x1=13.5,maxV=Math.ceil(Math.max(white,...scan.points.map(p=>p[1]))*2)/2;
+  const x0=scan.points[0][0],x1=scan.points.at(-1)[0],maxV=Math.ceil(Math.max(white,...scan.points.map(p=>p[1]))*2)/2;
   const X=x=>left+(x-x0)/(x1-x0)*(right-left),Y=y=>bottom-(bottom-top)*y/maxV;
   ctx.font='10px monospace';ctx.fillStyle='#506069';
   for(const v of [0,maxV/2,maxV]){
@@ -886,10 +959,10 @@ function drawFit(name){
     ctx.textAlign='right';ctx.fillText(v.toFixed(2),left-3,Y(v)+3);
   }
   ctx.textAlign='center';
-  for(let x=7;x<=13;x++)ctx.fillText(String(x),X(x),bottom+12);
-  ctx.fillText(SimLocale.translate('横移读数（原表位置列）'),w/2,h-2);
+  for(let x=50;x<=100;x+=10)ctx.fillText(String(x),X(x),bottom+12);
+  ctx.fillText(SimLocale.translate('横移位置 / mm'),w/2,h-2);
   const points=Array.from({length:221},(_,i)=>{const x=x0+(x1-x0)*i/220;
-    return {x:X(x),y:Y(black+(white-black)*stripeResponse(x-fit.centre,fit.width,fit.sigma))};});
+    return {x:X(x),y:Y(black+(white-black)*opticalSignal(optics,stripeResponse(x-fit.centre,labStripe,fit.sigma)))};});
   line(ctx,points,'#29678b',1.6);
   ctx.fillStyle='#a24d22';for(const [x,v] of scan.points){ctx.beginPath();ctx.arc(X(x),Y(v),2.4,0,2*Math.PI);ctx.fill();}
 }
@@ -1114,7 +1187,6 @@ function render(){
   byId('conditions').querySelector('details').hidden=fixed;
   byId('raceView').querySelector('[data-shared=line]').closest('label').hidden=fixed;
   document.querySelectorAll('.boxField').forEach(e=>e.hidden=shared.spatial!=='box');
-  document.querySelectorAll('[data-shared=unitScale]').forEach(e=>e.disabled=shared.spatial==='box');
   if(mode==='pcb')updatePCB();
   if(mode==='cad')updateCAD();
   if(mode==='source')Object.keys(scans).forEach(drawFit);
@@ -1137,16 +1209,16 @@ function csvExport(){
   const columns=fn=>Array.from({length:count},(_,i)=>fn(i));
   const padded=arr=>columns(i=>arr[i]??'');
   const header=['analysis','design','uphill_deg',...designFields.map(([id])=>id+'_candidate_'+({ledR:'ohm',load:'ohm',rxV:'V',supplyV:'V',mass:'kg',efficiency:'ratio',gear:'ratio',rolling:'ratio',maxRPM:'rpm'}[id]||'mm')),'plate_vertices_forward_from_rear_and_right_mm','layout','sensor_count','PD_reference_mm',...columns(i=>['S'+(i+1)+'_mount','S'+(i+1)+'_role','S'+(i+1)+'_right_mm','S'+(i+1)+'_forward_from_rear_axle_mm']).flat(),'regime','gate_width_mm','gate_length_mm','single_bend_radius_mm','s_radius_mm','gap_mm','rear_axle_to_caster_mm','rear_axle_to_array_mm','line_mm','box_width_mm_if_used','threshold_assumption','optics','mm_per_raw_position','longitudinal_scale','lighting','wheel_cap_m_s_0_ideal'];
-  const baseRow=(view,n,c)=>[view,n,c.grade,...designFields.map(([k])=>k==='pitch'&&['custom','distributed'].includes(c.layout)?'':c[k]),plateVertices(c).map(([x,y])=>[x+c.rearInset,y].join(' ')).join('|'),c.layout,c.positions.length,c.controlRef,...columns(i=>{const p=c.positions[i];return p?[p.mount||'pcb',p.role,p.right,c.look+p.forward]:['','','',''];}).flat(),c.regime,c.gateWidth,c.gateLength,c.bendRadius,c.sRadius,c.gapSize,c.casterX,c.look,c.line,c.spot,c.threshold,c.spatial,c.unitScale,c.aspect,c.light,c.wheelCap];
+  const baseRow=(view,n,c)=>[view,n,c.grade,...designFields.map(([k])=>k==='pitch'&&['custom','distributed'].includes(c.layout)?'':c[k]),plateVertices(c).map(([x,y])=>[x+c.rearInset,y].join(' ')).join('|'),c.layout,c.positions.length,c.controlRef,...columns(i=>{const p=c.positions[i];return p?[p.mount||'pcb',p.role,p.right,c.look+p.forward]:['','','',''];}).flat(),c.regime,c.gateWidth,c.gateLength,c.bendRadius,c.sRadius,c.gapSize,c.casterX,c.look,c.line,c.spot,c.threshold,c.spatial,1,c.aspect,c.light,c.wheelCap];
   if(mode==='pcb'){
-    rows.push([...header,'offset_mm','edge_mm','package_gap_mm','fore_aft_edge_mm','capture_min_mm','capture_max_mm','multi_total_mm','internal_blind_mm','active',...columns(i=>'S'+(i+1)+'_normalized'),...columns(i=>'S'+(i+1)+'_V'),...columns(i=>'S'+(i+1)+'_ADC12')]);
+    rows.push([...header,'offset_mm','edge_mm','package_gap_mm','fore_aft_edge_mm','capture_min_mm','capture_max_mm','multi_total_mm','internal_blind_mm','single_sensor_trigger_width_mm','active',...columns(i=>'S'+(i+1)+'_normalized'),...columns(i=>'S'+(i+1)+'_V'),...columns(i=>'S'+(i+1)+'_ADC12')]);
     for(const n of names)for(const spec of sweepRows()){
       const c=conf(n,spec.overrides),s=coverage(c),fit=assembly(c);
       const limit=scanLimit();
       const step=Math.max(.5,limit/500);
       for(let j=0;j<=Math.floor(2*limit/step);j++){const shift=-limit+j*step;
         const ns=optical(c,shift);
-        rows.push([...baseRow('pcb',n,c),shift,fit.edge,fit.gap,fit.depth,s.low,s.extent,s.multi,s.blind,countOn(ns,c.threshold),...padded(ns),...padded(fractions1D(c,shift).map(f=>readout(c.sensor,f,c.sensor.bg).voltage)),...padded(fractions1D(c,shift).map(f=>readout(c.sensor,f,c.sensor.bg).adc))]);
+        rows.push([...baseRow('pcb',n,c),shift,fit.edge,fit.gap,fit.depth,s.low,s.extent,s.multi,s.blind,s.singleWidth,countOn(ns,c.threshold),...padded(ns),...padded(fractions1D(c,shift).map(f=>readout(c.sensor,f,c.sensor.bg).voltage)),...padded(fractions1D(c,shift).map(f=>readout(c.sensor,f,c.sensor.bg).adc))]);
       }
     }
   }else if(mode==='cad'){
@@ -1472,7 +1544,6 @@ function initWorkbench(){
   }
 }
 function init(){
-  for(const [name,scan] of Object.entries(scans))fitted[name]={...fitScan(scan),heldOut:heldOutError(scan)};
   makeTwins('boards',n=>'<div class="board-toolbar"><select id="pattern'+n+'" aria-label="方案 '+n+' 布局"></select><select id="zoom'+n+'" aria-label="方案 '+n+' 视图"><option value="car">整车</option><option value="pcb">布局放大</option></select><select id="pick'+n+'" aria-label="选中探头"></select><button id="add'+n+'">＋ 探头</button><details><summary>坐标与职责</summary><table class="coordinates" id="coordinates'+n+'"><thead><tr><th>通道</th><th>安装</th><th>职责</th><th>右 / mm</th><th>前 / mm</th><th></th></tr></thead><tbody></tbody></table></details></div><canvas tabindex="0" title="拖动探头；方向键微调 0.1 mm，Shift 加方向键调 1 mm。双击空白处添加。" class="boardplot" id="board'+n+'" aria-label="方案 '+n+' 传感器位置"></canvas><div class="view-status"><output id="pointer'+n+'">X —　Y — mm</output><span class="read" id="boardRead'+n+'"></span></div>');
   makeTwins('poses',n=>'<canvas class="cadplot" id="pose'+n+'" aria-label="方案 '+n+' 当前姿态及净空"></canvas><div class="read" id="poseRead'+n+'"></div>');
   makeTwins('maps',n=>'<canvas class="heatplot" id="map'+n+'" aria-label="方案 '+n+' 可行横偏与偏航角，亦可用上方数值框选取"></canvas>');
@@ -1489,7 +1560,7 @@ function init(){
   for(const [id,title,min,max,step] of designFields){
     const row=document.createElement('div');row.className='field';
     row.innerHTML='<span>'+title+'</span>'+names.map(n=>'<input type="number" id="'+id+n+'" aria-label="方案 '+n+' '+title+'">').join('');
-    const group=['ledR','load','rxV','pitch','boardWidth','boardDepth','hole','sensorInset','boardRight'].includes(id)?'sensor':
+    const group=['sensorHeight','ledR','load','rxV','pitch','boardWidth','boardDepth','hole','sensorInset','boardRight'].includes(id)?'sensor':
       ['mass','gear','efficiency','rolling','supplyV','maxRPM'].includes(id)?'drive':'chassis';
     inspectorGroups[group].append(row);
     for(const n of names){const el=byId(id+n);if(id==='sensorInset')el.title='¹ 负值表示板中心伸出车头。';Object.assign(el,{step,value:designs[n][id]});if(min!==null)el.min=min;if(max!==null)el.max=max;
@@ -1501,7 +1572,7 @@ function init(){
       };}
   }
   initCadDesign();names.forEach(layoutEditor);initCourse();initScan();
-  const labels={spatial:{scan308:'实测拟合 · 板高 3.08 cm',scan208:'实测拟合 · 板高 2.08 cm',box:'均匀核假设'},light:{room:'室内标定 / 室内运行',bright:'室内标定 / 强光运行'},unitScale:{1:'按表头 mm',10:'按 cm 试算'},wheelCap:{0:'理想跟随',0.6:'±0.6 m/s',1:'±1 m/s'}};
+  const labels={spatial:{lab:'Sensors Lab 高度模型',box:'均匀核假设'},light:{room:'室内标定 / 室内运行',bright:'室内标定 / 强光运行'},wheelCap:{0:'理想跟随',0.6:'±0.6 m/s',1:'±1 m/s'}};
   const units={controlRef:' mm',aspect:'×',line:' mm',spot:' mm',threshold:'',speed:' m/s',startOffset:' mm',startYaw:'°'};
   document.querySelectorAll('input[data-shared=line]').forEach(el=>el.onchange=()=>commitTrack('line',el.valueAsNumber));
   document.querySelectorAll('select[data-shared]').forEach(el=>{
@@ -1556,8 +1627,8 @@ function init(){
   byId('rewind').onclick=()=>jump(0);byId('time').oninput=e=>jump(+e.target.value);
   byId('rate').onchange=()=>{startFrame=frame;startTime=performance.now();};
   byId('export').onclick=csvExport;
-  byId('raw').innerHTML='<table class="metrics"><thead><tr><th>原表行</th><th>板面高度 cm</th><th>黑面 V</th><th>白线 V</th></tr></thead><tbody>'+rawHeight.map(([height,b,w],i)=>'<tr><td>'+(33+i)+'</td><td>'+height.toFixed(2)+'</td><td>'+b+'</td><td>'+w+'</td></tr>').join('')+'</tbody></table>';
-  byId('fitData').innerHTML='<table class="metrics"><tr><th>板高 / 有效配对点</th><th>拟合条宽（位置列单位）</th><th>横向 σ（位置列单位）</th><th>全点 RMSE</th><th>留位置验证 RMSE</th></tr>'+Object.entries(scans).map(([k,v])=>'<tr><td>'+rawHeight[v.row][0]+' cm / '+v.points.length+'</td><td>'+fitted[k].width.toFixed(3)+'</td><td>'+fitted[k].sigma.toFixed(3)+'</td><td>'+fitted[k].rmse.toFixed(3)+' V</td><td>'+fitted[k].heldOut.toFixed(3)+' V</td></tr>').join('')+'</table>';
+  byId('raw').innerHTML='<table class="metrics"><thead><tr><th>原表行</th><th>探头高度 mm</th><th>黑面 V</th><th>白线 V</th></tr></thead><tbody>'+rawHeight.map(([height,b,w],i)=>'<tr><td>'+(14+i)+'</td><td>'+height.toFixed(2)+'</td><td>'+b.toFixed(4)+'</td><td>'+w.toFixed(4)+'</td></tr>').join('')+'</tbody></table>';
+  byId('fitData').innerHTML='<table class="metrics"><tr><th>探头高度 mm</th><th>横移位置数</th><th>50% 触发总宽 / mm</th><th>横向 σ / mm</th></tr>'+Object.entries(scans).map(([k,v])=>'<tr><td>'+v.height+'</td><td>'+v.points.length+'</td><td>'+fitted[k].width.toFixed(2)+'</td><td>'+fitted[k].sigma.toFixed(2)+'</td></tr>').join('')+'</table>';
   new ResizeObserver(()=>{if(mode==='source')Object.keys(scans).forEach(drawFit);}).observe(byId('sources'));
   initWorkbench();
   if(new URLSearchParams(location.search).get('scenario')==='extreme'){

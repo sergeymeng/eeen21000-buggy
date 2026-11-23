@@ -8,37 +8,52 @@ const assert = require('node:assert/strict');
 const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
 const script = html.split('<script>')[1].split('</script>')[0].replace(/init\(\);\s*$/, '');
 const context = vm.createContext({});
-vm.runInContext(script + '\nfor(const [name,scan] of Object.entries(scans)) fitted[name]=fitScan(scan);', context);
-const model = vm.runInContext('({conf,course,paintTrack,paintFraction,footprint,clearance,sweptMinimum,simulate,advance,normalized,readout,stripeResponse,assembly,coverage,scans,fitted,gate:straightGate(shared),dt,at,fitScan,mountingIssue,partName,sense,casterVelocity,optical,crossesLineEnd,courseIssue,evaluateCandidate,scanCandidate,designIssue,driveLoad,straightGate,parseOutline,turnEnvelope,plateVertices,stageAt,stationPose,locateStation,stopRadius})',context);
+vm.runInContext(script,context);
+const model = vm.runInContext('({conf,course,paintTrack,paintFraction,footprint,clearance,sweptMinimum,simulate,advance,normalized,readout,stripeResponse,assembly,coverage,scans,fitted,gate:straightGate(shared),dt,at,mountingIssue,partName,sense,casterVelocity,optical,crossesLineEnd,courseIssue,evaluateCandidate,scanCandidate,designIssue,driveLoad,straightGate,parseOutline,turnEnvelope,plateVertices,stageAt,stationPose,locateStation,stopRadius})',context);
 function near(v, ref, tol){assert.ok(Math.abs(v-ref)<=tol,`${v} differs from ${ref} by more than ${tol}`);}
 
-test('bench voltage anchors, LED-off background and independent ADC clipping',()=>{
-  let c=model.conf('A',{ledR:187.5});
-  near(c.sensor.currentMA,20,1e-9);
-  near(model.readout(c.sensor,0,c.sensor.bg).voltage,.0904,1e-9);
-  near(model.readout(c.sensor,1,c.sensor.bg).voltage,.9459,1e-9);
-  c=model.conf('A',{spatial:'scan208',ledR:187.5,light:'bright'});
-  const out=model.readout(c.sensor,1,c.sensor.bg);
-  near(out.voltage,3.27+.167-.000084,1e-8);
+test('new workbook endpoint means, 2.7 kΩ feedback, background and ADC clipping',()=>{
+  const c=model.conf('A',{sensorHeight:8.1});
+  near(c.sensor.currentMA,3750/180,1e-9);
+  near(model.readout(c.sensor,0,c.sensor.bg).voltage,(.28+.273+.282)/3,1e-8);
+  near(model.readout(c.sensor,1,c.sensor.bg).voltage,(2.952+2.964+2.954)/3,1e-8);
+  const bright=model.conf('A',{sensorHeight:8.1,light:'bright'});
+  near(model.readout(bright.sensor,1,bright.sensor.bg).voltage,(2.952+2.964+2.954)/3+.004345-.000203,1e-8);
+  const boosted=model.conf('A',{sensorHeight:8.1,load:3300});
+  const out=model.readout(boosted.sensor,1,boosted.sensor.bg);
   assert.equal(out.adc,4095);assert.equal(out.over,true);assert.equal(out.rail,false);
-  const saturated=model.conf('B',{spatial:'scan208',load:10000,rxV:3.3});
+  const saturated=model.conf('B',{load:10000,rxV:3.3});
   assert.equal(model.readout(saturated.sensor,1,saturated.sensor.bg).rail,true);
-  assert.ok(model.readout(saturated.sensor,1,saturated.sensor.bg).voltage<3.3);
-  const washout=model.conf('A',{ledR:700,light:'bright',threshold:.35});
+  const dim=model.conf('A',{sensorHeight:8.1,ledR:700});
+  assert.ok(model.readout(dim.sensor,1,dim.sensor.bg).voltage<1);
+  const washout=model.conf('A',{sensorHeight:28.3,ledR:700,light:'bright',threshold:.03});
   assert.equal(model.coverage(washout).invalid,'黑底已触发');
 });
 
-test('finite stripe fitting recovers known geometry and retains all digitised observations',()=>{
-  const [b,w]=[.0904,.9459],points=[];
-  for(let i=0;i<=60;i++){const x=7+i*.1;points.push([x,b+(w-b)*model.stripeResponse(x-10,1.7,.25)]);}
-  const fit=model.fitScan({row:2,points});near(fit.width,1.7,.003);near(fit.sigma,.25,.002);
-  assert.equal(model.scans.scan308.points.length,24);assert.equal(model.scans.scan208.points.length,17);
-  near(model.fitted.scan308.width,1.85,.03);assert.ok(model.fitted.scan308.rmse>.2);
+test('measured stripe crossings and intermediate heights propagate to PCB and replay',()=>{
+  assert.equal(model.scans.low.points.length,29);assert.equal(model.scans.high.points.length,29);
+  near(model.fitted.low.width,18.37772,.00001);near(model.fitted.high.width,19.23044,.00001);
+  const t=model.course('gap');t.paint=model.paintTrack(t,17);
+  for(const h of [8,8.1,13.3,20,28.3]){
+    const c=model.conf('A',{sensorHeight:h,layout:'custom',customPositions:[{forward:0,right:0}]});
+    const expected=18.37772+(h-13.3)*(19.23044-18.37772)/15;
+    near(model.coverage(c).singleWidth,expected,.05); // Quantised black/white endpoints.
+    for(const offset of [0,5,expected/2-.1,expected/2+.1,16]){
+      const frame=model.sense({x:200-c.look,y:offset,a:0},c,t);
+      near(frame.ns[0],model.optical(c,offset)[0],.002);
+      assert.equal(frame.hits,Number(offset<expected/2));
+    }
+    for(const threshold of [.35,.65]){
+      const updated=model.coverage({...c,threshold}).singleWidth;
+      assert.ok(threshold<.5?updated>expected:updated<expected);
+    }
+  }
+  assert.ok(model.evaluateCandidate(model.scanCandidate('A',[['sensorHeight',6]]),'gap').issue);
 });
 
 test('track area integration matches analytic straight, gap and endpoint responses',()=>{
-  for(const spatial of ['box','scan308','scan208']){
-    const c=model.conf('A',{spatial,unitScale:10});
+  for(const opts of [{spatial:'box'},{sensorHeight:13.3},{sensorHeight:28.3}]){
+    const c=model.conf('A',opts);
     const t=model.course('gap'),paint=model.paintTrack(t,c.line),sig=c.sensor.sigma;
     const g=(pos,w)=>sig?model.stripeResponse(pos,w,sig):
       Math.max(0,Math.min(pos+c.spot/2,w/2)-Math.max(pos-c.spot/2,-w/2))/c.spot;
@@ -65,12 +80,12 @@ test('rotated rectangular footprint at a gap edge agrees with independent area s
 test('board edge, mirrored bends, cap and identical design control',()=>{
   near(model.assembly(model.conf('A')).edge,5.1,1e-8);
   near(model.assembly(model.conf('B',{layout:'row',pitch:10})).edge,.1,1e-8);
-  const c=model.conf('B',{layout:'row',pitch:10,unitScale:10,wheelCap:.6});
+  const c=model.conf('B',{layout:'row',pitch:10,sensorHeight:13.3,wheelCap:.6});
   const left=model.simulate(c,'left'),right=model.simulate(c,'right');
   assert.equal(left.frames.length,right.frames.length);
   assert.ok(left.frames.some(f=>Math.abs(f.cmdRight-f.right)>.01||Math.abs(f.cmdLeft-f.left)>.01));
   left.frames.forEach((f,i)=>{near(f.left,right.frames[i].right,1e-6);near(f.y,-right.frames[i].y,1e-5);});
-  const copy=model.simulate(model.conf('A',{pitch:10,unitScale:10,wheelCap:.6}),'left');
+  const copy=model.simulate(model.conf('A',{pitch:10,sensorHeight:13.3,wheelCap:.6}),'left');
   assert.deepEqual(left.frames,copy.frames);
 });
 
@@ -273,9 +288,9 @@ for(let round=0;round<100;round++){
     const modes=['steer','backup','log'],count=layout==='custom'?round%9:6;
     const roles=Array.from({length:count},(_,i)=>round%10===0?'log':round%10===1?'backup':round%10===2?'steer':modes[(i+round)%3]);
     const customPositions=Array.from({length:count},(_,i)=>({forward:random()*110-35,right:(i-(count-1)/2)*8,mount:'body'}));
-    const c=model.conf('A',{layout,roles,customPositions,spatial:['box','scan308','scan208'][round%3],
+    const c=model.conf('A',{layout,roles,customPositions,spatial:round%3?'lab':'box',
       pitch:5+random()*9,grade:random()*17,speed:.2+random()*.5,startYaw:(random()-.5)*10,startOffset:(random()-.5)*12,
-      unitScale:round%2?1:10,wheelCap:round%4?0:.4,line:14+random()*6,gapSize:random()*6});
+      sensorHeight:8+(round%30)*.7,wheelCap:round%4?0:.4,line:14+random()*6,gapSize:random()*6});
     // An asymmetric notched plate, varied over the experiment. Compare each extremum
     // with a separate rigid transform sampled at no more than 0.2 degrees.
     const nose=85+random()*105,left=-25-random()*75,right=40+random()*65;
@@ -391,7 +406,7 @@ test('100 candidate configurations can start independently on the limits circuit
   for(let i=0;i<100;i++){
     const n=i%2?'A':'B',start=sections[i%10];
     const c=model.conf(n,{pitch:5+i%6,speed:.25+.05*(i%7),height:183+i%25,axle:110+i%45,
-      controlRef:30+i%75,startOffset:i%9-4,light:i%4?'room':'bright',spatial:i%3===0?'box':i%3===1?'scan208':'scan308'});
+      controlRef:30+i%75,startOffset:i%9-4,light:i%4?'room':'bright',spatial:i%3===0?'box':'lab',sensorHeight:i%2?13.3:28.3});
     const r=model.simulate(c,'extreme',start),end=r.frames.at(-1);
     assert.ok(Number.isFinite(end.station)&&Number.isFinite(end.t));assert.ok(r.bleEvents<=1);
     assert.equal(r.frames[0].phase,start==='parking'?'home':'out');
