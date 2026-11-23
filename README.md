@@ -2,6 +2,16 @@
 
 循迹小车固件，目标平台为 Nucleo F401RE、mbed OS 6、Keil Studio，控制周期为 5 ms（200 Hz）。接口与参数依据 2026-11-16 固件开发文档。
 
+## 小车仿真器
+
+[打开综合极限赛道](https://20.254.34.113/eeen21000/buggy-sim/?scenario=extreme) · [仿真器源码](tools/buggy-sim/)
+
+可比较 A、B 两套车的 TCRT5000 布局、底盘净空和循迹表现。综合赛道支持全程往返和分段起跑。下载仓库后，可直接用浏览器打开 `tools/buggy-sim/index.html`。在仓库根目录运行模型测试：
+
+```sh
+node --test tools/buggy-sim/model.test.cjs
+```
+
 ## 硬件
 
 - Nucleo F401RE，STM32F401RET6，84 MHz，512 KB Flash，96 KB RAM

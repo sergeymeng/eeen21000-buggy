@@ -1,0 +1,1571 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小车设计对比 · EEEN21000</title>
+<style>
+:root{color-scheme:light;--ink:#232c32;--sub:#546068;--rule:#bdc6cb;--paper:#f7f8f8;--a:#236893;--b:#a25221;--mono:ui-monospace,Menlo,Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:#e6e9eb;color:var(--ink);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+header{background:#30373d;color:white}header>div,main{max-width:1590px;margin:auto}header>div,.bar,nav,.pair-label{display:flex;gap:12px;align-items:center}header>div{padding:9px 15px}h1,h2,h3,p{margin:0}h1{font-size:18px;font-weight:620}header small{font:12px var(--mono);color:#c5ced3}header button{margin-left:auto;color:#26323b}
+main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bottom:8px;overflow:auto}button,select,input{color:inherit;font:inherit}button,select,input[type=number]{font-size:13px;background:#fff;border:1px solid #a3b0b9;border-radius:3px;padding:3px 7px}button,select{cursor:pointer;min-height:29px}button:hover{background:#e1e8ec}button:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid #2682be;outline-offset:2px}nav button{padding:7px 17px;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;white-space:nowrap}nav button[aria-pressed=true]{border-color:var(--a);background:#f8f9f9;font-weight:700;color:#184f72}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 296px;gap:9px;align-items:start}.work,aside,.sources{min-width:0;background:var(--paper);border:1px solid var(--rule)}.bar{justify-content:space-between;flex-wrap:wrap;padding:7px 11px;border-bottom:1px solid var(--rule);background:#f0f2f3}h2{font-size:15px}h3{font-size:13px}.pad{padding:9px 12px}.small,small{font-size:12px;color:var(--sub)}.mono,output,td:not(:first-child){font-family:var(--mono);font-variant-numeric:tabular-nums}.controls{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;padding:7px 11px;border-block-end:1px solid var(--rule)}.controls label{font-size:12px}.controls output{color:var(--ink);font-size:12px}.controls input[type=range]{vertical-align:middle;max-width:125px}.controls input[type=number]{width:58px}.grow{flex:1;min-width:110px;max-width:none!important}input[type=range]{accent-color:var(--a)}
+.twins{display:grid;grid-template-columns:1fr 1fr}.pane{min-width:0}.pane+.pane{border-left:1px solid var(--rule)}.pair-label{background:#e9eef1;padding:4px 10px;gap:8px;font-size:12px}.pair-label strong,.ca{color:var(--a)}.pair-label.b strong,.cb{color:var(--b)}.pair-label.b{background:#f2ece6}canvas{display:block;width:100%}.boardplot{height:144px}.cadplot{height:207px}.heatplot{height:168px}.raceplot{height:clamp(190px,25vw,300px);background:#262c30}.scopeplot{height:135px}.strip{height:110px}.read{font:12px/1.65 var(--mono);padding:4px 9px;min-height:27px}.section{font-size:14px;padding:7px 11px;border-block:1px solid var(--rule);background:#eef1f2}.band{display:inline-block;width:12px;height:9px;margin:0 3px 0 8px}.metrics{width:100%;border-collapse:collapse;font-size:13px}.metrics th,.metrics td{padding:5px 10px;border-bottom:1px solid #d8dfe2;text-align:right}.metrics th:first-child,.metrics td:first-child{text-align:left}.metrics th{font-size:12px;font-weight:650}.metrics td{width:28%}.metrics td:first-child{width:44%}.metrics caption{text-align:left;padding:6px 10px;color:var(--sub);font-size:12px}.alert{color:#963c21}.fields{padding:0 10px}.field{display:grid;grid-template-columns:minmax(90px,1fr) 61px 61px;gap:5px;align-items:center;border-bottom:1px solid #dde2e5;padding:5px 0;font-size:12px}.field input{width:100%;font:12px var(--mono);text-align:right}.fields h3{margin-top:9px}.field small{font-size:10px}.field strong{text-align:right}.foot{margin:6px 10px;color:var(--sub);font-size:12px}.sources{padding:13px 16px}.sources h2,.sources h3{margin:8px 0 4px}.sources p{max-width:100ch;margin:6px 0}.sources table{max-width:850px}.sources #fitData{overflow-x:auto}a{color:#215d84}.status{font-size:12px;color:var(--sub);padding:5px 10px}.primary{background:#245c83;color:white;border-color:#245c83}.primary:hover{background:#174869}[hidden]{display:none!important}
+@media(max-width:880px){.layout{grid-template-columns:1fr}.fields{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.fields h3,.field.heading{grid-column:1/-1}.boardplot{height:130px}}@media(max-width:600px){main{padding:5px}.fields{display:block}header>div{padding:7px}header small{display:none}nav button{padding:7px 9px}.twins{grid-template-columns:1fr}.pane+.pane{border-left:0;border-top:1px solid var(--rule)}.metrics td,.metrics th{padding:4px 5px}.scopeplot{height:105px}.raceplot{height:185px}.boardplot{height:100px}.cadplot{height:170px}.heatplot{height:145px}.bar,.pad,.controls{padding:6px 8px}}
+.board-toolbar{display:flex;align-items:flex-start;gap:10px;padding:7px 10px 0}.board-toolbar details{flex:1;min-width:0}.board-toolbar summary{cursor:pointer;font-size:12px;line-height:27px}.coordinates{width:100%;table-layout:fixed;font-size:11px}.coordinates th{font-weight:500}.coordinates input{width:100%;min-width:0;text-align:center;padding:3px 0;font:11px var(--mono);appearance:textfield}.coordinates input::-webkit-inner-spin-button{display:none}.boardplot{touch-action:none;height:170px;cursor:crosshair}@media(max-width:1150px){.board-toolbar{flex-wrap:wrap}.board-toolbar details[open]{flex-basis:100%}}
+.board-toolbar{flex-wrap:wrap}.board-toolbar details[open]{flex-basis:100%}.coordinates td,.coordinates th{text-align:left}.coordinates th:first-child,.coordinates th:last-child{width:13%}.coordinates select{max-width:100%;font-size:12px}.coordinates input{padding:4px 1px}.boardplot{height:248px}.read{overflow-wrap:anywhere}
+</style><link rel="stylesheet" href="./workbench.css"><script src="./locale.js"></script></head><body>
+<header><div><h1>循迹小车仿真</h1><small>EEEN21000 / GROUP 52</small><div class="header-actions"><select id="language" data-language aria-label="Language / 语言"><option value="zh-CN" lang="zh-CN">简体中文</option><option value="en-GB" lang="en-GB">English (UK)</option></select><button id="export">导出当前对比 CSV</button></div></div></header>
+<main><nav aria-label="分析视图"><button data-view="pcb">传感器布局</button><button data-view="cad">CAD 几何</button><button data-view="race">整车回放</button><button data-view="sweep">参数扫描</button><button data-view="source">数据与假设</button></nav>
+<div id="conditions" class="controls"><label>工况 <select id="regime"><option value="course">课程工况</option><option value="free">自由工况</option></select></label><details><summary>赛道尺寸</summary><div class="controls" id="trackFields"></div></details><small role="status" id="courseStatus"></small></div>
+<div class="layout" id="layout" data-design="A"><section class="work">
+<div class="viewport-strip" id="viewportStrip"><div class="design-selector" role="group" aria-label="显示方案"><button data-design-mode="A" aria-pressed="true">方案 A</button><button data-design-mode="B" aria-pressed="false">方案 B</button><button data-design-mode="both" aria-pressed="false">并排比较</button></div><button id="inspectorToggle" aria-expanded="true" aria-controls="properties">参数面板</button></div>
+<div id="pcbView">
+<div class="instrument-bar"><div class="bar"><h2>TCRT5000 布局</h2><span class="instrument-type">X ↑　Y →　mm</span></div>
+<details class="setup"><summary>光学设置</summary><div class="controls"><label>光学模型 <select data-shared="spatial"></select></label><label>位置列单位 <select data-shared="unitScale"></select></label><label>照明 <select data-shared="light"></select></label><label>白线 <input type="number" step="any" data-shared="line"> mm</label><label class="boxField">均匀核宽 <select data-shared="spot"></select></label><label>判定阈值 <select data-shared="threshold"></select></label></div></details>
+</div><div class="twins" id="boards"></div>
+<div class="dock-tabs" role="group" aria-label="读数区"><button data-target="scanDock" aria-pressed="true">直线横移</button><button data-target="pcbData" aria-pressed="false">测量结果</button></div><div id="scanDock"><h3 class="section dock-caption">直线横移 <small>　触发通道数</small></h3>
+<canvas class="strip" id="capture" aria-label="方案 A、B 随横向位置变化的零路、单路和多路区间"></canvas>
+<div class="controls"><label for="shift">白线横移</label><input class="grow" id="shift" type="range" min="-70" max="70" step=".5" value="0"><output id="shiftValue"></output><small><i class="band" style="background:#e1e4e6"></i>0 路<i class="band" style="background:#b7cbd7"></i>1 路<i class="band" style="background:#416b83"></i>≥2 路</small></div>
+</div><div id="pcbData" hidden><div id="physicsHint" class="foot"></div><div id="pcbMetrics"></div><p class="foot">¹ 两侧孔均放在封装外侧，按裸孔直径计算。</p><div class="section">线宽与光斑扫描</div><p class="pad" id="trade"></p><details class="pad"><summary>各工况读数</summary><div id="sensitivity"></div></details></div>
+</div>
+<div id="cadView" hidden><div class="bar"><h2>窄道净空</h2><small><span id="gateLabel"></span></small></div>
+<div class="drawing-tabs" role="group" aria-label="CAD 视图"><button data-target="cadPose" aria-pressed="true">窄道净空</button><button data-target="cadTurn" aria-pressed="false">转弯占地</button></div><div id="cadPose"><div class="controls" id="poseFields"></div><div class="twins" id="poses"></div></div><div id="cadTurn" hidden><h3 class="section">转弯占地</h3><div class="controls"><label>后轴中心轨迹半径 <input id="turnInputradius" type="number" step="any" min="0" value="0"> mm</label><label>转角 <input id="turnInputangle" type="number" min="-360" max="360" step="any" value="180"> °</label></div><div class="twins" id="turns"></div><p class="foot">半径为零时绕后轴中心原地转向，负角左转。A、B 两图同一比例。虚线框给出整个转动过程在初始车头方向及其横向所需的空间，实色车身为终点姿态。</p></div>
+<div class="dock-tabs" role="group" aria-label="读数区"><button data-target="cadData" aria-pressed="true">测量结果</button><button data-target="cadMap" aria-pressed="false">偏航范围</button><button data-target="cadOutline" aria-pressed="false">底板轮廓</button></div><div id="cadData"><div id="cadMetrics"></div></div><div id="cadMap" hidden><div class="twins" id="maps"></div><p class="foot">点图可选姿态，蓝灰色为有净空区域</p></div><div id="cadOutline" hidden><details open class="pad"><summary>底板轮廓</summary><p>沿底板边缘依次输入顶点，每行一组向前、向右坐标（mm）。最靠后的点定义后缘，向右为正，车身中心线为零。改底板长或宽时，顶点沿对应方向缩放。</p><div class="twins" id="outlines"></div></details><p class="foot">窄点下限 280 mm 来自 Canvas §1.4。轮径初值 76 mm 来自组内 DR1 实测。底板、轮距、轮座和安装坐标取当前 A/B 输入。</p></div></div>
+<div id="raceView" hidden><div class="instrument-bar"><div class="bar"><h2>整车回放</h2><label>路段 <select id="scenario"><option value="s">S 弯 / 窄道</option><option value="left">左弯 / 窄道</option><option value="right">右弯 / 窄道</option><option value="gap">直道 / 断线</option><option value="extreme">综合极限赛道</option></select></label></div>
+<details class="setup"><summary>运行设置</summary><div class="controls"><label>光学模型 <select data-shared="spatial"></select></label><label>位置列单位 <select data-shared="unitScale"></select></label><label>照明 <select data-shared="light"></select></label><label>白线 <input type="number" step="any" data-shared="line"> mm</label><label class="boxField">均匀核宽 <select data-shared="spot"></select></label><label>阈值 <select data-shared="threshold"></select></label><label>纵向核倍率 <select data-shared="aspect"></select></label><label>PD 参考距离 <select data-shared="controlRef"></select></label><label>轮速上限 <select data-shared="wheelCap"></select></label><label>车速 <select data-shared="speed"></select></label><label>起步横偏 <select data-shared="startOffset"></select></label><label>起步偏航 <select data-shared="startYaw"></select></label></div></details>
+</div><div id="raceStartFields" class="controls" hidden><label>试跑范围 <select id="raceStart"></select></label><small id="courseLength"></small><details><summary>赛道工况</summary><p class="foot">1 起步　2 强光、6 mm 断线与 4 mm 接缝　3 双向 R50 交错弯　4 每 50 mm 最多折转 45°　5 上坡 17.9°　6 双侧距线 140 mm、挡墙高 50 mm、隧道高 200 mm　7 下坡 17.9°　8 两个 R50 直角弯　9 单次 BLE 掉头。线宽分段取 14、17、20 mm。可输入材料反射标定；台阶冲击与制动距离待实测。决赛可能出现更急弯道和其他障碍，课程未公布尺寸。</p></details></div><div class="twins" id="races"></div><div class="controls"><button class="primary" id="play">▶ 运行</button><button id="rewind">回起点</button><select id="rate" aria-label="回放倍率"><option value=".25">¼×</option><option selected value=".5">½×</option><option value="1">1×</option></select><input id="time" class="grow" type="range" min="0" step="1" aria-label="回放时间"><output id="clock"></output></div>
+<div class="dock-tabs" role="group" aria-label="读数区"><button data-target="scopeDock" aria-pressed="true">传感器响应</button><button data-target="runData" aria-pressed="false">测量结果</button></div><div id="scopeDock"><div id="scopes" class="twins"></div></div><div id="runData" hidden><div id="raceMetrics"></div><div class="controls" id="events"></div><p class="foot">主循迹有信号时负责转向，失线后备用探头接管。记录通道只输出波形。终点按首个控制探头中心越过白线端面计时。</p></div></div>
+<div id="sweepView" hidden><div class="bar"><h2>参数扫描</h2><button id="scanCSV" disabled>导出扫描 CSV</button></div>
+<div class="controls"><label>方案 <select id="scanDesign"><option>A</option><option>B</option></select></label><label>路段 <select id="scanScenario"><option value="s">S 弯 / 窄道</option><option value="left">左弯 / 窄道</option><option value="right">右弯 / 窄道</option><option value="gap">直道 / 断线</option><option value="extreme">综合极限赛道</option></select></label></div>
+<div id="sweepStartFields" class="controls" hidden><label>试跑范围 <select id="sweepStart"></select></label></div><div id="scanAxes"></div><div class="controls"><button class="primary" id="scanRun">运行扫描</button><output id="scanStatus"></output></div>
+<div style="overflow:auto"><table class="metrics"><thead><tr><th>变量 1</th><th>变量 2</th><th>路段结果</th><th>控制失线 ms</th><th>横向捕获区间 mm</th><th>内部盲区 mm</th><th>当前姿态净空 mm</th><th>行驶最小净空 mm</th><th>峰值轮速 rpm</th><th>直行需求 A / V</th><th>供电</th><th>隧道余量 mm</th><th>找回次数</th><th>最长找回 mm</th><th>封装</th></tr></thead><tbody id="scanBody"></tbody></table></div>
+<p class="foot">静态净空采用 CAD 页的后轴位置与偏航角。行驶净空取回放经过窄道时的上下界。</p></div>
+</section><aside id="properties"><div class="bar"><h2>设计参数</h2><button id="defaults">恢复示例</button></div><div class="property-units">尺寸单位 mm</div><div id="fields" class="fields"></div><div class="status" role="status" id="validation"></div><div class="controls"><button id="copyAB">复制 A 到 B</button></div></aside></div>
+<section id="sources" class="sources" hidden><h2>Handbook 与 Canvas 规格</h2><p>Canvas §1.4、§1.6 给出白线 17 ± 3 mm、平滑弯最小半径 50 mm、最小窄点 280 mm、断线最长 6 mm、至多六个循迹传感器。回放使用组合弯道和直道窄点。<a href="https://canvas.manchester.ac.uk/courses/89030/pages/1-introduction#Specification">Canvas 原文</a></p>
+<p>Canvas §1.4 另列折角弯每 50 mm 最多改向 45°、高架段挡墙最高 50 mm、坡角小于 18°、接缝台阶最高 4 mm、隧道限高 200 mm，以及预赛终点整车 200 mm 停车范围。综合赛道将这些条件分段组合。</p>
+<p>Canvas §1.6 要求使用配发的两套电机减速箱、电机驱动板、BLE 模块和指定电池组，电源须有串联开关。额外零件预算 £40，禁止使用成品循迹阵列。</p>
+<h2>综合极限赛道</h2><p>路线、段长与掉头位置为试验设置。去程和返程共用白线，直线段覆盖 14、17、20 mm 线宽，光照切换采用 Lab 2 室内与强光背景。4 mm 台阶、材料变化与日照反射率需实测。高架段用 50 mm 侧墙的平面边界，窄道宽 280 mm，隧道限高 200 mm。坡度取 ±17.9°，匀速上坡检查 DR1 的电压和电流需求；坡道轨迹为俯视运动学。掉头由一个虚拟 BLE 事件触发，轮速限幅作用于原地转向。回程越过线尾并失线 20 mm 后发停车指令，以车身最远点检查 200 mm 范围；实际制动距离需实测。</p><h2>底盘依据</h2>
+<p>Handbook 印刷页 28 指明两个驱动轮，第 42 页 §8.9 列出电机减速箱与车轮、Ball castor #955 及试验底盘（图未按比例绘制）。两个后轮差速驱动，前端由一只球形万向轮支承。后轴中心为平面运动基准，钢球随车体自由滚动。车体转动时，球心的侧向速度等于后轴角速度乘以后轴至球心距离。<cite>Handbook 第 42 页</cite></p>
+<p>OneDrive 的 DR1 记录驱动轮实测直径 76 mm。Management project / Productcost.docx 列一只 3/4 英寸金属球万向轮，球径换算为 19.05 mm。Handbook 第 90 页 §16.2 指定 Acetal；组内物料表列一张 250 × 250 × 3 mm 板材。轮径、球径和底板成品尺寸均可扫参。</p>
+<p>底板、轮距、胎宽、轮座外廓和安装坐标均为方案输入。窄道净空取有限道长内各部件最靠近侧壁的位置。转弯占地按刚体、车轮无侧滑计算整个转角内的外框，包含底板、驱动轮、万向轮、传感器板和探头。图上只绘出选定姿态；计算包含姿态之间的极值。实车装有外伸线束或支架时，还需核对其外廓。</p>
+<p>课程模型含万向轮总成、轮座、轮胎和电机组件。<a href="https://canvas.manchester.ac.uk/courses/89030/modules/items/4101721">Canvas 机械模型</a></p>
+<h2>驱动与供电</h2><p>Handbook §9.3.1 给出隔离电源 5 V / 400 mA、驱动板每通道约 10 V / 1.8 A。PCB 页的电流余额还需分配给 Nucleo、编码器与接收电路。</p><p>OneDrive · Group 52 DR1，第 2、4、6 页。匀速直行按两轮均分牵引力，使用滚阻拟合斜率 0.0865、电枢电阻 1.7548 Ω、转矩拟合 T = 0.00775 I − 0.00124、反电动势拟合 E = 0.007259 ω + 0.9310。质量 0.920 kg、减速比 15、齿轮总效率 0.722 是 DR1 的计算取值。扫描分别报告直行供电和循迹结果。回放按轮速指令运动，可设置轮端 rpm 限幅。</p>
+<h2>零件与测量</h2><p>ESP Technical Handbook 2026–27 印刷页 66 给出 TCRT5000 外形 10.2 × 5.8 × 7 mm；页 61–62 描述黑白反射测试，页 72 给出差速运动关系。OneDrive 中 Group 52 的 DR1 记录轮径 76 mm，Productcost.docx 列出六个 TCRT5000，第八周周报记录六路模拟输入。安装坐标以后轴中心为原点。板上通道随 PCB 移动，独立安装通道固定在车架坐标。封装长边沿车身纵向，探头朝地面。</p>
+<h3>台架原始读数 · tcrt5000.xlsx / Sheet1!A32:C43</h3><p>原表 A 列以板面离线高度（cm）记数，F32 另注检测面到板非金属面 19 mm。两参考面一致时，2.56 cm 对应感光面高度 6.6 mm。第 42 行黑电压高于白电压，第 80 行的黑白顺序与第 34 行相反，均保留原记录。<a href="https://livemanchesterac-my.sharepoint.com/shared?id=%2Fpersonal%2Fchenxi_shen_student_manchester_ac_uk%2FDocuments%2FApps%2FEEEN21000%20Embedded%20Systems%2Flab2%20sensor">OneDrive 实验目录</a></p><div id="raw"></div><h3>横移曲线拟合</h3><div id="fitData"></div><div class="twins"><div><h3>板面 3.08 cm · 电压 V</h3><canvas class="heatplot" id="fitPlotscan308" aria-label="板高3.08厘米时原始横移电压及拟合"></canvas></div><div><h3>板面 2.08 cm · 电压 V</h3><canvas class="heatplot" id="fitPlotscan208" aria-label="板高2.08厘米时原始横移电压及拟合"></canvas></div></div><p>橙点为原始读数，蓝线为拟合。3.08 cm 扫描左端两点明显偏离曲线；留位置验证每次移除同一位置的全部读数，重新拟合并预测被移除的电压。</p>
+<h2>试算模型</h2><p>TCRT5000 的 950 nm 发射管与光电三极管朝向同一面。黑面也会反光，白线边缘的响应由照明与接收视场共同决定。手册第 67 页图 3 区分封装表面工作距离与台架基准；图 8 的 CTR 随 LED 电流而变。电压标定采用组内黑白面实测值。</p>
+<p>横向核：用有限宽白条与高斯核的卷积拟合各板高下的扫描电压，黑白端点取同高度的 A33:C33、A35:C35，同时估计条中心、条宽及横向 σ。采用 Huber 损失（归一化转折点 0.08），表中 RMSE 包括异常点。用 3.08 的 A48:B61、D52:E61，保留 B48 的 0.997 V 和 B49；2.08 用 A48:A60 对 H48:H60（G 列重写处数值相同）以及 J57:K60。无成对位置的散点不参加拟合。扫描单位按表头 mm 为初始值；“按 cm 试算”整体放大十倍。位置列单位尚未独立标定。</p>
+<p>二维光学：拟合得到横向权重，纵向宽度是可调的试算假设。对随车旋转的响应核在实际白线区域积分；弯道用相邻的条带多边形，弧长步距最多 4 mm，R50 及 20 mm 线宽时外边弦误差小于 0.05 mm。断线直接挖空。高斯核在 ±4σ 截断并归一化，纵向用三点高斯积分，均匀核模式按相交面积计算。</p>
+<p>接收电路采用 OneDrive 的 Prelab list.docx 电路图：LED 侧 5 V，Vf 取 1.25 V，接收侧从发射极负载 R2 取压，基准 R2 = 3.3 kΩ。按 IF = (5 − Vf)/R 估算 LED 电流。用 A79:C81 的 5.2、42 mA 两端以及 A34:C34 作为 20 mA 的黑白锚点，按黑面、白面分别插值相对光电流（以发射极负载电流近似光电流），再迁移到所选板高。20 mA 列序、台架实际 R2 和跨高度的增益迁移均需复测。此范围之外不外推 LED 电流。</p>
+<p>暗态与环境光：室内 LED 关闭的中位数为 0.084 mV，强光三次的中位数为 0.167 V（B26:D26、B29:D29），均按基准负载换算成电流；暗电流包含在这项读数内。模型先从高度扫描中扣除室内背景，加入选定工况的背景，再乘候选负载。按假设 VCE 饱和余量 0.2 V 做接收上限，3.3 V、12 位 ADC 做量化与截顶；按室内黑白 ADC 码复标。强光保持原阈值，故有可能误触发。</p>
+<p>CAD 以自定义或矩形 Acetal 底板、两个后驱动轮、前万向轮座矩形外廓、PCB 和各探头封装计算净空。图上显示进入窄道的部分到侧界的横向距离。包络给出选定姿态的几何余量，未计螺头、线束、制造误差与结构变形。</p>
+<p>回放每 5 ms 更新，按当前控制组内触发探头的横向坐标与归一化输出求加权平均，用于 PD 转向。两车用相同控制律，Kp = 2/L²，其中 L 为回放中的 PD 参考距离（mm），两车共用、Kd = 0.008/mm、20 ms 微分滤波、曲率限幅 ±0.035/mm。默认起步时轴心位于直线中心，失线后维持方向，盲行 20 mm 结束。每步按实际左右轮速积分圆弧，短赛道时限 15 s；综合赛道按线长和设定速度计算时限，最多 180 s。连续净空下界按车轴速度与最大角点速度扩张窄道入口，递归细分可能更危险的帧间区段；上界取实际检查姿态中的最小值，目标上下界差 0.1 mm。</p><h2>往届对照 · 2023/24 Group 48</h2><p>该组公开的 KiCad 板上 U1–U6 单排，中心距 20 mm，首末中心相距 100 mm。他们的算法逐路归一化，用最大与最小读数之差判线，丢线后按最近一次转向的符号寻线。对照实验可在参数扫描中改变间距，观察捕获区间和内部盲区。<a href="https://www.linkedin.com/pulse/2nd-year-embedded-systems-project-final-race-winner-hakeem-jfuzf/">比赛复盘</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/tree/master/hardware/Sensor%20PCB">PCB 原文件</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/blob/master/src/sensor_array.cpp">传感器程序</a></p></section>
+</main><script>
+'use strict';
+const dt = 0.005;
+const clamp = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
+const rad = deg => deg*Math.PI/180;
+const byId = id => document.getElementById(id);
+function at(p,forward,right){
+  const c=Math.cos(p.a), s=Math.sin(p.a);
+  return {x:p.x+forward*c-right*s,y:p.y+forward*s+right*c};
+}
+// Stress-course lengths and ordering are test fixtures. Limits come from Canvas §1.4.
+const stages=[
+  ['launch','起步直道'],['joint','强光与接缝'],['chicane','交错急弯'],['corners','连续折角'],
+  ['climb','上坡'],['tunnel','高架窄道与隧道'],['descent','下坡'],['hairpins','组合回头弯'],['return','掉头直道']
+];
+function extremeCourse(){
+  const points=[{x:0,y:0,a:0,s:0}],edges=[],sections=[];
+  let heading=0,width=17,section;
+  function begin(id,w){
+    width=w;section={id,width:w,start:points.at(-1).s,pose:points.at(-1),end:0};sections.push(section);
+  }
+  function add(length,k=0,paint=true){
+    const first=points.at(-1),steps=k?Math.ceil(length/3):1;
+    for(let i=1;i<=steps;i++){
+      const distance=length*i/steps,a=heading+k*distance;
+      const q=k?{x:first.x+(Math.sin(a)-Math.sin(heading))/k,y:first.y+(Math.cos(heading)-Math.cos(a))/k}:at({...first,a:heading},distance,0);
+      const end={...q,a,s:first.s+distance},start=points.at(-1);
+      edges.push({start,end,a0:heading+k*length*(i-1)/steps,a1:a,width,paint,section:section.id});
+      points.push(end);
+    }
+    heading+=k*length;section.end=points.at(-1).s;
+  }
+  function bend(angle){add(50*Math.abs(rad(angle)),Math.sign(angle)/50);}
+  begin('launch',17);add(340);
+  begin('joint',14);add(152);add(6,0,false);add(152);
+  begin('chicane',14);for(const turn of [90,-90,-90,90])bend(turn);
+  begin('corners',20);add(70);
+  for(const [turn,len] of [[-45,50],[-45,140],[45,50],[-45,130]]){heading+=rad(turn);add(len);}
+  begin('climb',17);add(240);
+  const bridgeStart=section.pose;
+  begin('tunnel',14);const tunnel={...section.pose,length:240,half:140};add(tunnel.length);
+  begin('descent',20);add(240);
+  const gate={...bridgeStart,length:points.at(-1).s-bridgeStart.s,half:140};
+  begin('hairpins',20);add(220);bend(90);add(330);bend(90);add(220);
+  begin('return',17);add(480);
+  const track={points,edges,sections,gate,tunnel,end:points.at(-1),gap:null,widthAtFinish:17,
+    bleStation:points.at(-1).s-180,stepStation:sections[1].start+155};
+  // At an angular join, both segments share the mitered cross-section.
+  function side(p,a,b,offset){
+    const turn=Math.atan2(Math.sin(b-a),Math.cos(b-a));
+    return at({...p,a:a+turn/2},0,offset/Math.cos(turn/2));
+  }
+  for(let i=0;i<edges.length;i++){
+    const e=edges[i],prev=edges[i-1],next=edges[i+1];
+    const boundary=(end,offset)=>end?side(e.end,e.a1,next?.a0??e.a1,offset):side(e.start,prev?.a1??e.a0,e.a0,offset);
+    e.poly=[boundary(false,-e.width/2),boundary(true,-e.width/2),boundary(true,e.width/2),boundary(false,e.width/2)];
+  }
+  return track;
+}
+function stageName(id){return stages.find(stage=>stage[0]===id)?.[1]||'—';}
+function locateStation(p,track){
+  let best=Infinity,station=0;
+  for(const e of track.edges){
+    const dx=e.end.x-e.start.x,dy=e.end.y-e.start.y;
+    const t=clamp(((p.x-e.start.x)*dx+(p.y-e.start.y)*dy)/(dx*dx+dy*dy),0,1);
+    const d=(p.x-e.start.x-t*dx)**2+(p.y-e.start.y-t*dy)**2;
+    if(d<best){best=d;station=e.start.s+t*(e.end.s-e.start.s);}
+  }
+  return station;
+}
+function stationPose(track,s){
+  const e=track.edges.find(edge=>edge.end.s>s)||track.edges.at(-1);
+  const t=clamp((s-e.start.s)/(e.end.s-e.start.s),0,1);
+  return {x:e.start.x+t*(e.end.x-e.start.x),y:e.start.y+t*(e.end.y-e.start.y),a:e.a0+t*(e.a1-e.a0)};
+}
+function stageAt(track,s){return track.sections.find(zone=>s<zone.end)||track.sections.at(-1);}
+function inLightZone(q,zone,from=0){
+  const dx=q.x-zone.pose.x,dy=q.y-zone.pose.y,co=Math.cos(zone.pose.a),si=Math.sin(zone.pose.a);
+  const along=dx*co+dy*si;
+  return along>=from && along<zone.end-zone.start && Math.abs(dy*co-dx*si)<=140;
+}
+function stopRadius(p,parts){
+  return Math.max(...parts.flat().map(([x,y])=>{const q=at(p,x,y);return Math.hypot(q.x,q.y);}));
+}
+
+function course(kind,c=shared){
+  if(kind==='extreme')return extremeCourse();
+  const points=[{x:0,y:0,a:0,s:0}];
+  function add(len,k=0){
+    const start=points.at(-1), count=Math.min(4000,Math.ceil(len/4));
+    for(let i=1;i<=count;i++){
+      const ds=len*i/count, a=start.a+k*ds;
+      const pos=k ? {x:start.x+(Math.sin(a)-Math.sin(start.a))/k,
+                     y:start.y+(Math.cos(start.a)-Math.cos(a))/k} : at(start,ds,0);
+      points.push({...pos,a,s:start.s+ds});
+    }
+  }
+  add(275);
+  let gate=null, gap=null;
+  if(kind==='gap'){
+    gap=360; add(500);
+  }else{
+    if(kind==='s'){add(c.sRadius*rad(65),1/c.sRadius); add(c.sRadius*rad(65),-1/c.sRadius);}
+    else{add(c.bendRadius*Math.PI/2,(kind==='left'?-1:1)/c.bendRadius); add(120);}
+    gate={...points.at(-1),length:c.gateLength,half:c.gateWidth/2}; add(c.gateLength+225);
+  }
+  return {points,gate,gap,gapSize:c.gapSize,end:points.at(-1)};
+}
+const overlap=(a,b,c,d)=>Math.max(0,Math.min(b,d)-Math.max(a,c));
+// Measured lateral scan of a finite white stripe (raw ruler coordinates).
+// Columns with no paired position are deliberately not used.
+const scans={
+  scan308:{row:2,points:[[7,.997],[7.5,.992],[8,.1025],[8.5,.1245],[9,.3893],[9.5,.8934],[10,1.0082],[10.5,.943],[11,.5075],[11.5,.1252],[12,.103],[12.5,.1004],[13,.1012],[13.5,.1024],[9.1,.5056],[9.2,.5988],[9.3,.7481],[9.4,.82],[9.5,.896],[11.1,.307],[11.2,.2362],[11.3,.1777],[11.4,.1385],[11.5,.1198]]},
+  scan208:{row:0,points:[[7,.3267],[7.5,.3264],[8,.333],[8.5,.332],[9,.9381],[9.5,3.019],[10,3.057],[10.5,3.045],[11,1.356],[11.5,.34],[12,.328],[12.5,.324],[13,.327],[11.1,.6484],[11.2,.41],[11.3,.3607],[11.4,.345]]}
+};
+function normalCDF(z){
+  const x=Math.abs(z),t=1/(1+.2316419*x);
+  const tail=.3989422804*Math.exp(-x*x/2)*t*(.319381530+t*(-.356563782+t*(1.781477937+t*(-1.821255978+1.330274429*t))));
+  return z<0?tail:1-tail;
+}
+const kernelMass=normalCDF(4)-normalCDF(-4);
+function stripeResponse(x,width,sigma){
+  const lo=clamp((-width/2-x)/sigma,-4,4),hi=clamp((width/2-x)/sigma,-4,4);
+  return (normalCDF(hi)-normalCDF(lo))/kernelMass;
+}
+function fitScan(scan){
+  const [,black,white]=rawHeight[scan.row];
+  function score([centre,width,sigma],full=false){
+    if(width<=.03||sigma<=.015||sigma>2)return Infinity;
+    let loss=0,squared=0;
+    for(const [x,v] of scan.points){
+      const res=(v-black)/(white-black)-stripeResponse(x-centre,width,sigma),a=Math.abs(res);
+      loss+=a<.08?res*res/2:.08*(a-.04);squared+=res*res;
+    }
+    return full?Math.sqrt(squared/scan.points.length)*(white-black):loss;
+  }
+  let best=[10,1.8,.2],loss=score(best);
+  for(let step=.3;step>.0001;step/=2){
+    for(let moves=0;moves<100;moves++){
+      let next=best;
+      for(let j=0;j<3;j++)for(const dir of [-1,1]){
+        const trial=[...best];trial[j]+=dir*step;const value=score(trial);
+        if(value<loss-1e-13){loss=value;next=trial;}
+      }
+      if(next===best)break;best=next;
+    }
+  }
+  return {centre:best[0],width:best[1],sigma:best[2],rmse:score(best,true)};
+}
+function heldOutError(scan){
+  // Leave all repeats at the same ruler position out together.
+  const [,black,white]=rawHeight[scan.row];let squared=0;
+  for(const x of new Set(scan.points.map(p=>p[0]))){
+    const fit=fitScan({row:scan.row,points:scan.points.filter(p=>p[0]!==x)});
+    const predicted=black+(white-black)*stripeResponse(x-fit.centre,fit.width,fit.sigma);
+    for(const [pos,v] of scan.points)if(pos===x)squared+=(predicted-v)**2;
+  }
+  return Math.sqrt(squared/scan.points.length);
+}
+const fitted={};
+const roomV=.000084,brightV=.167; // LED off, median of the three observations in each condition.
+function readout(model,f,background){
+  const current=(model.iBlack+(model.iWhite-model.iBlack)*f)+background/3300;
+  const unclipped=current*model.load;
+  const voltage=clamp(unclipped,0,model.supply-.2);
+  const adc=Math.round(clamp(voltage/3.3,0,1)*4095);
+  return {current,voltage,adc,rail:unclipped>=model.supply-.2,over:voltage>3.3};
+}
+function buildSensor(c){
+  const scan=c.spatial==='scan208'?scans.scan208:scans.scan308;
+  const [,black,white]=rawHeight[scan.row];
+  const currentMA=1000*(5-1.25)/c.ledR;
+  // Relative current response, working hypothesis: the 20 mA row has reversed headers.
+  // Use the independently recorded A34:C34 black/white endpoints as its reference.
+  const levels=[[5.2,.0359,.3812],[20,.1749,1.8248],[42,.335,3.4]];
+  const [low,high]=currentMA<=20?levels.slice(0,2):levels.slice(1);
+  const lerp=j=>low[j]+(high[j]-low[j])*(currentMA-low[0])/(high[0]-low[0]);
+  const gain=j=>(lerp(j)-roomV)/(levels[1][j]-roomV);
+  const model={iBlack:(black-roomV)*gain(1)/3300,iWhite:(white-roomV)*gain(2)/3300,
+    load:c.load,supply:c.rxV,currentMA,bg:c.light==='bright'?brightV:roomV,
+    sigma:c.spatial==='box'?null:fitted[c.spatial].sigma*c.unitScale};
+  model.blackCode=readout(model,0,roomV).adc;model.whiteCode=readout(model,1,roomV).adc;
+  model.valid=model.whiteCode>model.blackCode;
+  return model;
+}
+function normalized(m,f){
+  if(!m.valid)return 0;
+  return clamp((readout(m,f,m.bg).adc-m.blackCode)/(m.whiteCode-m.blackCode),0,1);
+}
+function fractions1D(c,pos){
+  return c.positions.map(({right})=>{
+    const x=pos-right;
+    return c.sensor.sigma===null?overlap(x-c.spot/2,x+c.spot/2,-c.line/2,c.line/2)/c.spot:stripeResponse(x,c.line,c.sensor.sigma);
+  });
+}
+function paintTrack(track,width){
+  // Straight stretches are each one polygon; arc strips share exact radial boundaries.
+  const tiles=[],pts=track.points;
+  if(track.edges)return track.edges.filter(e=>e.paint).map(({poly})=>({poly,xmin:Math.min(...poly.map(p=>p.x)),xmax:Math.max(...poly.map(p=>p.x)),ymin:Math.min(...poly.map(p=>p.y)),ymax:Math.max(...poly.map(p=>p.y))}));
+  function add(a,b){
+    const poly=[at(a,0,-width/2),at(b,0,-width/2),at(b,0,width/2),at(a,0,width/2)];
+    tiles.push({poly,xmin:Math.min(...poly.map(p=>p.x)),xmax:Math.max(...poly.map(p=>p.x)),
+      ymin:Math.min(...poly.map(p=>p.y)),ymax:Math.max(...poly.map(p=>p.y))});
+  }
+  if(track.gap!==null){
+    if(track.gap-track.gapSize/2>0)add(pts[0],{x:track.gap-track.gapSize/2,y:0,a:0});
+    if(track.gap+track.gapSize/2<track.end.x)add({x:track.gap+track.gapSize/2,y:0,a:0},track.end);
+  }else{
+    let i=0;
+    while(i<pts.length-1){
+      let j=i+1;
+      while(j<pts.length-1&&pts[j].a===pts[i].a&&pts[j+1].a===pts[i].a)j++;
+      add(pts[i],pts[j]);i=j;
+    }
+  }
+  return tiles;
+}
+const nodes=[-.7745966692,0,.7745966692],weights=[5/9,8/9,5/9];
+function paintFraction(q,angle,c,tiles){
+  const sigma=c.sensor.sigma,gauss=sigma!==null;
+  const ry=gauss?4*sigma:c.spot/2,rx=ry*c.aspect;
+  const ca=Math.cos(angle),sa=Math.sin(angle),boundX=Math.abs(ca)*rx+Math.abs(sa)*ry,boundY=Math.abs(sa)*rx+Math.abs(ca)*ry;
+  const norm=kernelMass;
+  let total=0;
+  for(const tile of tiles){
+    if(q.x+boundX<tile.xmin||q.x-boundX>tile.xmax||q.y+boundY<tile.ymin||q.y-boundY>tile.ymax)continue;
+    const poly=tile.poly.map(p=>{const dx=p.x-q.x,dy=p.y-q.y;return {x:dx*ca+dy*sa,y:-dx*sa+dy*ca};});
+    // Partition at all vertices and at intersections with the lateral support boundary.
+    const cuts=[-rx,rx];
+    for(let i=0;i<4;i++){
+      const a=poly[i],b=poly[(i+1)%4];
+      if(a.x>-rx&&a.x<rx)cuts.push(a.x);
+      for(const y of [-ry,ry])if((a.y<y)!==(b.y<y)){
+        const x=a.x+(b.x-a.x)*(y-a.y)/(b.y-a.y);
+        if(x>-rx&&x<rx)cuts.push(x);
+      }
+    }
+    cuts.sort((a,b)=>a-b);
+    for(let i=1;i<cuts.length;i++){
+      const a=cuts[i-1],b=cuts[i];if(b-a<1e-9)continue;
+      const pieces=gauss?Math.ceil((b-a)/(sigma*c.aspect)):1;
+      const half=(b-a)/(2*pieces);
+      for(let k=0;k<pieces;k++){
+        const mid=a+(2*k+1)*half;
+        for(let j=0;j<(gauss?3:1);j++){
+          const x=mid+(gauss?nodes[j]*half:0);
+          let lo=Infinity,hi=-Infinity;
+          for(let n=0;n<4;n++){
+            const u=poly[n],v=poly[(n+1)%4];
+            if((u.x<x)===(v.x<x))continue;
+            const y=u.y+(v.y-u.y)*(x-u.x)/(v.x-u.x);lo=Math.min(lo,y);hi=Math.max(hi,y);
+          }
+          lo=Math.max(-ry,lo);hi=Math.min(ry,hi);if(hi<=lo)continue;
+          if(gauss){
+            const sx=sigma*c.aspect,density=Math.exp(-.5*(x/sx)**2)/(kernelMass*Math.sqrt(2*Math.PI)*sx);
+            total+=half*weights[j]*density*(normalCDF(hi/sigma)-normalCDF(lo/sigma))/norm;
+          }else total+=2*half*(hi-lo)/(4*rx*ry);
+        }
+      }
+    }
+  }
+  return clamp(total,0,1);
+}
+function sense(p,c,track){
+  const ns=[],adc=[],volts=[];
+  let hits=0,primary=0,backup=0,primaryWeight=0,backupWeight=0,primaryOffset=0,backupOffset=0;
+  for(const {forward,right,role} of c.positions){
+    const q=at(p,c.look+forward,right),f=paintFraction(q,p.a,c,track.paint);
+    const bg=track.sections&&inLightZone(q,track.sections[1])?brightV:track.sections&&inLightZone(q,track.sections[5])?roomV:c.sensor.bg;
+    const patch=track.sections&&c.surfaceBlack!=null&&c.surfaceWhite!=null&&inLightZone(q,track.sections[1],158);
+    const response=patch?c.surfaceBlack+(c.surfaceWhite-c.surfaceBlack)*f:f;
+    const out=readout(c.sensor,response,bg),n=c.sensor.valid?clamp((out.adc-c.sensor.blackCode)/(c.sensor.whiteCode-c.sensor.blackCode),0,1):0;
+    ns.push(n);adc.push(out.adc);volts.push(out.voltage);
+    if(n+1e-10<c.threshold)continue;
+    hits++;
+    if(role==='steer'){primary++;primaryWeight+=n;primaryOffset+=right*n;}
+    if(role==='backup'){backup++;backupWeight+=n;backupOffset+=right*n;}
+  }
+  const source=primary?'steer':backup?'backup':'none';
+  const e=primary?primaryOffset/primaryWeight:backup?backupOffset/backupWeight:null;
+  return {ns,adc,volts,hits,primary,backup,source,e};
+}
+function rectangle(x,y,length,width){
+  return [[x-length/2,y-width/2],[x+length/2,y-width/2],
+          [x+length/2,y+width/2],[x-length/2,y+width/2]];
+}
+// Canvas §1.4 and §1.6 specify the course envelope and line-sensor allowance.
+const courseLimits=Object.freeze({minLine:14,maxLine:20,minRadius:50,minGate:280,maxGap:6,maxSensors:6});
+function chassis(c){
+  const front=c.length-c.rearInset;
+  return {plateCentre:front-c.length/2, casterX:front-c.casterInset, look:front-c.sensorInset};
+}
+function mountingIssue(c){
+  if(c.rearInset>=c.length/2)return '后轴中心须位于底板后半段。';
+  if(c.casterInset>=c.length/2)return '前万向轮中心须位于底板前半段。';
+  return '';
+}
+// A protruding ball is bounded by a circumscribed polygon, exact on the four axes.
+function ballOverhang(c){
+  if(c.ballDiameter<=Math.min(c.housingLength,c.housingWidth))return [];
+  const sides=48,r=c.ballDiameter/(2*Math.cos(Math.PI/sides));
+  return [Array.from({length:sides},(_,i)=>{
+    const a=(2*i+1)*Math.PI/sides;return [c.casterX+r*Math.cos(a),r*Math.sin(a)];
+  })];
+}
+// Vertices are entered in mm. Preserve the centreline; the rearmost x defines the rear edge.
+function parseOutline(text){
+  const points=[];
+  for(const row of text.trim().split(/[\n;；]+/)){
+    const pair=row.trim().split(/[\s,，]+/);
+    if(pair.length!==2||pair.some(v=>!v||!Number.isFinite(Number(v))))throw Error('每行输入一对数字：向前 mm，向右 mm。');
+    points.push(pair.map(Number));
+  }
+  const equal=(a,b)=>a[0]===b[0]&&a[1]===b[1];
+  if(points.length>1&&equal(points[0],points.at(-1)))points.pop();
+  if(points.length<3)throw Error('至少需要三个顶点。');
+  const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
+  const rear=Math.min(...xs),length=Math.max(...xs)-rear,width=Math.max(...ys)-Math.min(...ys);
+  if(!(length>0&&width>0))throw Error('轮廓的长度和宽度须大于零。');
+  const cross=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+  const between=(a,b,p)=>p.every((v,k)=>v>=Math.min(a[k],b[k])&&v<=Math.max(a[k],b[k]));
+  const count=points.length;
+  for(let i=0;i<count;i++){
+    const a=points[i],b=points[(i+1)%count],prev=points[(i+count-1)%count];
+    if(equal(a,b)||cross(prev,a,b)===0&&(between(prev,a,b)||between(a,b,prev)))throw Error('轮廓含重复顶点或折返边。');
+    for(let j=i+2;j<count;j++){
+      if(i===0&&j===count-1)continue;
+      const c=points[j],d=points[(j+1)%count],u=cross(a,b,c),v=cross(a,b,d),w=cross(c,d,a),z=cross(c,d,b);
+      if((Math.sign(u)*Math.sign(v)<0&&Math.sign(w)*Math.sign(z)<0)||
+         (u===0&&between(a,b,c))||(v===0&&between(a,b,d))||(w===0&&between(c,d,a))||(z===0&&between(c,d,b)))throw Error('轮廓边相交或重叠，请沿底板边缘依次输入。');
+    }
+  }
+  return {length,width,outline:points.map(([x,y])=>[(x-rear)/length,y/width])};
+}
+function plateVertices(c){
+  return c.outline?c.outline.map(([u,v])=>[u*c.length-c.rearInset,v*c.width]):rectangle(c.length/2-c.rearInset,0,c.length,c.width);
+}
+function turnEnvelope(parts,radius,degrees){
+  const end=rad(degrees),pivot=(degrees<0?-1:1)*radius;
+  const lo=Math.min(0,end),hi=Math.max(0,end);
+  let xmin=Infinity,xmax=-Infinity,ymin=Infinity,ymax=-Infinity;
+  for(const part of parts)for(const [x,y] of part){
+    const dy=y-pivot;
+    function include(a){
+      const co=Math.cos(a),si=Math.sin(a);
+      const X=x*co-dy*si,Y=y*co+x*si+2*pivot*Math.sin(a/2)**2;
+      xmin=Math.min(xmin,X);xmax=Math.max(xmax,X);ymin=Math.min(ymin,Y);ymax=Math.max(ymax,Y);
+    }
+    include(0);include(end);
+    // Each projected coordinate reaches an extremum at two angles per revolution.
+    for(const phase of [Math.atan2(-dy,x),Math.atan2(x,dy)]){
+      const first=Math.ceil((lo-phase)/Math.PI),last=Math.floor((hi-phase)/Math.PI);
+      for(let k=first;k<=last;k++)include(phase+k*Math.PI);
+    }
+  }
+  return {xmin,xmax,ymin,ymax,width:ymax-ymin,depth:xmax-xmin};
+}
+// A linear edge's clipped extrema occur at a vertex or at a crossing of a gate end.
+function slicePoints(poly,low,high){
+  const result=[];
+  for(let i=0;i<poly.length;i++){
+    const a=poly[i],b=poly[(i+1)%poly.length];
+    if(a.x>=low&&a.x<=high)result.push(a);
+    for(const x of [low,high])if((a.x<x&&b.x>x)||(b.x<x&&a.x>x))
+      result.push({x,y:a.y+(b.y-a.y)*(x-a.x)/(b.x-a.x)});
+  }
+  return result;
+}
+function footprint(c){
+  return [plateVertices(c),rectangle(0,-c.axle/2,c.driveDiameter,c.tyre),
+    rectangle(0,c.axle/2,c.driveDiameter,c.tyre),c.hasBoard?rectangle(c.look,c.boardRight,c.boardDepth,c.boardWidth):[],
+    ...c.positions.map(({forward,right})=>rectangle(c.look+forward,right,10.2,5.8)),
+    rectangle(c.casterX,0,c.housingLength,c.housingWidth),...ballOverhang(c)];
+}
+function clearance(p,parts,g,withPoint=false,pad=0){
+  if(!g)return null;
+  const dx=p.x-g.x,dy=p.y-g.y,c=Math.cos(g.a),s=Math.sin(g.a);
+  const local={x:dx*c+dy*s,y:-dx*s+dy*c,a:p.a-g.a};
+  let maxY=-Infinity, point=null, partIndex=null;
+  for(const [idx,part] of parts.entries()){
+    const poly=part.map(([x,y])=>at(local,x,y));
+    for(const q of slicePoints(poly,-pad,g.length+pad)){
+      if(Math.abs(q.y)>maxY){maxY=Math.abs(q.y);point=q;partIndex=idx;}
+    }
+  }
+  if(!point)return null;
+  if(withPoint)return {point:at(g,point.x,point.y),wall:at(g,point.x,Math.sign(point.y || 1)*g.half),partIndex};
+  return g.half-maxY;
+}
+// Rigid-body velocity at the free ball, expressed in the buggy's forward/right axes (mm/s).
+function casterVelocity(v,omega,c){return {forward:v,right:omega*c.casterX};}
+function advance(p,v,omega,t){
+  const angle=omega*t,middle=p.a+angle/2;
+  const ds=v*t*(Math.abs(angle)<1e-9?1:Math.sin(angle/2)/(angle/2));
+  return {x:p.x+ds*Math.cos(middle),y:p.y+ds*Math.sin(middle),a:p.a+angle};
+}
+// Every material point over a half interval lies within 'pad' of its midpoint position.
+// Thus an expanded gate supplies a lower bound even when an edge enters between samples.
+function sweptMinimum(frames,parts,g,trackWidth){
+  if(!g||!frames.length)return null;
+  const rho=Math.max(...parts.flat().map(([x,y])=>Math.hypot(x,y)));
+  let upper=Infinity,lower=Infinity,time=0;
+  function sample(value,t){if(value!==null&&value<upper){upper=value;time=t;}}
+  frames.forEach(f=>sample(f.clear,f.t));
+  function visit(f,v,omega,lo,hi,depth){
+    const mid=(lo+hi)/2,p=advance(f,v,omega,mid),pad=(Math.abs(v)+rho*Math.abs(omega))*(hi-lo)/2;
+    const expanded=clearance(p,parts,g,false,pad);
+    if(expanded===null)return;
+    sample(clearance(p,parts,g),f.t+mid);
+    const bound=expanded-pad;
+    if(bound>=upper-.1||depth>=16){lower=Math.min(lower,bound);return;}
+    visit(f,v,omega,lo,mid,depth+1);visit(f,v,omega,mid,hi,depth+1);
+  }
+  for(let i=0;i<frames.length-1;i++){
+    const f=frames[i];if(f.nearBridge===false && frames[i+1].nearBridge===false)continue;
+    visit(f,(f.left+f.right)/2,(f.left-f.right)/trackWidth,0,dt,0);
+  }
+  if(!Number.isFinite(upper)&&!Number.isFinite(lower))return null;
+  return {low:Math.min(lower,upper),high:upper,time};
+}
+
+// Interpolate each channel's crossing of the finite end of the painted stripe.
+function crossesLineEnd(previous,current,c,end){
+  const cs=Math.cos(end.a),sn=Math.sin(end.a);
+  return c.positions.some(({forward,right,role})=>{
+    if(role==='log')return false;
+    const a=at(previous,c.look+forward,right),b=at(current,c.look+forward,right);
+    const along=q=>(q.x-end.x)*cs+(q.y-end.y)*sn;
+    const before=along(a),after=along(b);
+    if(before>0 || after<0 || after<=before)return false;
+    const t=-before/(after-before);
+    const across=-(a.x+t*(b.x-a.x)-end.x)*sn+(a.y+t*(b.y-a.y)-end.y)*cs;
+    return Math.abs(across)<=c.line/2;
+  });
+}
+function simulate(c,kind,startId='full'){
+  const track=course(kind,c),parts=footprint(c),frames=[];track.paint=paintTrack(track,c.line);
+  let p={x:90,y:c.startOffset,a:rad(c.startYaw)},distance=0,k=0,deriv=0,lastE=null,blind=0;
+  const extreme=!!track.sections,parking=extreme&&startId==='parking',single=track.sections?.find(section=>section.id===startId);
+  const start=extreme?stationPose(track,parking?260:single?single.start:90):null;
+  if(start){const a=start.a+(parking?Math.PI:0);p={...at({...start,a},0,c.startOffset),a:a+rad(c.startYaw)};}
+  let phase=parking?'home':'out',pivotEnd=0,bleEvents=0,homeCrossed=false,stopDistance=null;
+  const bodyReach=extreme?Math.max(...parts.flat().map(([x,y])=>Math.hypot(x,y))):0;
+  const uphill=extreme?driveLoad({...c,grade:17.9}):null;
+  let clearFrame=null,lossFrame=null,lossStart=null,reason='timeout';
+  let hadPrimary=false,lostPrimaryAt=null,reacquired=0,maxRecovery=null,previousSource='none';
+  const velocity=c.speed*1000;let ds=velocity*dt,blindOrigin=0;
+  const maxFrames=extreme?Math.ceil(Math.min(180,Math.max(30,3*track.end.s/Math.max(1,velocity)+10))/dt):3000;
+  for(let i=0;i<=maxFrames;i++){
+    const station=extreme?locateStation(p,track):null,zone=extreme?stageAt(track,station):null;
+    if(extreme && (!single||single.id==='return') && phase==='out' && station>=track.bleStation){
+      phase='pivot';pivotEnd=p.a+Math.PI;bleEvents++;
+    }
+    if(phase==='pivot' && p.a>=pivotEnd-1e-9){phase='home';lastE=null;deriv=0;blind=0;lossStart=null;blindOrigin=distance;hadPrimary=false;lostPrimaryAt=null;}
+    const grade=!zone?c.grade:(zone.id==='climb'?17.9:zone.id==='descent'?-17.9:0)*(phase==='home'?-1:1);
+    const sensor=sense(p,c,track);
+    if(phase!=='pivot' && sensor.primary){
+      if(lostPrimaryAt!==null){reacquired++;maxRecovery=Math.max(maxRecovery??0,distance-lostPrimaryAt);lostPrimaryAt=null;}
+      hadPrimary=true;
+    }else if(phase!=='pivot' && hadPrimary && lostPrimaryAt===null)lostPrimaryAt=distance;
+    if(previousSource!==sensor.source){lastE=null;deriv=0;}
+    previousSource=sensor.source;
+    if(sensor.source!=='none'){
+      const slope=lastE===null||ds<1e-9?0:(sensor.e-lastE)/ds;
+      deriv+=(slope-deriv)*dt/(.020+dt);
+      k=clamp(2*sensor.e/c.controlRef**2+.008*deriv,-.035,.035);
+      lastE=sensor.e; blind=0;lossStart=null;
+    }else{
+      if(lossStart===null){lossStart=i;blindOrigin=distance;}
+      blind=distance-blindOrigin;
+      lastE=null; deriv=0;
+    }
+    let cmdLeft=velocity*(1+k*c.axle/2),cmdRight=velocity*(1-k*c.axle/2);
+    if(phase==='pivot'){
+      cmdLeft=Math.min(velocity,(pivotEnd-p.a)*c.axle/(2*dt));cmdRight=-cmdLeft;
+      lossStart=null;blind=0;blindOrigin=distance;
+    }
+    const vmax=Math.min(c.wheelCap?1000*c.wheelCap:Infinity,c.maxRPM?Math.PI*c.driveDiameter*c.maxRPM/60:Infinity);
+    const left=clamp(cmdLeft,-vmax,vmax),right=clamp(cmdRight,-vmax,vmax);
+    const v=(left+right)/2,omega=(left-right)/c.axle;
+    const ball=casterVelocity(v,omega,c);
+    const nearBridge=!extreme || (station>=track.sections[4].start-bodyReach && station<=track.sections[6].end+bodyReach);
+    const f={...p,...sensor,ball,nearBridge,station,lineWidth:zone?.width??c.line,zone:zone?.id,phase,grade,leftRPM:left*60/(Math.PI*c.driveDiameter),rightRPM:right*60/(Math.PI*c.driveDiameter),t:i*dt,distance,left,right,cmdLeft,cmdRight,blind,lossTime:lossStart===null?0:(i-lossStart)*dt,
+      clear:nearBridge?clearance(p,parts,track.gate):null};
+    frames.push(f);
+    if(f.clear!==null&&(clearFrame===null||f.clear<frames[clearFrame].clear))clearFrame=i;
+    if(!c.sensor.valid){reason='calibration';break;}
+    if(extreme){
+      if(f.clear!==null&&f.clear<=0){reason='wall';break;}
+      if(nearBridge && c.height>200 && clearance(p,parts,track.tunnel)!==null){reason='roof';break;}
+      if(grade>0 && !uphill.ok){reason='supply';break;}
+      if(single && single.id!=='return' && station>=single.end-1e-7){f.zone=single.id;reason='sectionEnd';break;}
+      if(phase==='home' && single?.id==='return' && station<=single.start){reason='sectionEnd';break;}
+      if(phase==='home' && i>0 && crossesLineEnd(frames[i-1],p,{...c,line:17},{x:0,y:0,a:Math.PI}))homeCrossed=true;
+      if(homeCrossed && blind>=20-1e-8){
+        stopDistance=stopRadius(p,parts);reason=stopDistance<=200?'stopInside':'stopOutside';
+        Object.assign(f,{left:0,right:0,leftRPM:0,rightRPM:0,cmdLeft:0,cmdRight:0,ball:casterVelocity(0,0,c)});
+        break;
+      }
+    }
+    if(!extreme && i>0 && crossesLineEnd(frames[i-1],p,c,track.end)){
+      reason='end';break;
+    }
+    if(blind>=20-1e-8){reason='lost';break;}
+    p=advance(p,v,omega,dt);ds=v*dt;distance+=ds;
+  }
+  for(let i=0;i<frames.length;i++){
+    const f=frames[i];
+    if(f.source!=='none'||f.phase==='pivot')continue;
+    // A reading governs the following interval. The terminal frame has no such interval.
+    if(i+1<frames.length)f.lossTime+=dt;
+    if(lossFrame===null||f.lossTime>frames[lossFrame].lossTime)lossFrame=i;
+  }
+  const swept=sweptMinimum(frames,parts,track.gate,c.axle);
+  if(swept&&Number.isFinite(swept.high))clearFrame=clamp(Math.round(swept.time/dt),0,frames.length-1);
+  return {track,frames,clearFrame,lossFrame,reason,swept,reacquired,maxRecovery,bleEvents,stopDistance,uphill,startId};
+}
+function canvasFrame(canvas){
+  const w=canvas.clientWidth||320,h=canvas.clientHeight||200,dpr=Math.min(2,window.devicePixelRatio||1);
+  if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){
+    canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+  }
+  const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+  return {ctx,w,h};
+}
+const names=['A','B'];
+const colour={A:'#236893',B:'#a25221'};
+const shared={surfaceBlack:null,surfaceWhite:null,grade:0,regime:'course',bendRadius:50,sRadius:125,gateWidth:280,gateLength:225,gapSize:6,controlRef:104,spatial:'scan308',unitScale:1,light:'room',aspect:1,wheelCap:0,line:17,spot:5,threshold:.5,speed:.5,startOffset:0,startYaw:0};
+const choices={controlRef:[30,50,75,104,150,200],spatial:['scan308','scan208','box'],unitScale:[1,10],light:['room','bright'],aspect:[.5,1,2],wheelCap:[0,.6,1],line:[14,17,20],spot:[2,5,8],threshold:[.35,.5,.65],speed:[.2,.4,.5,.8],startOffset:[-35,-15,0,15,35],startYaw:[-20,-10,0,10,20]};
+const designFields=[
+  ['ledR','LED 电阻 / Ω',100,700,.5],['load','接收 R2 / Ω',680,10000,10],['rxV','接收供电 / V',3,5,.1],
+  ['pitch','预设横向间距',0,null,'any'],['boardWidth','板宽',0,null,'any'],['boardDepth','板深',0,null,'any'],['hole','端孔直径',0,null,'any'],
+  ['length','底板长',0,null,'any'],['width','底板宽',0,null,'any'],['axle','驱动轮中心距',0,null,'any'],
+  ['driveDiameter','驱动轮直径',0,null,'any'],['tyre','轮胎宽度',0,null,'any'],['maxRPM','轮速上限 / rpm（0 关闭）',0,null,'any'],
+  ['ballDiameter','万向轮球径',0,null,'any'],['housingLength','万向轮座外廓长',0,null,'any'],['housingWidth','万向轮座外廓宽',0,null,'any'],
+  ['rearInset','后缘到后轴中心',null,null,'any'],['casterInset','前缘到万向轮球心',null,null,'any'],
+  ['mass','整车质量 / kg',0,null,'any'],['gear','减速比',0,null,'any'],['efficiency','齿轮总效率',0,1,'any'],
+  ['rolling','滚阻系数',0,null,'any'],['supplyV','电机可用电压 / V',0,10,'any'],['height','整车高度',0,null,'any'],
+  ['sensorInset','前缘到 PCB 中心¹',null,null,'any'],['boardRight','PCB 中心右偏',null,null,'any']
+];
+const layouts={distributed:'车头＋两侧＋车尾',row:'单排',vee:'V 形',stagger:'交错',double:'双排 2 × 3',custom:'自定义'};
+const roleLabels={steer:'主循迹',backup:'失线接管',log:'仅记录'};
+function sensorPositions(c){
+  return positionsForLayout(c).map((p,i)=>({...p,role:c.roles?.[i]??p.role??'steer'}));
+}
+function positionsForLayout(c){
+  if(c.layout==='custom')return c.customPositions;
+  if(c.layout==='distributed'){
+    const nose=c.length-c.rearInset,side=c.width/2-4;
+    return [[nose-8,-8],[nose-8,8],[nose-c.length/2,-side],[nose-c.length/2,side],[-c.rearInset+6,-8],[-c.rearInset+6,8]]
+      .map(([forward,right])=>({forward,right,mount:'body'}));
+  }
+  return Array.from({length:6},(_,i)=>{
+    const right=c.layout==='double'?(i%3-1)*c.pitch:(i-2.5)*c.pitch;
+    let forward=0;
+    if(c.layout==='vee')forward=[-6,0,6,6,0,-6][i];
+    if(c.layout==='stagger')forward=i%2?6:-6;
+    if(c.layout==='double')forward=i<3?6:-6;
+    return {right,forward};
+  });
+}
+const base={outline:null,roles:null,mass:.92,gear:15,efficiency:.722,rolling:.0865,supplyV:9,height:100,driveDiameter:76,ballDiameter:19.05,maxRPM:0,layout:'row',customPositions:null,ledR:180,load:3300,rxV:5,pitch:8,boardWidth:56,boardDepth:24,hole:2.7,boardRight:0,length:140,width:100,axle:130,tyre:26,rearInset:28,casterInset:30,sensorInset:8,housingLength:30,housingWidth:26};
+const designs={A:{...base},B:{...base,layout:'distributed'}};
+function straightGate(c){return {x:0,y:0,a:0,length:c.gateLength,half:c.gateWidth/2};}
+const pose={depth:35,offset:25,yaw:18};
+const rawHeight=[[2.08,.3422,3.27],[2.56,.1749,1.8248],[3.08,.0904,.9459],[3.58,.0544,.5332],[4.08,.0365,.3327],[4.58,.0271,.1995],[5.05,.0211,.1504],[5.56,.017,.1065],[6.08,.0139,.0802],[6.57,.121,.0611],[7.09,.0102,.0479]];
+let mode='pcb',race=null,frame=0,raf=0,playing=false,startFrame=0,startTime=0;
+function conf(n,overrides={}){const c={...designs[n],...shared,...overrides};Object.assign(c,chassis(c));c.positions=sensorPositions(c).map(p=>({...p,right:p.mount==='body'?p.right:p.right+c.boardRight,forward:p.mount==='body'?p.forward-c.look:p.forward}));c.hasBoard=c.positions.some(p=>p.mount!=='body');c.sensor=buildSensor(c);return c;}
+const format=(v,suffix=' mm')=>v==null?'—':v.toFixed(1)+suffix;
+function partName(i,count=6){
+  return i===count+5?'前万向轮钢球':i===count+4?'前万向轮座':i<4?['底板','左后驱动轮','右后驱动轮','传感器板'][i]:'S'+(i-3)+' 封装';
+}
+const sem=(v)=>v<-.000001?'越界':v<=.000001?'接触':'有余量';
+function metrics(id,rows){
+  byId(id).innerHTML='<table class="metrics"><thead><tr><th>测量项</th><th class="ca">方案 A</th><th class="cb">方案 B</th></tr></thead><tbody>'+rows.map(([label,...vals])=>'<tr><td>'+label+'</td>'+vals.map(v=>'<td>'+v+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+}
+function makeTwins(id,markup){
+  byId(id).innerHTML=names.map(n=>'<div class="pane"><div class="pair-label '+n.toLowerCase()+'"><strong>方案 '+n+'</strong><span id="'+id+'Label'+n+'"></span></div>'+markup(n)+'</div>').join('');
+}
+function optical(c,pos){return fractions1D(c,pos).map(f=>normalized(c.sensor,f));}
+function countOn(ns,t){return ns.filter(n=>n+1e-10>=t).length;}
+function coverage(c){
+  const m=c.sensor;
+  if(!c.positions.length)return {bands:[],extent:null,one:0,multi:0,blind:0,invalid:'无传感器'};
+  // Only compare meaningful detections when calibration and background discrimination hold.
+  if(!m.valid || normalized(m,0)>=c.threshold)return {bands:[],extent:null,one:0,multi:0,blind:140,invalid:!m.valid?'复标无跨度':'黑底已触发'};
+  const active=x=>normalized(m,m.sigma===null?overlap(x-c.spot/2,x+c.spot/2,-c.line/2,c.line/2)/c.spot:stripeResponse(x,c.line,m.sigma))>=c.threshold;
+  if(!active(0))return {bands:[],extent:null,one:0,multi:0,blind:140,invalid:'白线上未触发'};
+  let low=0,high=c.line/2+(m.sigma===null?c.spot:12*m.sigma);
+  for(let i=0;i<45;i++){const mid=(low+high)/2;if(active(mid))low=mid;else high=mid;}
+  const r=(low+high)/2,centres=c.positions.map(p=>p.right);
+  const cuts=[...new Set(centres.flatMap(y=>[y-r,y+r]))].sort((a,b)=>a-b);
+  const bands=[];let one=0,multi=0,blind=0;
+  for(let i=1;i<cuts.length;i++){
+    const lo=cuts[i-1],hi=cuts[i],hits=countOn(optical(c,(lo+hi)/2),c.threshold);
+    bands.push({lo,hi,hits});
+    if(hits===0)blind+=hi-lo;else if(hits===1)one+=hi-lo;else multi+=hi-lo;
+  }
+  return {bands,low:cuts[0],extent:cuts.at(-1),one,multi,blind};
+}
+function assembly(c){
+  const ys=c.positions.map(p=>p.right),xs=c.positions.map(p=>p.forward);
+  const mounted=c.positions.filter(p=>p.mount!=='body');
+  const halfSpan=mounted.length?Math.max(...mounted.map(p=>Math.abs(p.right-c.boardRight)))+2.9:null;
+  const edge=mounted.length?c.boardWidth/2-halfSpan:null;
+  const depth=mounted.length?c.boardDepth/2-Math.max(...mounted.map(p=>Math.abs(p.forward)))-5.1:null;
+  const conflicts=new Set();let gap=Infinity;
+  c.positions.forEach((p,i)=>{
+    if(p.mount!=='body' && (Math.abs(p.right-c.boardRight)+2.9>c.boardWidth/2 || Math.abs(p.forward)+5.1>c.boardDepth/2))conflicts.add(i);
+    for(let j=0;j<i;j++){
+      const dx=Math.abs(xs[i]-xs[j])-10.2,dy=Math.abs(ys[i]-ys[j])-5.8;
+      const d=dx>0||dy>0?Math.hypot(Math.max(0,dx),Math.max(0,dy)):Math.max(dx,dy);
+      gap=Math.min(gap,d);
+      if(d<0){conflicts.add(i);conflicts.add(j);}
+    }
+  });
+  return {span:ys.length?Math.max(...ys)-Math.min(...ys)+5.8:null,edge,depth,gap:Number.isFinite(gap)?gap:null,conflicts,halfSpan};
+}
+function editorFrame(n,w,h){
+  const c=conf(n),whole=byId('zoom'+n).value==='car';
+  const points=whole?footprint(c).flat():[
+    ...rectangle(c.look,c.boardRight,c.boardDepth,c.boardWidth),
+    ...c.positions.flatMap(p=>rectangle(p.forward+c.look,p.right,10.2,5.8))];
+  const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
+  const left=Math.min(0,...ys),right=Math.max(0,...ys),back=Math.min(...xs),front=Math.max(...xs);
+  const scale=Math.min((w-88)/Math.max(1,right-left),(h-90)/Math.max(1,front-back),7);
+  return {scale,cx:w/2-(right+left)*scale/2,cy:h/2+(front+back)*scale/2,whole};
+}
+let drag=null;
+const picked={A:0,B:0};
+// Orthographic grid and dimension lines share the sensor editor's millimetre transform.
+function drawingGrid(ctx,w,h,cx,cy,scale,downPositive=false){
+  const decade=10**Math.floor(Math.log10(75/scale));
+  const major=([1,2,5,10].find(step=>step*decade*scale>=50)||10)*decade;
+  const minor=major/5;
+  ctx.fillStyle='#202730';ctx.fillRect(0,0,w,h);
+  ctx.font='10px ui-monospace,Menlo,monospace';
+  for(const vertical of [true,false]){
+    const origin=vertical?cx:cy,size=vertical?w:h,spacing=scale*minor;
+    for(let i=Math.ceil(-origin/spacing);i<=(size-origin)/spacing;i++){
+      const px=Math.round(origin+i*spacing)+.5,primary=i%5===0;
+      const a=vertical?{x:px,y:0}:{x:0,y:px},b=vertical?{x:px,y:h}:{x:w,y:px};
+      line(ctx,[a,b],i===0?'#63737d':primary?'#414e5a':'#2b3540',1);
+      if(primary && i!==0){
+        ctx.fillStyle='#a5b2bc';ctx.textAlign='left';
+        ctx.fillText(String(+(minor*i*(vertical||downPositive?1:-1)).toPrecision(6)),vertical?px+3:4,vertical?h-6:px-3);
+      }
+    }
+  }
+}
+function chassisDimensions(ctx,c,cx,cy,scale,w,h){
+  const x=right=>cx+right*scale,y=forward=>cy-forward*scale;
+  const span=c.axle+c.tyre;
+  const left=x(-span/2),right=x(span/2),bottom=Math.min(h-22,y(-c.driveDiameter/2)+20);
+  const top=y(c.length-c.rearInset),rear=y(-c.rearInset);
+  const edge=Math.max(...plateVertices(c).map(p=>p[1])),dim=Math.min(w-33,x(Math.max(edge,span/2))+22);
+  ctx.save();ctx.lineWidth=1;ctx.strokeStyle='#b6c6ce';ctx.fillStyle='#dae3e7';
+  function segment(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+  segment(left,bottom,right,bottom);
+  for(const end of [left,right]){
+    segment(end,y(-c.driveDiameter/2)+2,end,bottom+4);segment(end-3,bottom+3,end+3,bottom-3);
+  }
+  segment(dim,top,dim,rear);
+  for(const ordinate of [top,rear]){segment(dim-5,ordinate,dim+5,ordinate);segment(dim-2,ordinate+3,dim+2,ordinate-3);}
+  function label(text,x0,y0){
+    ctx.font='11px ui-monospace,Menlo,monospace';ctx.textAlign='center';
+    const width=ctx.measureText(text).width+8;
+    ctx.fillStyle='#202730';ctx.fillRect(x0-width/2,y0-11,width,14);
+    ctx.fillStyle='#e2ebee';ctx.fillText(text,x0,y0);
+  }
+  label(String(+span.toFixed(2)),(left+right)/2,bottom+4);
+  ctx.translate(dim,(top+rear)/2);ctx.rotate(-Math.PI/2);label(String(+c.length.toFixed(2)),0,4);
+  ctx.restore();
+}
+function drawBoard(n){
+  const c=conf(n),shift=+byId('shift').value,ns=optical(c,shift),{ctx,w,h}=canvasFrame(byId('board'+n));
+  const {scale,cx,cy,whole}=drag?.n===n?drag:editorFrame(n,w,h);
+  const fit=assembly(c);
+  ctx.textAlign='left';
+  drawingGrid(ctx,w,h,cx,cy,scale);
+  if(whole){
+    ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);vehicle(ctx,c,{x:0,y:0,a:-Math.PI/2},scale,n,ns,null);ctx.restore();
+    chassisDimensions(ctx,c,cx,cy,scale,w,h);
+  }else if(c.hasBoard){
+    ctx.fillStyle='#315347';ctx.fillRect(cx+(c.boardRight-c.boardWidth/2)*scale,cy-(c.look+c.boardDepth/2)*scale,c.boardWidth*scale,c.boardDepth*scale);
+  }
+  ctx.fillStyle='rgba(232,239,222,.095)';ctx.fillRect(cx+(shift-c.line/2)*scale,0,c.line*scale,h);
+  for(const [i,p] of c.positions.entries()){
+    const x=cx+p.right*scale,y=cy-(c.look+p.forward)*scale;
+    ctx.fillStyle=fit.conflicts.has(i)?'#d87c68':ns[i]+1e-10>=c.threshold?'#e2ec92':'#d2dfd4';
+    ctx.fillRect(x-2.9*scale,y-5.1*scale,5.8*scale,10.2*scale);
+    ctx.strokeStyle='#475d55';ctx.strokeRect(x-2.9*scale,y-5.1*scale,5.8*scale,10.2*scale);
+    if(scale>=2.8){ctx.textAlign='center';ctx.fillStyle='#21332e';ctx.font='bold 10px monospace';ctx.fillText(''+(i+1),x,y+3);}
+  }
+  const selected=c.positions[picked[n]];
+  if(selected){
+    const x=cx+selected.right*scale,y=cy-(c.look+selected.forward)*scale;
+    const dx=2.9*scale+3,dy=5.1*scale+3;
+    ctx.strokeStyle='#ffce71';ctx.lineWidth=1.5;ctx.strokeRect(x-dx,y-dy,2*dx,2*dy);
+    const volts=readout(c.sensor,fractions1D(c,shift)[picked[n]],c.sensor.bg).voltage;
+    const text='S'+(picked[n]+1)+'  '+volts.toFixed(3)+' V';
+    ctx.font='11px ui-monospace,Menlo,monospace';ctx.textAlign='left';
+    const size=ctx.measureText(text).width+10;
+    const labelX=clamp(x+24,20,w-size-5),labelY=clamp(y-30,19,h-18);
+    line(ctx,[{x:x+dx,y:y-dy},{x:labelX,y:labelY}],'#f4c871',1);
+    ctx.fillStyle='#202730';ctx.fillRect(labelX,labelY-13,size,17);
+    ctx.fillStyle='#ffda91';ctx.fillText(text,labelX+4,labelY);
+  }
+  ctx.textAlign='left';ctx.font='11px monospace';ctx.fillStyle='#d9e2e6';ctx.fillText('X ↑',8,16);ctx.textAlign='right';ctx.fillText('Y →',w-8,h-18);
+  byId('boardsLabel'+n).textContent=c.positions.length+' 路'+(c.positions.length>courseLimits.maxSensors?' · 超出课程六路上限':'');
+  byId('boardRead'+n).textContent=countOn(ns,c.threshold)+' 路触发　'+fractions1D(c,shift).map(f=>readout(c.sensor,f,c.sensor.bg).voltage.toFixed(2)).join(' / ')+(ns.length?' V':'');
+}
+function scanLimit(){
+  return Math.max(70,...names.map(n=>{
+    const c=conf(n);
+    return Math.ceil((Math.max(...c.positions.map(p=>Math.abs(p.right)))+20)/10)*10;
+  }));
+}
+function drawCapture(){
+  const {ctx,w,h}=canvasFrame(byId('capture'));
+  const hi=scanLimit(),lo=-hi,left=30,right=w-22,X=e=>left+(right-left)*(e-lo)/(hi-lo);
+  ctx.font='11px monospace';
+  names.forEach((n,i)=>{
+    const y=12+i*32,stats=coverage(conf(n));ctx.fillStyle='#e1e4e6';ctx.fillRect(left,y,right-left,22);
+    for(const b of stats.bands){ctx.fillStyle=b.hits>=2?'#416b83':b.hits?'#b7cbd7':'#e1e4e6';ctx.fillRect(X(b.lo),y,X(b.hi)-X(b.lo),22);}
+    if(stats.invalid){ctx.fillStyle='#903d24';ctx.fillText(SimLocale.translate(stats.invalid),left+10,y+15);}
+    ctx.fillStyle=colour[n];ctx.fillText(n,12,y+15);
+  });
+  ctx.fillStyle='#55616a';ctx.textAlign='center';
+  const tick=Math.max(20,Math.ceil(hi/5/10)*10);
+  for(let j=-Math.floor(hi/tick);j<=Math.floor(hi/tick);j++){const e=j*tick;ctx.fillRect(X(e),70,1,4);ctx.fillText(e,X(e),88);}
+  ctx.fillText(SimLocale.translate('横向线位 / mm'),w/2,h-3);
+  ctx.fillStyle='#ab4f22';ctx.fillRect(X(+byId('shift').value),8,1.5,60);
+}
+function sweepRows(){
+  const cases=shared.spatial==='box'?choices.spot.map(spot=>({spot})):choices.unitScale.flatMap(unitScale=>['scan308','scan208'].map(spatial=>({unitScale,spatial})));
+  return [...new Set([...choices.line,shared.line])].sort((a,b)=>a-b).flatMap(line=>cases.map(params=>{
+    const overrides={line,...params};return {line,overrides,label:params.spatial?(params.spatial==='scan308'?'3.08':'2.08')+' cm × '+params.unitScale:params.spot+' mm',stats:names.map(n=>coverage(conf(n,overrides)))};
+  }));
+}
+function updatePCB(){
+  const c=names.map(n=>conf(n)),fit=c.map(assembly),stats=c.map(coverage);
+byId('shift').min=-scanLimit();byId('shift').max=scanLimit();
+  names.forEach(drawBoard);drawCapture();byId('shiftValue').textContent=format(+byId('shift').value);
+  const fitOptics=fitted[shared.spatial];
+  byId('physicsHint').textContent=fitOptics?'台架板高 '+rawHeight[scans[shared.spatial].row][0]+' cm　拟合条宽 '+format(fitOptics.width*shared.unitScale)+'　横向 σ '+format(fitOptics.sigma*shared.unitScale):'均匀光斑　黑白电压标定板高 3.08 cm';
+  const rule=f=>c.map((v,i)=>f(v,fit[i],stats[i]));
+  metrics('pcbMetrics',[
+    ['5 V / 400 mA 供电 · 扣除各路 LED 后余额',...c.map(v=>format(400-v.positions.length*v.sensor.currentMA,' mA'))],
+    ['LED 电流估算',...c.map(v=>format(v.sensor.currentMA,' mA'))],
+    ['黑 / 白接收电压（当前照明）',...c.map(v=>[0,1].map(f=>readout(v.sensor,f,v.sensor.bg).voltage.toFixed(3)).join(' / ')+' V')],
+    ['黑底至触发阈值余量（ADC 码）',...c.map(v=>{const m=v.sensor;return m.valid?Math.ceil(m.blackCode+v.threshold*(m.whiteCode-m.blackCode))-readout(m,0,m.bg).adc:'无法标定';})],
+    ['标定黑 / 白 ADC 码',...c.map(v=>v.sensor.blackCode+' / '+v.sensor.whiteCode)],
+    ['接收级 / ADC',...c.map(v=>{const w=readout(v.sensor,1,v.sensor.bg);return [w.rail?'接收级限幅':'未触及接收上限',w.over?'ADC 超量程':'ADC 范围内'].join(' / ');})],
+    ['封装总占宽',...fit.map(v=>format(v.span))],['最小侧边余量',...fit.map(v=>format(v.edge))],
+    ['含两侧裸孔的居中板宽¹',...rule((c,f)=>f.halfSpan===null?'—':format(2*(f.halfSpan+c.hole)))],
+    ['最近封装净距 / 前后最小余量',...fit.map(v=>format(v.gap,'')+' / '+format(v.depth))],
+    ['全探头横向捕获区间',...stats.map(v=>v.invalid||v.low.toFixed(1)+' 至 '+format(v.extent))],
+    ['多路有效区总宽',...stats.map(v=>format(v.multi))],['单路有效区总宽',...stats.map(v=>format(v.one))],
+    ['捕获范围内部盲区总宽',...stats.map(v=>v.invalid||format(v.blind))],
+    ['封装几何',...rule((c,f)=>f.edge<0||f.depth<0?'超出板边':f.gap<0?'封装相交':[f.edge,f.depth,f.gap].some(d=>d===0)?'接触':!c.positions.length?'无传感器':c.hasBoard?'可放入':'分体安装')]
+  ]);
+  const rows=sweepRows();
+  const blindCases=names.map((n,i)=>rows.filter(v=>v.stats[i].blind>1e-8).length);
+  const pr=n=>Math.min(...rows.map(v=>v.stats[n].multi)).toFixed(1);
+  byId('trade').textContent='共 '+rows.length+' 组　出现盲区或误判　A '+blindCases[0]+' 组 / B '+blindCases[1]+' 组　最小多路区宽　A '+pr(0)+' / B '+pr(1)+' mm';
+  byId('sensitivity').innerHTML='<table class="metrics"><thead><tr><th>线宽 / 光学情形</th><th>A 多路区 / 盲区 (mm)</th><th>B 多路区 / 盲区 (mm)</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r.line+' / '+r.label+'</td>'+r.stats.map(s=>'<td>'+(s.invalid||s.multi.toFixed(1)+' / '+s.blind.toFixed(1))+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+}
+function sliceLimits(c,angle){
+  const gate=straightGate(c);
+  const p={x:pose.depth,y:0,a:rad(angle)},parts=footprint(c);
+  let minY=Infinity,maxY=-Infinity;
+  for(const part of parts){
+    const poly=part.map(([x,y])=>at(p,x,y));
+    for(const q of slicePoints(poly,0,gate.length)){
+      minY=Math.min(minY,q.y);maxY=Math.max(maxY,q.y);
+    }
+  }
+  return Number.isFinite(maxY)?{low:-gate.half-minY,high:gate.half-maxY}:null;
+}
+function cadState(n){
+  const c=conf(n),p={x:pose.depth,y:pose.offset,a:rad(pose.yaw)},parts=footprint(c);
+  const gate=straightGate(c),hit=clearance(p,parts,gate,true);
+  return {c,p,parts,hit,margin:hit?clearance(p,parts,gate):null,limits:sliceLimits(c,pose.yaw)};
+}
+function line(ctx,pts,col,width=1){
+  ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle=col;ctx.lineWidth=width;ctx.stroke();
+}
+function vehicle(ctx,c,p,scale,n,signal,hit){
+  ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);
+  const parts=footprint(c);
+  function box(i,fill){
+    const [[x,y],[x1],[,y1]]=parts[i];
+    ctx.fillStyle=fill;ctx.fillRect(x,y,x1-x,y1-y);
+    ctx.lineWidth=(i===hit?2:1)/scale;
+    ctx.strokeStyle=i===hit?'#d14e2b':i===0?(n==='A'?'#7ab0cd':'#d49768'):'#8e9d9f';
+    ctx.strokeRect(x,y,x1-x,y1-y);
+  }
+  ctx.beginPath();parts[0].forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();
+  ctx.fillStyle=n==='A'?'rgba(103,152,178,.52)':'rgba(195,144,94,.56)';ctx.fill();
+  ctx.strokeStyle=hit===0?'#ff8150':n==='A'?'#9cc7d8':'#e5b488';ctx.lineWidth=(hit===0?2:1)/scale;ctx.stroke();
+  line(ctx,[{x:0,y:-c.axle/2},{x:0,y:c.axle/2}],'#728692',1.2/scale);
+  for(const i of [1,2]){
+    box(i,'#273238');
+    const y=(i===1?-1:1)*c.axle/2;
+    for(let tick=-3;tick<=3;tick++)line(ctx,[{x:tick*c.driveDiameter/8,y:y-c.tyre*.35},{x:tick*c.driveDiameter/8,y:y+c.tyre*.35}],'#748089',.8/scale);
+  }
+  box(c.positions.length+4,'#52615e');
+  ctx.beginPath();ctx.arc(c.casterX,0,c.ballDiameter/2,0,2*Math.PI);
+  ctx.fillStyle='#f0f1df';ctx.fill();ctx.strokeStyle=hit===c.positions.length+5?'#d14e2b':'#263b41';ctx.lineWidth=1/scale;ctx.stroke();
+  if(c.hasBoard)box(3,'#32584b');
+  for(let i=0;i<c.positions.length;i++)box(i+4,signal&&signal[i]+1e-10>=c.threshold?'#e6ed84':'#cad8cf');
+  const tip=c.casterX*.55;
+  line(ctx,[{x:0,y:0},{x:tip,y:0}],'#19333b',1.5/scale);
+  line(ctx,[{x:tip-5,y:-4},{x:tip,y:0},{x:tip-5,y:4}],'#19333b',1.5/scale);
+  ctx.restore();
+}
+function drawFit(name){
+  const scan=scans[name],fit=fitted[name],[,black,white]=rawHeight[scan.row];
+  const {ctx,w,h}=canvasFrame(byId('fitPlot'+name));
+  const left=39,right=w-14,top=11,bottom=h-27;
+  const x0=7,x1=13.5,maxV=Math.ceil(Math.max(white,...scan.points.map(p=>p[1]))*2)/2;
+  const X=x=>left+(x-x0)/(x1-x0)*(right-left),Y=y=>bottom-(bottom-top)*y/maxV;
+  ctx.font='10px monospace';ctx.fillStyle='#506069';
+  for(const v of [0,maxV/2,maxV]){
+    line(ctx,[{x:left,y:Y(v)},{x:right,y:Y(v)}],'#d2dadd',1);
+    ctx.textAlign='right';ctx.fillText(v.toFixed(2),left-3,Y(v)+3);
+  }
+  ctx.textAlign='center';
+  for(let x=7;x<=13;x++)ctx.fillText(String(x),X(x),bottom+12);
+  ctx.fillText(SimLocale.translate('横移读数（原表位置列）'),w/2,h-2);
+  const points=Array.from({length:221},(_,i)=>{const x=x0+(x1-x0)*i/220;
+    return {x:X(x),y:Y(black+(white-black)*stripeResponse(x-fit.centre,fit.width,fit.sigma))};});
+  line(ctx,points,'#29678b',1.6);
+  ctx.fillStyle='#a24d22';for(const [x,v] of scan.points){ctx.beginPath();ctx.arc(X(x),Y(v),2.4,0,2*Math.PI);ctx.fill();}
+}
+
+function drawPose(n){
+  const {ctx,w,h}=canvasFrame(byId('pose'+n)),s=cadState(n),gate=straightGate(s.c);
+  const vertices=names.flatMap(k=>footprint(conf(k)).flat().map(([x,y])=>at(s.p,x,y)));
+  const left=Math.min(-15,...vertices.map(q=>q.x)),right=Math.max(gate.length+15,...vertices.map(q=>q.x));
+  const span=Math.max(gate.half,...vertices.map(q=>Math.abs(q.y)));
+  const scale=Math.min((w-24)/(right-left),(h-20)/(2*span)),cx=w/2-(left+right)*scale/2,cy=h/2;
+  drawingGrid(ctx,w,h,cx,cy,scale,true);
+  ctx.translate(cx,cy);ctx.scale(scale,scale);
+  ctx.fillStyle='rgba(229,192,114,.12)';ctx.fillRect(0,-gate.half,gate.length,gate.half*2);ctx.setLineDash([5/scale,3/scale]);
+  line(ctx,[{x:-190,y:0},{x:330,y:0}],'#a1abb0',1/scale);ctx.setLineDash([]);
+  for(const y of [-gate.half,gate.half])line(ctx,[{x:0,y},{x:gate.length,y}],'#ad7437',2/scale);
+  vehicle(ctx,s.c,s.p,scale,n,null,s.hit?.partIndex);
+  if(s.hit){
+    line(ctx,[s.hit.point,s.hit.wall],'#f4b667',2/scale);
+    const mid={x:(s.hit.point.x+s.hit.wall.x)/2,y:(s.hit.point.y+s.hit.wall.y)/2};
+    ctx.save();ctx.translate(mid.x,mid.y);ctx.scale(1/scale,1/scale);ctx.font='12px monospace';
+    const txt=format(s.margin);ctx.fillStyle='#202730';ctx.fillRect(5,-13,ctx.measureText(txt).width+7,16);
+    ctx.fillStyle='#ffd18e';ctx.fillText(txt,8,-1);ctx.restore();
+    for(const q of [s.hit.point,s.hit.wall]){ctx.fillStyle='#f4b667';ctx.beginPath();ctx.arc(q.x,q.y,3/scale,0,2*Math.PI);ctx.fill();}
+  }
+  byId('posesLabel'+n).textContent='底板 '+s.c.length+' × '+s.c.width+' mm';
+  byId('poseRead'+n).textContent=s.hit?sem(s.margin)+'　'+format(s.margin)+' · '+partName(s.hit.partIndex,s.c.positions.length):'车体尚未进入窄道';
+}
+function mapArea(w,h){return {l:38,r:w-14,t:11,b:h-32};}
+function drawMap(n){
+  const {ctx,w,h}=canvasFrame(byId('map'+n)),a=mapArea(w,h);
+  const X=v=>a.l+(v+60)/120*(a.r-a.l),Y=v=>a.b-(v+100)/200*(a.b-a.t);
+  ctx.fillStyle='#efe2d9';ctx.fillRect(a.l,a.t,a.r-a.l,a.b-a.t);
+  for(let ix=a.l;ix<a.r;ix++){
+    const lim=sliceLimits(conf(n),-60+120*(ix+.5-a.l)/(a.r-a.l));
+    if(!lim){ctx.fillStyle='#e0e4e5';ctx.fillRect(ix,a.t,1,a.b-a.t);continue;}
+    const y0=Y(clamp(lim.high,-100,100)),y1=Y(clamp(lim.low,-100,100));
+    if(y1>y0){ctx.fillStyle='#b7ccd4';ctx.fillRect(ix,y0,1,y1-y0);}
+  }
+  ctx.font='10px monospace';ctx.fillStyle='#4b585f';
+  for(const e of [-100,-50,0,50,100]){
+    line(ctx,[{x:a.l,y:Y(e)},{x:a.r,y:Y(e)}],'#a6b1b5',.5);ctx.textAlign='right';ctx.fillText(e,a.l-4,Y(e)+3);
+  }
+  ctx.textAlign='center';
+  for(const yaw of [-60,-30,0,30,60]){line(ctx,[{x:X(yaw),y:a.t},{x:X(yaw),y:a.b}],'#abb3b6',.5);ctx.fillText(yaw+'°',X(yaw),a.b+14);}
+  ctx.fillText(SimLocale.translate('偏航角'),w/2,h-3);ctx.save();ctx.translate(10,h/2);ctx.rotate(-Math.PI/2);ctx.fillText(SimLocale.translate('横偏 mm'),0,0);ctx.restore();
+  ctx.beginPath();ctx.arc(X(pose.yaw),Y(pose.offset),4,0,2*Math.PI);ctx.strokeStyle='#253841';ctx.lineWidth=2;ctx.stroke();
+  byId('mapsLabel'+n).textContent='轴心入道 '+pose.depth+' mm';
+}
+const turn={radius:0,angle:180};
+function syncOutline(n){
+  const d=designs[n],points=plateVertices(d);
+  byId('outline'+n).value=points.map(([x,y])=>[x+d.rearInset,y].map(v=>+v.toPrecision(13)).join(' ')).join('\n');
+  byId('outlineNote'+n).textContent=d.outline?points.length+' 个顶点':'矩形';
+}
+function initCadDesign(){
+  makeTwins('turns',n=>'<canvas class="cadplot" id="turn'+n+'" aria-label="方案 '+n+' 整车转弯占地"></canvas><div class="read" id="turnRead'+n+'"></div>');
+  makeTwins('outlines',n=>'<div class="pad"><textarea rows="5" style="width:100%;box-sizing:border-box" id="outline'+n+'" aria-label="方案 '+n+' 底板顶点，向前和向右毫米"></textarea><button id="applyOutline'+n+'">应用顶点</button> <button id="rectOutline'+n+'">用矩形</button> <span id="outlineNote'+n+'" role="status"></span></div>');
+  for(const n of names){
+    syncOutline(n);
+    byId('applyOutline'+n).onclick=()=>{
+      try{
+        const shape=parseOutline(byId('outline'+n).value),issue=designIssue({...designs[n],...shape});
+        if(issue)throw Error(issue);
+        Object.assign(designs[n],shape);
+        for(const k of ['length','width'])byId(k+n).value=shape[k];
+        syncOutline(n);syncLayout(n);invalidate();
+      }catch(err){byId('outlineNote'+n).textContent=err.message;}
+    };
+    byId('rectOutline'+n).onclick=()=>{designs[n].outline=null;syncOutline(n);invalidate();};
+  }
+  for(const k of ['radius','angle']){
+    const el=byId('turnInput'+k);
+    el.onchange=()=>{
+      if(el.value===''||!el.validity.valid){el.value=turn[k];return;}
+      turn[k]=el.valueAsNumber;drawTurns();
+    };
+  }
+}
+function drawTurns(){
+  const panels=names.map(n=>{
+    const c=conf(n),parts=footprint(c),bounds=turnEnvelope(parts,turn.radius,turn.angle);
+    return {n,c,parts,bounds,...canvasFrame(byId('turn'+n))};
+  });
+  const visible=panels.filter(p=>byId('turn'+p.n).clientWidth>0);
+  const scale=Math.min(...(visible.length?visible:panels).map(p=>Math.min((p.w-20)/p.bounds.depth,(p.h-20)/p.bounds.width)));
+  for(const panel of panels)drawTurn(panel,scale);
+}
+function drawTurn({n,c,parts,bounds,ctx,w,h},scale){
+  const pivot=(turn.angle<0?-1:1)*turn.radius,steps=Math.max(1,Math.ceil(Math.abs(turn.angle)/10));
+  ctx.save();ctx.translate((w-(bounds.xmin+bounds.xmax)*scale)/2,(h-(bounds.ymin+bounds.ymax)*scale)/2);ctx.scale(scale,scale);
+  ctx.setLineDash([3/scale,3/scale]);ctx.strokeStyle='#576b72';ctx.lineWidth=1/scale;
+  ctx.strokeRect(bounds.xmin,bounds.ymin,bounds.depth,bounds.width);ctx.setLineDash([]);
+  for(let i=0;i<=steps;i++){
+    const a=rad(turn.angle)*i/steps,p={a,x:pivot*Math.sin(a),y:2*pivot*Math.sin(a/2)**2};
+    if(i===steps){vehicle(ctx,c,p,scale,n,null,null);continue;}
+    for(const poly of parts)if(poly.length){
+      const path=poly.map(([x,y])=>at(p,x,y));
+      line(ctx,[...path,path[0]],i===0?'#507786':'rgba(79,110,121,.20)',.9/scale);
+    }
+  }
+  ctx.restore();
+  byId('turnRead'+n).textContent='横向占宽 '+format(bounds.width)+'　纵向占长 '+format(bounds.depth);
+}
+function updateCAD(){
+  byId('gateLabel').textContent=shared.gateWidth+' × '+shared.gateLength+' mm';
+  names.forEach(n=>{drawPose(n);drawMap(n);});drawTurns();
+  const st=names.map(cadState);
+  metrics('cadMetrics',[
+    ['后轴 → 前万向轮球心',...st.map(s=>format(s.c.casterX))],
+    ['后轴 → PCB 中心',...st.map(s=>s.c.hasBoard?format(s.c.look):'分体安装')],
+    ['两后轮外侧间距',...st.map(s=>format(s.c.axle+s.c.tyre))],
+    ['隧道高度余量（200 mm）',...st.map(s=>format(200-s.c.height))],
+    ['当前净空',...st.map(s=>s.hit?format(s.margin)+' · '+sem(s.margin):'未入道')],
+    ['最接近侧界的部件',...st.map(s=>s.hit?partName(s.hit.partIndex,s.c.positions.length):'—')],
+    ['当前偏航的无越界横偏区间¹',...st.map(s=>!s.limits?'未入道':s.limits.low>s.limits.high?'无可行横偏':s.limits.low.toFixed(1)+' 至 '+format(s.limits.high))]]);
+  byId('cadMetrics').insertAdjacentHTML('beforeend','<p class="foot">¹ 区间端点为刚好接触；浅棕色为越界，灰色为未入道。</p>');
+}
+function buildRace(){
+  const runs=Object.fromEntries(names.map(n=>[n,simulate(conf(n),byId('scenario').value,byId('raceStart').value)]));
+  let lx=Infinity,rx=-Infinity,ty=Infinity,by=-Infinity;
+  function include(p){lx=Math.min(lx,p.x);rx=Math.max(rx,p.x);ty=Math.min(ty,p.y);by=Math.max(by,p.y);}
+  const t=runs.A.track;t.points.forEach(include);
+  if(t.sections){include({x:-200,y:-200});include({x:200,y:200});}
+  if(t.gate)for(const x of [0,t.gate.length])for(const y of [-t.gate.half,t.gate.half])include(at(t.gate,x,y));
+  names.forEach(n=>{const pts=footprint(conf(n)).flat();for(const f of runs[n].frames)for(const [x,y] of pts)include(at(f,x,y));});
+  race={runs,bounds:{lx:lx-20,rx:rx+20,ty:ty-25,by:by+25},last:Math.max(...names.map(n=>runs[n].frames.length-1))};
+  byId('time').max=race.last;
+}
+function drawRun(n){
+  const {ctx,w,h}=canvasFrame(byId('race'+n)),{runs,bounds:b}=race,r=runs[n],c=conf(n);
+  const localFrame=Math.min(frame,r.frames.length-1),f=r.frames[localFrame],t=r.track;
+  const scale=Math.min((w-8)/(b.rx-b.lx),(h-8)/(b.by-b.ty));
+  ctx.translate((w-scale*(b.rx+b.lx))/2,(h-scale*(b.by+b.ty))/2);ctx.scale(scale,scale);
+  const grid=Math.max(100,Math.ceil((b.rx-b.lx+b.by-b.ty)/5000)*100);
+  for(let x=Math.floor(b.lx/grid)*grid;x<=b.rx;x+=grid)line(ctx,[{x,y:b.ty},{x,y:b.by}],'#41494e',.6/scale);
+  for(let y=Math.floor(b.ty/grid)*grid;y<=b.by;y+=grid)line(ctx,[{x:b.lx,y},{x:b.rx,y}],'#41494e',.6/scale);
+  if(t.gate)for(const side of [-t.gate.half,t.gate.half])line(ctx,[at(t.gate,0,side),at(t.gate,t.gate.length,side)],'#dfaa69',2/scale);
+  ctx.lineJoin='round';
+  if(t.edges){
+    ctx.beginPath();ctx.arc(0,0,200,0,2*Math.PI);ctx.fillStyle='rgba(117,165,133,.12)';ctx.fill();
+    ctx.strokeStyle='#799884';ctx.lineWidth=1/scale;ctx.stroke();
+    const tunnel=t.tunnel;ctx.fillStyle='rgba(133,159,187,.18)';ctx.beginPath();
+    [[0,-140],[tunnel.length,-140],[tunnel.length,140],[0,140]].forEach(([x,y],i)=>{const q=at(tunnel,x,y);if(i)ctx.lineTo(q.x,q.y);else ctx.moveTo(q.x,q.y);});ctx.closePath();ctx.fill();
+    for(const station of [t.stepStation,t.bleStation]){
+      const q=stationPose(t,station);line(ctx,[at(q,0,-24),at(q,0,24)],'#edac67',2/scale);
+    }
+    ctx.fillStyle='#edf0eb';
+    for(const tile of t.paint){
+      ctx.beginPath();tile.poly.forEach((q,i)=>i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y));ctx.closePath();ctx.fill();
+    }
+    ctx.font=(11/scale)+'px monospace';
+    for(const [i,section] of t.sections.entries()){
+      const q=stationPose(t,(section.start+section.end)/2);
+      ctx.fillStyle='#f5c67b';ctx.fillText(String(i+1),q.x+8/scale,q.y-7/scale);
+    }
+  }else if(t.gap===null)line(ctx,t.points,'#edf0eb',c.line);
+  else{
+    if(t.gap-t.gapSize/2>0)line(ctx,[t.points[0],{x:t.gap-t.gapSize/2,y:0}],'#edf0eb',c.line);
+    if(t.gap+t.gapSize/2<t.end.x)line(ctx,[{x:t.gap+t.gapSize/2,y:0},t.end],'#edf0eb',c.line);
+  }
+  ctx.setLineDash([4/scale,2/scale]);line(ctx,r.frames.slice(0,localFrame+1),n==='A'?'#77b9df':'#feb478',2/scale);ctx.setLineDash([]);
+  vehicle(ctx,c,f,scale,n,f.ns,null);
+  const ended=localFrame===r.frames.length-1;
+  byId('racesLabel'+n).textContent=(ended?reasonLabel[r.reason]:f.source==='none'?'控制失线':f.source==='backup'?'备用接管':playing?'运行中':frame?'已暂停':'起点')+' · '+f.hits+'/'+c.positions.length+' 路';
+  byId('raceRead'+n).textContent=(f.zone?stageName(f.zone)+' · '+({out:'去程',pivot:'原地掉头',home:'返程'})[f.phase]+' · '+format(f.station)+' · '+f.grade.toFixed(1)+'°　':'')+(roleLabels[f.source]||'控制失线')+'　L/R '+[f.left,f.right].map(v=>(v/1000).toFixed(2)).join('/')+' m/s　前球侧向 '+(f.ball.right/1000).toFixed(2)+' m/s　净空 '+format(f.clear)+'　线位 '+format(f.e);
+  byId('scope'+n).style.minHeight=Math.max(100,c.positions.length*17+22)+'px';
+  const sc=canvasFrame(byId('scope'+n)),cx=sc.ctx,x0=24,x1=sc.w-8,y0=4,y1=sc.h-18;
+  const X=i=>x0+i/Math.max(1,race.last)*(x1-x0);
+  cx.font='10px monospace';
+  for(let ch=0;ch<c.positions.length;ch++){
+    const top=y0+(y1-y0)*ch/c.positions.length,d=(y1-y0)/c.positions.length,Y=v=>top+d-2-v*(d-4);
+    cx.fillStyle='#4c5961';cx.fillText('S'+(ch+1),2,top+d*.75);
+    line(cx,[{x:x0,y:Y(shared.threshold)},{x:x1,y:Y(shared.threshold)}],'#d0d7da',.7);
+    cx.beginPath();r.frames.forEach((s,i)=>i?cx.lineTo(X(i),Y(s.ns[ch])):cx.moveTo(X(i),Y(s.ns[ch])));cx.strokeStyle=colour[n];cx.lineWidth=1.1;cx.stroke();
+  }
+  line(cx,[{x:X(frame),y:y0},{x:X(frame),y:y1}],'#313b40',1);
+  cx.fillStyle='#525e64';cx.fillText('0 s',x0,sc.h-3);cx.textAlign='right';cx.fillText((race.last*dt).toFixed(2)+' s',x1,sc.h-3);
+}
+const reasonLabel={wall:'侧墙接触',roof:'超过隧道限高',supply:'上坡稳态供电不足',sectionEnd:'分段完成',stopInside:'停车指令位置合格',stopOutside:'停车指令位置超界',calibration:'标定无有效跨度',end:'探头到达线末端',lost:'盲行中止',timeout:'达到时限'};
+function raceSummary(){
+  const track=race.runs.A.track;
+  if(track.sections)byId('courseLength').textContent=(track.end.s/1000).toFixed(2)+' m · 9 段';
+  const both=names.map(n=>race.runs[n]);
+  metrics('raceMetrics',[
+    ['路段结果',...both.map(r=>reasonLabel[r.reason])],
+    ...(both[0].track.sections?[
+      ['结束位置',...both.map(r=>stageName(r.frames.at(-1).zone)+' · '+format(r.frames.at(-1).station))],
+      ['单次掉头指令',...both.map(r=>String(r.bleEvents))],
+      ['停车时最远外廓点',...both.map(r=>format(r.stopDistance))],
+      ['17.9° 上坡需求',...both.map(r=>r.uphill.current.toFixed(2)+' A / '+r.uphill.voltage.toFixed(2)+' V')]
+    ]:[]),
+    ...(!track.sections?[
+    ['匀速直行 · 每台电机所需电流',...names.map(n=>format((race.runs[n].uphill||driveLoad(conf(n))).current,' A'))],
+    ['匀速直行 · 每台电机所需电压',...names.map(n=>format((race.runs[n].uphill||driveLoad(conf(n))).voltage,' V'))],
+    ['供电检查（设定车速与坡度）',...names.map(n=>(race.runs[n].uphill||driveLoad(conf(n))).ok?'可供给':'超出供电能力')]
+    ]:[]),
+    ['结束时刻',...both.map(r=>r.frames.at(-1).t.toFixed(3)+' s')],
+    ['连续运动的最小净空区间',...both.map(r=>!r.swept?(r.track.gate?'未入窄道':'无窄道'):Number.isFinite(r.swept.high)?(Math.floor(r.swept.low*100)/100).toFixed(2)+' 至 '+(Math.ceil(r.swept.high*100)/100).toFixed(2)+' mm':'入口边界待判')],
+    ['轮速指令触及限幅的帧数',...both.map(r=>r.frames.filter(f=>f.cmdLeft!==f.left||f.cmdRight!==f.right).length+' 帧')],
+    ['备用接管时间',...both.map(r=>Math.round(r.frames.slice(0,-1).filter(f=>f.source==='backup'&&f.phase!=='pivot').length*dt*1000)+' ms')],
+    ['主循迹找回次数 / 最长找回路程',...both.map(r=>r.reacquired+' / '+format(r.maxRecovery))],
+    ['最长连续控制失线',...both.map(r=>(r.lossFrame===null?0:Math.round(r.frames[r.lossFrame].lossTime*1000))+' ms')] ]);
+  const el=byId('events');el.replaceChildren();
+  for(const n of names)for(const [k,label] of [['clearFrame','最小净空附近'],['lossFrame','最长失线']]){
+    const idx=race.runs[n][k],button=document.createElement('button');
+    button.textContent=n+' · '+label;button.disabled=idx===null;button.onclick=()=>jump(idx);el.append(button);
+  }
+}
+function drawRace(){names.forEach(drawRun);byId('time').value=frame;byId('clock').textContent=(frame*dt).toFixed(2)+' / '+(race.last*dt).toFixed(2)+' s';byId('play').textContent=playing?'Ⅱ 暂停':frame===race.last?'↺ 重播':'▶ 运行';}
+function stop(){playing=false;cancelAnimationFrame(raf);}
+function jump(i){stop();frame=i;drawRace();}
+function tick(t){
+  if(!playing)return;
+  frame=Math.min(race.last,startFrame+Math.floor(Math.max(t-startTime,0)*Number(byId('rate').value)/(dt*1000)));
+  if(frame===race.last)playing=false;
+  drawRace();if(playing)raf=requestAnimationFrame(tick);
+}
+function render(){
+  const fixed=(mode==='race'&&byId('scenario').value==='extreme')||(mode==='sweep'&&byId('scanScenario').value==='extreme');
+  for(const [key] of trackFields)byId('track'+key).disabled=fixed;
+  document.querySelectorAll('input[data-shared=line]').forEach(el=>el.disabled=fixed);
+  byId('conditions').querySelector('details').hidden=fixed;
+  byId('raceView').querySelector('[data-shared=line]').closest('label').hidden=fixed;
+  document.querySelectorAll('.boxField').forEach(e=>e.hidden=shared.spatial!=='box');
+  document.querySelectorAll('[data-shared=unitScale]').forEach(e=>e.disabled=shared.spatial==='box');
+  if(mode==='pcb')updatePCB();
+  if(mode==='cad')updateCAD();
+  if(mode==='source')Object.keys(scans).forEach(drawFit);
+  if(mode==='race'){if(!race){buildRace();raceSummary();}drawRace();}
+}
+function invalidate(){resetScan();if(mode==='sweep')refreshScanFields();stop();race=null;frame=0;render();}
+function show(m){
+  byId('viewportStrip').hidden=m==='sweep';byId('layout').dataset.mode=m;
+  for(const group of document.querySelectorAll('.inspector-group')){
+    group.open=group.dataset.group===({pcb:'sensor',cad:'chassis',race:'drive',sweep:'chassis'})[m];
+  }
+  stop();if(mode==='sweep' && byId('scanRun').disabled)resetScan();mode=m;
+  byId('conditions').hidden=m==='source';if(m==='sweep')refreshScanFields();
+  for(const v of ['pcb','cad','race','sweep'])byId(v+'View').hidden=v!==m;
+  byId('layout').hidden=m==='source';byId('sources').hidden=m!=='source';byId('export').hidden=m==='source'||m==='sweep';
+  document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===m));render();
+}
+function csvExport(){
+  const rows=[],count=Math.max(...names.map(n=>conf(n).positions.length));
+  const columns=fn=>Array.from({length:count},(_,i)=>fn(i));
+  const padded=arr=>columns(i=>arr[i]??'');
+  const header=['analysis','design','uphill_deg',...designFields.map(([id])=>id+'_candidate_'+({ledR:'ohm',load:'ohm',rxV:'V',supplyV:'V',mass:'kg',efficiency:'ratio',gear:'ratio',rolling:'ratio',maxRPM:'rpm'}[id]||'mm')),'plate_vertices_forward_from_rear_and_right_mm','layout','sensor_count','PD_reference_mm',...columns(i=>['S'+(i+1)+'_mount','S'+(i+1)+'_role','S'+(i+1)+'_right_mm','S'+(i+1)+'_forward_from_rear_axle_mm']).flat(),'regime','gate_width_mm','gate_length_mm','single_bend_radius_mm','s_radius_mm','gap_mm','rear_axle_to_caster_mm','rear_axle_to_array_mm','line_mm','box_width_mm_if_used','threshold_assumption','optics','mm_per_raw_position','longitudinal_scale','lighting','wheel_cap_m_s_0_ideal'];
+  const baseRow=(view,n,c)=>[view,n,c.grade,...designFields.map(([k])=>k==='pitch'&&['custom','distributed'].includes(c.layout)?'':c[k]),plateVertices(c).map(([x,y])=>[x+c.rearInset,y].join(' ')).join('|'),c.layout,c.positions.length,c.controlRef,...columns(i=>{const p=c.positions[i];return p?[p.mount||'pcb',p.role,p.right,c.look+p.forward]:['','','',''];}).flat(),c.regime,c.gateWidth,c.gateLength,c.bendRadius,c.sRadius,c.gapSize,c.casterX,c.look,c.line,c.spot,c.threshold,c.spatial,c.unitScale,c.aspect,c.light,c.wheelCap];
+  if(mode==='pcb'){
+    rows.push([...header,'offset_mm','edge_mm','package_gap_mm','fore_aft_edge_mm','capture_min_mm','capture_max_mm','multi_total_mm','internal_blind_mm','active',...columns(i=>'S'+(i+1)+'_normalized'),...columns(i=>'S'+(i+1)+'_V'),...columns(i=>'S'+(i+1)+'_ADC12')]);
+    for(const n of names)for(const spec of sweepRows()){
+      const c=conf(n,spec.overrides),s=coverage(c),fit=assembly(c);
+      const limit=scanLimit();
+      const step=Math.max(.5,limit/500);
+      for(let j=0;j<=Math.floor(2*limit/step);j++){const shift=-limit+j*step;
+        const ns=optical(c,shift);
+        rows.push([...baseRow('pcb',n,c),shift,fit.edge,fit.gap,fit.depth,s.low,s.extent,s.multi,s.blind,countOn(ns,c.threshold),...padded(ns),...padded(fractions1D(c,shift).map(f=>readout(c.sensor,f,c.sensor.bg).voltage)),...padded(fractions1D(c,shift).map(f=>readout(c.sensor,f,c.sensor.bg).adc))]);
+      }
+    }
+  }else if(mode==='cad'){
+    rows.push([...header,'corridor_width_mm','corridor_length_mm','axle_depth_mm','yaw_deg','offset_mm','clearance_mm','limiting_part','safe_offset_min_mm','safe_offset_max_mm','selected_pose','axle_turn_radius_mm','turn_deg','turn_width_mm','turn_depth_mm']);
+    for(const n of names){
+      const c=conf(n),parts=footprint(c),gate=straightGate(c),bounds=turnEnvelope(parts,turn.radius,turn.angle);
+      // Export the exact selected pose plus a regular grid through the displayed envelope.
+      const sample=(yaw,offset,selected,lim)=>{
+        const p={x:pose.depth,y:offset,a:rad(yaw)},hit=clearance(p,parts,gate,true);
+        const margin=hit?(gate.half-Math.abs(hit.point.y)):null;
+        rows.push([...baseRow('cad',n,c),c.gateWidth,c.gateLength,pose.depth,yaw,offset,margin,hit?partName(hit.partIndex,c.positions.length):'',lim?.low,lim?.high,selected,turn.radius,turn.angle,bounds.width,bounds.depth]);
+      };
+      sample(pose.yaw,pose.offset,1,sliceLimits(c,pose.yaw));
+      for(let yaw=-60;yaw<=60;yaw+=2){const lim=sliceLimits(c,yaw);for(let e=-100;e<=100;e+=5)sample(yaw,e,0,lim);}
+    }
+  }else{
+    rows.push([...header,'scenario','speed_m_s','initial_offset_mm','initial_yaw_deg','sample_s','end_reason','swept_lower_mm','swept_upper_mm','min_witness_s','time_s','axle_x_mm','axle_y_mm','yaw_deg','distance_mm','left_m_s','right_m_s','left_cmd_m_s','right_cmd_m_s','left_rpm','right_rpm','caster_forward_m_s','caster_right_m_s','line_est_mm','active','steering_source','primary_hits','backup_hits','primary_recoveries','max_recovery_mm','clearance_mm','blind_mm','start_section','section','station_mm','leg','local_grade_deg','local_line_width_mm','patch_black_normalised','patch_white_normalised','ble_events_total','stop_radius_mm',...columns(i=>'S'+(i+1)+'_normalized'),...columns(i=>'S'+(i+1)+'_V'),...columns(i=>'S'+(i+1)+'_ADC12')]);
+    for(const n of names){const r=race.runs[n],c=conf(n);
+      for(const f of r.frames)rows.push([...baseRow('race',n,c),byId('scenario').value,c.speed,c.startOffset,c.startYaw,dt,r.reason,r.swept?.low,r.swept?.high,r.swept?.time,f.t,f.x,f.y,f.a*180/Math.PI,f.distance,f.left/1000,f.right/1000,f.cmdLeft/1000,f.cmdRight/1000,f.leftRPM,f.rightRPM,f.ball.forward/1000,f.ball.right/1000,f.e,f.hits,f.source,f.primary,f.backup,r.reacquired,r.maxRecovery,f.clear,f.blind,r.track.sections?r.startId:null,f.zone,f.station,f.phase,f.grade,f.lineWidth,c.surfaceBlack,c.surfaceWhite,r.bleEvents,r.stopDistance,...padded(f.ns),...padded(f.volts),...padded(f.adc)]);}
+  }
+  saveCSV(rows,mode);
+}
+function saveCSV(rows,label){
+  const cell=v=>{
+    if(typeof v==='number')return Number.isFinite(v)?Number(v.toFixed(8)):'';
+    const str=SimLocale.translate(String(v??''));
+    return /[,"\r\n]/.test(str)?'"'+str.replaceAll('"','""')+'"':str;
+  };
+  const csv=rows.map(row=>row.map(cell).join(',')).join('\r\n');
+  const url=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  const a=document.createElement('a');a.href=url;a.download='G52-AB-'+label+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function updateInputs(){
+  for(const [id] of designFields)for(const n of names)byId(id+n).value=designs[n][id];
+  names.forEach(syncLayout);names.forEach(syncOutline);
+}
+function syncLayout(n){
+  const c=conf(n);
+  byId('pattern'+n).value=c.layout;
+  byId('pitch'+n).disabled=['custom','distributed'].includes(c.layout);
+  const chooser=byId('pick'+n);
+  while(chooser.options.length>c.positions.length)chooser.remove(chooser.options.length-1);
+  while(chooser.options.length<c.positions.length){const i=chooser.options.length;chooser.add(new Option('S'+(i+1),String(i)));}
+  picked[n]=Math.min(Math.max(0,picked[n]),c.positions.length-1);
+  chooser.value=String(picked[n]);chooser.disabled=!c.positions.length;
+  const table=byId('coordinates'+n).tBodies[0];
+  while(table.rows.length>c.positions.length)table.deleteRow(-1);
+  c.positions.forEach((p,i)=>{
+    if(!table.rows[i]){
+      const tr=table.insertRow();
+      tr.innerHTML='<th>S'+(i+1)+'</th><td><select data-mount aria-label="安装位置"><option value="pcb">传感器板</option><option value="body">独立安装</option></select></td><td><select id="role'+n+i+'" aria-label="S'+(i+1)+' 职责"><option value="steer">主循迹</option><option value="backup">失线接管</option><option value="log">仅记录</option></select></td>'+
+        ['right','forward'].map(axis=>'<td><input id="'+axis+n+i+'" type="number" step="any" aria-label="方案 '+n+' S'+(i+1)+(axis==='right'?' 横向':' 前后')+' mm"></td>').join('')+
+        '<td><button type="button" data-remove aria-label="删除 S'+(i+1)+'">×</button></td>';
+      tr.querySelector('[data-remove]').onclick=()=>{
+        const pts=sensorPositions(designs[n]).filter((_,j)=>i!==j);setCustom(n,pts);invalidate();
+      };
+      const commit=()=>{
+        const right=byId('right'+n+i).valueAsNumber,x=byId('forward'+n+i).valueAsNumber;
+        if(!Number.isFinite(right)||!Number.isFinite(x)){syncLayout(n);return;}
+        const mount=tr.querySelector('[data-mount]').value;
+        const c=conf(n);
+        placeSensor(n,i,{right:mount==='body'?right:right-c.boardRight,forward:mount==='body'?x:x-c.look,mount});invalidate();
+      };
+      tr.querySelectorAll('input,[data-mount]').forEach(el=>el.onchange=commit);
+      byId('role'+n+i).onchange=ev=>{
+        const roles=sensorPositions(designs[n]).map(p=>p.role);roles[i]=ev.target.value;
+        designs[n].roles=roles;syncLayout(n);invalidate();
+      };
+    }
+    table.rows[i].querySelector('[data-mount]').value=p.mount||'pcb';byId('role'+n+i).value=p.role;
+    byId('right'+n+i).value=p.right;
+    byId('forward'+n+i).value=+(c.look+p.forward).toFixed(8);
+  });
+}
+function setCustom(n,points){
+  Object.assign(designs[n],{layout:'custom',roles:null,customPositions:points});syncLayout(n);
+}
+function placeSensor(n,i,point){
+  const pts=sensorPositions(designs[n]).slice();pts[i]={...pts[i],...point};setCustom(n,pts);
+}
+function layoutEditor(n){
+  const select=byId('pattern'+n);
+  for(const [key,label] of Object.entries(layouts))select.add(new Option(label,key));
+  select.onchange=()=>{
+    const d=designs[n];
+    if(select.value==='custom')d.customPositions=sensorPositions(d).map(p=>({...p}));
+    d.layout=select.value;syncLayout(n);invalidate();
+  };
+  byId('zoom'+n).onchange=()=>drawBoard(n);
+  byId('add'+n).onclick=()=>{
+    if(preventExtra(n))return;
+    const pts=sensorPositions(designs[n]),side=pts.length%2?-1:1;
+    setCustom(n,[...pts,{right:side*designs[n].width/2,forward:0,mount:'body'}]);
+    byId('coordinates'+n).closest('details').open=true;invalidate();
+  };
+  const canvas=byId('board'+n);
+  function pointAt(ev,frame){
+    const rect=canvas.getBoundingClientRect();
+    return {right:(ev.clientX-rect.left-frame.cx)/frame.scale,forward:(frame.cy-ev.clientY+rect.top)/frame.scale};
+  }
+  byId('pick'+n).onchange=ev=>{picked[n]=Number(ev.target.value);drawBoard(n);canvas.focus({preventScroll:true});};
+  canvas.onkeydown=ev=>{
+    const moves={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,1],ArrowDown:[0,-1]};
+    if(!moves[ev.key]||ev.altKey||ev.metaKey||ev.ctrlKey||drag)return;
+    const i=picked[n],p=sensorPositions(designs[n])[i];if(!p)return;
+    ev.preventDefault();
+    const [dx,dy]=moves[ev.key],step=ev.shiftKey?1:.1;
+    placeSensor(n,i,{right:+(p.right+dx*step).toFixed(8),forward:+(p.forward+dy*step).toFixed(8)});invalidate();
+  };
+  canvas.onpointerleave=()=>{if(!drag)byId('pointer'+n).textContent='X —　Y — mm';};
+  canvas.ondblclick=ev=>{
+    const c=conf(n),frame=editorFrame(n,canvas.clientWidth,canvas.clientHeight),q=pointAt(ev,frame);
+    if(c.positions.some(p=>Math.abs(p.right-q.right)<=2.9 && Math.abs(c.look+p.forward-q.forward)<=5.1))return;
+    if(preventExtra(n))return;
+    const points=sensorPositions(designs[n]);
+    setCustom(n,[...points,{mount:'body',right:Math.round(q.right*10)/10,forward:Math.round(q.forward*10)/10}]);
+    invalidate();
+  };
+  canvas.onpointerdown=ev=>{
+    if(ev.button!==0||drag)return;
+    const frame=editorFrame(n,canvas.clientWidth,canvas.clientHeight),{scale}=frame,q=pointAt(ev,frame);
+    const c=conf(n),pts=c.positions;
+    const candidates=pts.map((p,i)=>({i,dx:q.right-p.right,dy:q.forward-(p.forward+c.look)}))
+      .filter(d=>Math.abs(d.dx)<=2.9+2/scale && Math.abs(d.dy)<=5.1+2/scale)
+      .sort((a,b)=>Math.hypot(a.dx,a.dy)-Math.hypot(b.dx,b.dy));
+    if(!candidates.length)return;
+    picked[n]=candidates[0].i;byId('pick'+n).value=String(picked[n]);canvas.focus({preventScroll:true});
+    drag={...candidates[0],n,...frame,pointer:ev.pointerId};drawBoard(n);
+    canvas.setPointerCapture(ev.pointerId);
+  };
+  canvas.onpointermove=ev=>{
+    const projection=drag?.n===n?drag:editorFrame(n,canvas.clientWidth,canvas.clientHeight);
+    const cursor=pointAt(ev,projection);
+    byId('pointer'+n).textContent='X '+cursor.forward.toFixed(1)+'　Y '+cursor.right.toFixed(1)+' mm';
+    if(drag?.n!==n||drag.pointer!==ev.pointerId)return;
+    const q=pointAt(ev,drag),snap=v=>Math.round(v*10)/10;
+    const right=snap(q.right-drag.dx),forward=snap(q.forward-drag.dy);
+    const c=conf(n),old=c.positions[drag.i];
+    if(old.right===right&&Math.abs(c.look+old.forward-forward)<1e-8)return;
+    const onBoard=old.mount!=='body' && (!drag.whole || (Math.abs(right-c.boardRight)<=c.boardWidth/2 && Math.abs(forward-c.look)<=c.boardDepth/2));
+    placeSensor(n,drag.i,{right:onBoard?right-c.boardRight:right,forward:onBoard?forward-c.look:forward,mount:onBoard?'pcb':'body'});race=null;frame=0;
+    drawBoard(n);drawCapture();
+  };
+  const finish=ev=>{if(drag?.n===n&&drag.pointer===ev.pointerId){drag=null;invalidate();}};
+  canvas.onpointerup=finish;canvas.onpointercancel=finish;canvas.onlostpointercapture=finish;
+  syncLayout(n);
+}
+const trackFields=[
+  ['line','白线宽度'],['bendRadius','单弯半径'],['sRadius','S 弯半径'],
+  ['gateWidth','窄道宽度'],['gateLength','窄道长度'],['gapSize','断线长度'],['grade','上坡角度']
+];
+function courseIssue(c,count){
+  for(const [key,label] of trackFields){
+    if(!Number.isFinite(c[key]) || (['gapSize','grade'].includes(key)?c[key]<0:c[key]<=0))return label+'超出几何范围';
+  }
+  if(c.regime==='course'){
+    const l=courseLimits;
+    if(c.line<l.minLine||c.line>l.maxLine)return 'Canvas §1.4 · 白线宽度 14–20 mm';
+    if(Math.min(c.bendRadius,c.sRadius)<l.minRadius)return 'Canvas §1.4 · 平滑弯半径至少 50 mm';
+    if(c.gateWidth<l.minGate)return 'Canvas §1.4 · 窄点宽度至少 280 mm';
+    if(c.gapSize>l.maxGap)return 'Canvas §1.4 · 断线最长 6 mm';
+    if(c.grade>=18)return 'Canvas §1.4 · 上坡角度小于 18°';
+    if(count>l.maxSensors)return 'Canvas §1.6 · 最多六个循迹探头';
+  }
+  if(c.grade>=90)return '上坡角度须小于 90°';
+  if(c.line/2>=Math.min(c.bendRadius,c.sRadius))return '弯道内缘半径须大于零';
+  return '';
+}
+function designIssue(c){
+  for(const [key,label,min,max] of designFields){
+    if(!Number.isFinite(c[key])||(min!==null&&c[key]<min)||(max!==null&&c[key]>max))return label+'超出输入范围';
+    if(c[key]===0 && min===0 && !['maxRPM','hole','pitch','rolling'].includes(key))return label+'须大于零';
+  }
+  return mountingIssue(c);
+}
+function syncCourse(){
+  byId('regime').value=shared.regime;
+  for(const [key] of trackFields)byId('track'+key).value=shared[key];
+  document.querySelectorAll('[data-shared="line"]').forEach(el=>el.value=shared.line);
+}
+function commitTrack(key,value){
+  const next={...shared,[key]:value};
+  const issue=courseIssue(next,Math.max(...names.map(n=>sensorPositions(designs[n]).length)));
+  if(!issue)shared[key]=value;
+  byId('courseStatus').textContent=issue;syncCourse();
+  if(!issue)invalidate();
+}
+function preventExtra(n){
+  if(shared.regime==='free'||sensorPositions(designs[n]).length<courseLimits.maxSensors)return false;
+  byId('courseStatus').textContent='Canvas §1.6 · 最多六路。可在自由工况中添加。';return true;
+}
+function initCourse(){
+  for(const [key,label] of trackFields){
+    const wrap=document.createElement('label');wrap.textContent=label+' ';
+    const input=document.createElement('input');Object.assign(input,{id:'track'+key,type:'number',step:'any'});
+    input.onchange=()=>commitTrack(key,input.valueAsNumber);wrap.append(input,key==='grade'?' °':' mm');byId('trackFields').append(wrap);
+  }
+  byId('regime').onchange=e=>commitTrack('regime',e.target.value);
+  syncCourse();
+}
+// DR1 motor and tow tests. Electrical constants are measured references.
+function driveLoad(c){
+  const angle=rad(c.grade),radius=c.driveDiameter/2000;
+  const force=c.mass*9.80665*(Math.sin(angle)+c.rolling*Math.cos(angle));
+  const torque=force*radius/(2*c.gear*c.efficiency);
+  const current=(torque+.00124)/.00775;
+  const omega=c.speed*c.gear/radius;
+  // Use the fitted running-load back-EMF line, including its reported intercept.
+  const voltage=1.7548*current-.0103+.007259*omega+.9310;
+  return {current,voltage,ok:current<=1.8&&voltage<=c.supplyV};
+}
+function scanFields(n,extreme=false){
+  const d=designs[n],fields=[...designFields.filter(([key])=>key!=='pitch'||!['custom','distributed'].includes(d.layout)).map(([key,title])=>[key,title]),...(extreme?[]:trackFields)];
+  for(const [i] of sensorPositions(designs[n]).entries()){
+    fields.push(['right:'+i,'S'+(i+1)+' 横向位置'],['forward:'+i,'S'+(i+1)+' 后轴前距']);
+  }
+  return fields;
+}
+function scanCandidate(n,entries){
+  const overrides={};for(const [key,v] of entries)if(!key.includes(':'))overrides[key]=v;
+  const initial=conf(n,overrides);
+  const moved=entries.filter(([key])=>key.includes(':'));
+  if(!moved.length)return initial;
+  const points=sensorPositions(initial).map(p=>({...p}));
+  for(const [key,v] of moved){
+    const [axis,index]=key.split(':'),p=points[Number(index)];
+    p[axis]=v-(p.mount==='body'?0:axis==='forward'?initial.look:initial.boardRight);
+  }
+  return conf(n,{...overrides,layout:'custom',roles:null,customPositions:points});
+}
+function evaluateCandidate(c,kind,startId='full'){
+  const issue=designIssue(c)||courseIssue(c,c.positions.length);
+  if(issue)return {issue};
+  const r=simulate(c,kind,startId),end=r.frames.at(-1),fit=assembly(c),cover=coverage(c);
+  const staticClear=clearance({x:pose.depth,y:pose.offset,a:rad(pose.yaw)},footprint(c),straightGate(c));
+  return {cover,zone:end.zone,station:end.station,leg:end.phase,ble:r.bleEvents,stopDistance:r.stopDistance,drive:r.uphill||driveLoad(c),headroom:200-c.height,reacquired:r.reacquired,maxRecovery:r.maxRecovery,reason:r.reason,time:end.t,blind:r.lossFrame===null?0:r.frames[r.lossFrame].lossTime*1000,
+    staticClear,clearLow:r.swept?.low,clearHigh:r.swept?.high,rpm:r.frames.reduce((v,f)=>Math.max(v,Math.abs(f.leftRPM),Math.abs(f.rightRPM)),0),
+    fit:fit.conflicts.size?'封装干涉或越板':'可布置'};
+}
+let scanToken=0,scanResults=[];
+function resetScan(){
+  scanToken++;scanResults=[];
+  byId('scanBody').replaceChildren();byId('scanStatus').textContent='';
+  byId('scanRun').disabled=false;byId('scanCSV').disabled=true;
+}
+function refreshScanFields(){
+  const fields=scanFields(byId('scanDesign').value,byId('scanScenario').value==='extreme');
+  for(const suffix of ['1','2']){
+    const el=byId('axis'+suffix),old=el.value;
+    el.replaceChildren();if(suffix==='2')el.add(new Option('无',''));
+    fields.forEach(([key,title])=>el.add(new Option(title,key)));
+    el.value=fields.some(([k])=>k===old)?old:suffix==='1'?'axle':'';
+  }
+}
+function axisValues(id){
+  const key=byId('axis'+id).value;
+  if(!key)return [{key:'',value:null}];
+  const lo=byId('lo'+id).valueAsNumber,hi=byId('hi'+id).valueAsNumber,count=byId('num'+id).valueAsNumber;
+  if(!Number.isFinite(lo)||!Number.isFinite(hi)||!Number.isInteger(count)||count<1||count>31 || (count===1&&lo!==hi))
+    throw Error('每轴取 1–31 点。取 1 点时起止值须相同。');
+  return Array.from({length:count},(_,i)=>({key,value:i===count-1?hi:lo+(hi-lo)*i/(count-1)}));
+}
+const scanHeader=['design','regime','scenario','parameter_1','value_1','parameter_2','value_2','result','time_s','max_blind_ms','static_clearance_mm','swept_lower_mm','swept_upper_mm','peak_wheel_rpm','package_fit','steady_motor_A','steady_motor_V','steady_supply_ok','tunnel_margin_mm','lateral_min_mm','lateral_max_mm','internal_blind_mm','primary_recoveries','max_recovery_mm','config_json','static_pose_json','start_section','last_section','centreline_station_mm','leg','ble_events','stop_radius_mm'];
+async function runScan(){
+  resetScan();const token=scanToken,n=byId('scanDesign').value,kind=byId('scanScenario').value;
+  let first,second;
+  try{
+    first=axisValues('1');second=axisValues('2');
+    if(first[0].key===second[0].key)throw Error('请选择两个不同参数');
+  }catch(e){byId('scanStatus').textContent=e.message;return;}
+  byId('scanRun').disabled=true;
+  const total=first.length*second.length;
+  for(const a of first)for(const b of second){
+    await new Promise(done=>setTimeout(done,0));
+    if(token!==scanToken)return;
+    const entries=[[a.key,a.value]];if(b.key)entries.push([b.key,b.value]);
+    const c=scanCandidate(n,entries),out=evaluateCandidate(c,kind,byId('sweepStart').value);
+    const name=out.issue||reasonLabel[out.reason],{sensor,positions,plateCentre,casterX,look,hasBoard,...inputs}=c;
+    scanResults.push([n,c.regime,kind,a.key,a.value,b.key,b.value,name,out.time,out.blind,out.staticClear,out.clearLow,out.clearHigh,out.rpm,out.fit,out.drive?.current,out.drive?.voltage,out.drive?.ok,out.headroom,out.cover?.low,out.cover?.extent,out.cover&&!out.cover.invalid?out.cover.blind:null,out.reacquired,out.maxRecovery,JSON.stringify(inputs),JSON.stringify(pose),kind==='extreme'?byId('sweepStart').value:null,out.zone,out.station,out.leg,out.ble,out.stopDistance]);
+    const tr=byId('scanBody').insertRow();
+    const num=(v,d=1)=>Number.isFinite(v)?v.toFixed(d):'—';
+    const result=out.zone?name+' · '+stageName(out.zone)+' · '+format(out.station):name;
+    for(const value of [num(a.value,2),num(b.value,2),result,num(out.blind,0),out.cover?(out.cover.invalid||num(out.cover.low)+' … '+num(out.cover.extent)):'—',out.cover&&!out.cover.invalid?num(out.cover.blind):'—',num(out.staticClear),out.clearLow==null?'—':num(out.clearLow,2)+' … '+num(out.clearHigh,2),num(out.rpm),out.drive?num(out.drive.current,2)+' / '+num(out.drive.voltage,2):'—',out.drive?(out.drive.ok?'可供给':'超限'):'—',num(out.headroom),out.reacquired??'—',num(out.maxRecovery),out.fit||'—'])tr.insertCell().textContent=value;
+    byId('scanStatus').textContent=scanResults.length+' / '+total;
+  }
+  byId('scanRun').disabled=false;byId('scanCSV').disabled=false;
+}
+function initScan(){
+  for(const id of ['1','2']){
+    const row=document.createElement('div');row.className='controls';
+    row.innerHTML='<label>变量 '+id+' <select id="axis'+id+'"></select></label>'+
+      ['lo','hi','num'].map((k,j)=>'<label>'+['起值','止值','点数'][j]+' <input type="number" id="'+k+id+'" step="'+(j===2?'1':'any')+'" value="'+(id==='1'?[110,150,5][j]:[60,90,4][j])+'"></label>').join('');
+    byId('scanAxes').append(row);
+  }
+  refreshScanFields();
+  byId('scanDesign').onchange=()=>{resetScan();refreshScanFields();};
+  byId('scanAxes').onchange=resetScan;byId('scanScenario').onchange=resetScan;
+  byId('scanRun').onclick=runScan;
+  byId('scanCSV').onclick=()=>saveCSV([scanHeader,...scanResults],'sweep');
+}
+
+function initWorkbench(){
+  const layout=byId('layout');
+  const inspector=byId('inspectorToggle');
+  inspector.onclick=()=>{
+    const open=inspector.getAttribute('aria-expanded')!=='true';
+    inspector.setAttribute('aria-expanded',open);layout.classList.toggle('inspector-closed',!open);render();
+  };
+  for(const button of document.querySelectorAll('[data-design-mode]')){
+    button.onclick=()=>{
+      layout.dataset.design=button.dataset.designMode;
+      for(const b of button.parentElement.children)b.setAttribute('aria-pressed',b===button);
+      render();
+    };
+  }
+  for(const button of document.querySelectorAll('[data-target]')){
+    button.onclick=()=>{
+      for(const b of button.parentElement.querySelectorAll('[data-target]')){
+        b.setAttribute('aria-pressed',b===button);byId(b.dataset.target).hidden=b!==button;
+      }
+      render();
+    };
+  }
+}
+function init(){
+  for(const [name,scan] of Object.entries(scans))fitted[name]={...fitScan(scan),heldOut:heldOutError(scan)};
+  makeTwins('boards',n=>'<div class="board-toolbar"><select id="pattern'+n+'" aria-label="方案 '+n+' 布局"></select><select id="zoom'+n+'" aria-label="方案 '+n+' 视图"><option value="car">整车</option><option value="pcb">布局放大</option></select><select id="pick'+n+'" aria-label="选中探头"></select><button id="add'+n+'">＋ 探头</button><details><summary>坐标与职责</summary><table class="coordinates" id="coordinates'+n+'"><thead><tr><th>通道</th><th>安装</th><th>职责</th><th>右 / mm</th><th>前 / mm</th><th></th></tr></thead><tbody></tbody></table></details></div><canvas tabindex="0" title="拖动探头；方向键微调 0.1 mm，Shift 加方向键调 1 mm。双击空白处添加。" class="boardplot" id="board'+n+'" aria-label="方案 '+n+' 传感器位置"></canvas><div class="view-status"><output id="pointer'+n+'">X —　Y — mm</output><span class="read" id="boardRead'+n+'"></span></div>');
+  makeTwins('poses',n=>'<canvas class="cadplot" id="pose'+n+'" aria-label="方案 '+n+' 当前姿态及净空"></canvas><div class="read" id="poseRead'+n+'"></div>');
+  makeTwins('maps',n=>'<canvas class="heatplot" id="map'+n+'" aria-label="方案 '+n+' 可行横偏与偏航角，亦可用上方数值框选取"></canvas>');
+  makeTwins('races',n=>'<canvas class="raceplot" id="race'+n+'" aria-label="方案 '+n+' 轨迹"></canvas><div class="read" id="raceRead'+n+'"></div>');
+  makeTwins('scopes',n=>'<canvas class="scopeplot" id="scope'+n+'" aria-label="方案 '+n+' 通道归一化波形"></canvas>');
+  const fields=byId('fields');
+  fields.innerHTML='<div class="field heading"><b>候选参数</b><strong class="ca">A</strong><strong class="cb">B</strong></div>';
+  const inspectorGroups={};
+  for(const [key,title] of [['sensor','传感器与电路'],['chassis','底盘与安装'],['drive','驱动与供电参数']]){
+    const group=document.createElement('details');group.className='inspector-group';
+    const summary=document.createElement('summary');summary.textContent=title;group.append(summary);
+    group.dataset.group=key;fields.append(group);inspectorGroups[key]=group;
+  }
+  for(const [id,title,min,max,step] of designFields){
+    const row=document.createElement('div');row.className='field';
+    row.innerHTML='<span>'+title+'</span>'+names.map(n=>'<input type="number" id="'+id+n+'" aria-label="方案 '+n+' '+title+'">').join('');
+    const group=['ledR','load','rxV','pitch','boardWidth','boardDepth','hole','sensorInset','boardRight'].includes(id)?'sensor':
+      ['mass','gear','efficiency','rolling','supplyV','maxRPM'].includes(id)?'drive':'chassis';
+    inspectorGroups[group].append(row);
+    for(const n of names){const el=byId(id+n);if(id==='sensorInset')el.title='¹ 负值表示板中心伸出车头。';Object.assign(el,{step,value:designs[n][id]});if(min!==null)el.min=min;if(max!==null)el.max=max;
+      el.onchange=()=>{
+        if(el.value===''||!el.validity.valid){el.value=designs[n][id];byId('validation').textContent=title+(min===null?'，步长 '+step:'范围 '+min+'–'+max+'，步长 '+step);return;}
+        const issue=designIssue({...designs[n],[id]:el.valueAsNumber});
+        if(issue){el.value=designs[n][id];byId('validation').textContent=issue;return;}
+        byId('validation').textContent='';designs[n][id]=el.valueAsNumber;if(id==="length"||id==="width")syncOutline(n);syncLayout(n);invalidate();
+      };}
+  }
+  initCadDesign();names.forEach(layoutEditor);initCourse();initScan();
+  const labels={spatial:{scan308:'实测拟合 · 板高 3.08 cm',scan208:'实测拟合 · 板高 2.08 cm',box:'均匀核假设'},light:{room:'室内标定 / 室内运行',bright:'室内标定 / 强光运行'},unitScale:{1:'按表头 mm',10:'按 cm 试算'},wheelCap:{0:'理想跟随',0.6:'±0.6 m/s',1:'±1 m/s'}};
+  const units={controlRef:' mm',aspect:'×',line:' mm',spot:' mm',threshold:'',speed:' m/s',startOffset:' mm',startYaw:'°'};
+  document.querySelectorAll('input[data-shared=line]').forEach(el=>el.onchange=()=>commitTrack('line',el.valueAsNumber));
+  document.querySelectorAll('select[data-shared]').forEach(el=>{
+    const key=el.dataset.shared;el.innerHTML=choices[key].map(v=>'<option value="'+v+'">'+(labels[key]?.[v]??v+units[key])+'</option>').join('');el.value=shared[key];
+    el.onchange=()=>{shared[key]=typeof choices[key][0]==='string'?el.value:Number(el.value);document.querySelectorAll('[data-shared="'+key+'"]').forEach(o=>o.value=el.value);invalidate();};
+  });
+  for(const [id,title,min,max,unit] of [['depth','后轴入道',-300,250,'mm'],['offset','横偏',-100,100,'mm'],['yaw','偏航',-60,60,'°']]){
+    const label=document.createElement('label');label.textContent=title+' ';
+    const el=document.createElement('input');Object.assign(el,{type:'number',min,max,step:1,value:pose[id],id:'poseInput'+id});
+    label.append(el,' '+unit);byId('poseFields').append(label);
+    el.onchange=()=>{if(el.value===''||!el.validity.valid){el.value=pose[id];return;}pose[id]=el.valueAsNumber;resetScan();updateCAD();};
+  }
+  for(const n of names)byId('map'+n).onclick=ev=>{
+    const rect=ev.currentTarget.getBoundingClientRect(),a=mapArea(rect.width,rect.height),x=ev.clientX-rect.left,y=ev.clientY-rect.top;
+    if(x<a.l||x>a.r||y<a.t||y>a.b)return;
+    pose.yaw=Math.round(-60+120*(x-a.l)/(a.r-a.l));pose.offset=Math.round(100-200*(y-a.t)/(a.b-a.t));
+    byId('poseInputoffset').value=pose.offset;byId('poseInputyaw').value=pose.yaw;resetScan();updateCAD();
+  };
+  document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));
+  byId('shift').oninput=()=>{names.forEach(drawBoard);drawCapture();byId('shiftValue').textContent=format(+byId('shift').value);};
+  byId('defaults').onclick=()=>{Object.assign(designs.A,base);Object.assign(designs.B,base,{layout:'distributed'});byId('validation').textContent='';updateInputs();invalidate();};
+  byId('copyAB').onclick=()=>{Object.assign(designs.B,designs.A,{outline:designs.A.outline?.map(p=>[...p])??null,customPositions:designs.A.customPositions?.map(p=>({...p}))??null});updateInputs();invalidate();};
+  for(const id of ['raceStart','sweepStart']){
+    const el=byId(id);el.add(new Option('全程往返','full'));
+    for(const [id,title] of stages)el.add(new Option(title,id));
+    el.add(new Option('返程停车','parking'));
+  }
+  for(const panel of ['raceStartFields','sweepStartFields']){
+    const editor=document.createElement('details');
+    editor.innerHTML='<summary>材料标定</summary><div class="controls"><label>黑面 <input type="number" step="any" data-material="black"></label><label>白线 <input type="number" step="any" data-material="white"></label><button>应用</button><output role="status"></output></div><p class="foot">两项均填同一台架条件下的归一化读数。参考黑面为 0，参考白线为 1。两项留空沿用参考材料；输入作用于第 2 段接缝后的表面。</p>';
+    byId(panel).append(editor);
+    editor.querySelector('button').onclick=()=>{
+      const fields=[...editor.querySelectorAll('input')],status=editor.querySelector('output');
+      const vals=fields.map(el=>el.value===''?null:el.valueAsNumber);
+      if(fields.some(el=>el.validity.badInput)||vals.some(v=>v!==null&&!Number.isFinite(v))||((vals[0]===null)!==(vals[1]===null))){
+        status.textContent='黑面与白线读数须成对填写。';return;
+      }
+      [shared.surfaceBlack,shared.surfaceWhite]=vals;
+      document.querySelectorAll('[data-material]').forEach(el=>el.value=(el.dataset.material==='black'?vals[0]:vals[1])??'');
+      for(const el of document.querySelectorAll('#raceStartFields output,#sweepStartFields output'))el.textContent=vals[0]===null?'参考材料':'已应用';
+      invalidate();
+    };
+  }
+  byId('raceStart').onchange=invalidate;byId('sweepStart').onchange=resetScan;
+  byId('scenario').onchange=()=>{byId('raceStartFields').hidden=byId('scenario').value!=='extreme';invalidate();};
+  byId('scanScenario').onchange=()=>{byId('sweepStartFields').hidden=byId('scanScenario').value!=='extreme';resetScan();refreshScanFields();render();};
+  byId('play').onclick=()=>{
+    if(playing){stop();drawRace();return;}
+    if(frame===race.last)frame=0;
+    startFrame=frame;startTime=performance.now();playing=true;drawRace();raf=requestAnimationFrame(tick);
+  };
+  byId('rewind').onclick=()=>jump(0);byId('time').oninput=e=>jump(+e.target.value);
+  byId('rate').onchange=()=>{startFrame=frame;startTime=performance.now();};
+  byId('export').onclick=csvExport;
+  byId('raw').innerHTML='<table class="metrics"><thead><tr><th>原表行</th><th>板面高度 cm</th><th>黑面 V</th><th>白线 V</th></tr></thead><tbody>'+rawHeight.map(([height,b,w],i)=>'<tr><td>'+(33+i)+'</td><td>'+height.toFixed(2)+'</td><td>'+b+'</td><td>'+w+'</td></tr>').join('')+'</tbody></table>';
+  byId('fitData').innerHTML='<table class="metrics"><tr><th>板高 / 有效配对点</th><th>拟合条宽（位置列单位）</th><th>横向 σ（位置列单位）</th><th>全点 RMSE</th><th>留位置验证 RMSE</th></tr>'+Object.entries(scans).map(([k,v])=>'<tr><td>'+rawHeight[v.row][0]+' cm / '+v.points.length+'</td><td>'+fitted[k].width.toFixed(3)+'</td><td>'+fitted[k].sigma.toFixed(3)+'</td><td>'+fitted[k].rmse.toFixed(3)+' V</td><td>'+fitted[k].heldOut.toFixed(3)+' V</td></tr>').join('')+'</table>';
+  new ResizeObserver(()=>{if(mode==='source')Object.keys(scans).forEach(drawFit);}).observe(byId('sources'));
+  initWorkbench();
+  if(new URLSearchParams(location.search).get('scenario')==='extreme'){
+    byId('scenario').value=byId('scanScenario').value='extreme';
+    byId('raceStartFields').hidden=byId('sweepStartFields').hidden=false;show('race');
+  }else show('pcb');
+  SimLocale.start(render);
+  let lastWidth=0;new ResizeObserver(entries=>{const w=entries[0].contentRect.width;if(w>0&&w!==lastWidth){lastWidth=w;render();}}).observe(document.querySelector('.work'));
+}
+init();
+</script></body></html>
