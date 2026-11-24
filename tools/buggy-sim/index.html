@@ -11,7 +11,7 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 @media(max-width:880px){.layout{grid-template-columns:1fr}.fields{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.fields h3,.field.heading{grid-column:1/-1}.boardplot{height:130px}}@media(max-width:600px){main{padding:5px}.fields{display:block}header>div{padding:7px}header small{display:none}nav button{padding:7px 9px}.twins{grid-template-columns:1fr}.pane+.pane{border-left:0;border-top:1px solid var(--rule)}.metrics td,.metrics th{padding:4px 5px}.scopeplot{height:105px}.raceplot{height:185px}.boardplot{height:100px}.cadplot{height:170px}.heatplot{height:145px}.bar,.pad,.controls{padding:6px 8px}}
 .board-toolbar{display:flex;align-items:flex-start;gap:10px;padding:7px 10px 0}.board-toolbar details{flex:1;min-width:0}.board-toolbar summary{cursor:pointer;font-size:12px;line-height:27px}.coordinates{width:100%;table-layout:fixed;font-size:11px}.coordinates th{font-weight:500}.coordinates input{width:100%;min-width:0;text-align:center;padding:3px 0;font:11px var(--mono);appearance:textfield}.coordinates input::-webkit-inner-spin-button{display:none}.boardplot{touch-action:none;height:170px;cursor:crosshair}@media(max-width:1150px){.board-toolbar{flex-wrap:wrap}.board-toolbar details[open]{flex-basis:100%}}
 .board-toolbar{flex-wrap:wrap}.board-toolbar details[open]{flex-basis:100%}.coordinates td,.coordinates th{text-align:left}.coordinates th:first-child,.coordinates th:last-child{width:13%}.coordinates select{max-width:100%;font-size:12px}.coordinates input{padding:4px 1px}.boardplot{height:248px}.read{overflow-wrap:anywhere}
-</style><link rel="stylesheet" href="./workbench.css"><script src="./locale.js"></script></head><body>
+</style><link rel="stylesheet" href="./workbench.css"><script src="./locale.js"></script><script src="./controller-files.js"></script></head><body>
 <header><div><h1>循迹小车仿真</h1><small>EEEN21000 / GROUP 52</small><div class="header-actions"><select id="language" data-language aria-label="Language / 语言"><option value="zh-CN" lang="zh-CN">简体中文</option><option value="en-GB" lang="en-GB">English (UK)</option></select><button id="export">导出当前对比 CSV</button></div></div></header>
 <main><nav aria-label="分析视图"><button data-view="pcb">传感器布局</button><button data-view="cad">CAD 几何</button><button data-view="race">整车回放</button><button data-view="sweep">参数扫描</button><button data-view="source">数据与假设</button></nav>
 <div id="conditions" class="controls"><label>工况 <select id="regime"><option value="course">课程工况</option><option value="free">自由工况</option></select></label><details><summary>赛道尺寸</summary><div class="controls" id="trackFields"></div></details><small role="status" id="courseStatus"></small></div>
@@ -30,11 +30,11 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 <div class="drawing-tabs" role="group" aria-label="CAD 视图"><button data-target="cadPlan" aria-pressed="true">整车尺寸图</button><button data-target="cadPose" aria-pressed="false">窄道净空</button><button data-target="cadTurn" aria-pressed="false">转弯占地</button></div><div id="cadPlan"><div class="controls"><button id="fitPlan">适合整车</button><small>后轴中心为原点，X 向前，Y 向右。尺寸单位 mm。</small></div><div class="twins" id="plans"></div></div><div id="cadPose" hidden><div class="controls" id="poseFields"></div><div class="twins" id="poses"></div></div><div id="cadTurn" hidden><h3 class="section">转弯占地</h3><div class="controls"><label>后轴中心轨迹半径 <input id="turnInputradius" type="number" step="any" min="0" value="0"> mm</label><label>转角 <input id="turnInputangle" type="number" min="-360" max="360" step="any" value="180"> °</label></div><div class="twins" id="turns"></div><p class="foot">半径为零时绕后轴中心原地转向，负角左转。A、B 两图同一比例。虚线框给出整个转动过程在初始车头方向及其横向所需的空间，实色车身为终点姿态。</p></div>
 <div class="dock-tabs" role="group" aria-label="读数区"><button data-target="cadData" aria-pressed="true">测量结果</button><button data-target="cadMap" aria-pressed="false">偏航范围</button><button data-target="cadOutline" aria-pressed="false">底板轮廓</button></div><div id="cadData"><div id="cadMetrics"></div></div><div id="cadMap" hidden><div class="twins" id="maps"></div><p class="foot">点图可选姿态，蓝灰色为有净空区域</p></div><div id="cadOutline" hidden><details open class="pad"><summary>底板轮廓</summary><p>沿底板边缘依次输入顶点，每行一组向前、向右坐标（mm）。最靠后的点定义后缘，向右为正，车身中心线为零。改底板长或宽时，顶点沿对应方向缩放。</p><div class="twins" id="outlines"></div></details><p class="foot">窄点下限 280 mm 来自 Canvas §1.4。轮径初值 76 mm 来自组内 DR1 实测。底板、轮距、轮座和安装坐标取当前 A/B 输入。</p></div></div>
 <div id="raceView" hidden><div class="instrument-bar"><div class="bar"><h2>整车回放</h2><label>路段 <select id="scenario"><option value="s">S 弯 / 窄道</option><option value="left">左弯 / 窄道</option><option value="right">右弯 / 窄道</option><option value="gap">直道 / 断线</option><option value="extreme">综合极限赛道</option></select></label></div>
-<details class="setup"><summary>运行设置</summary><div class="controls"><label>光学模型 <select data-shared="spatial"></select></label><label>照明 <select data-shared="light"></select></label><label>白线 <input type="number" step="any" data-shared="line"> mm</label><label class="boxField">均匀核宽 <select data-shared="spot"></select></label><label>阈值 <select data-shared="threshold"></select></label><label>纵向核倍率 <select data-shared="aspect"></select></label><label>PD 参考距离 <select data-shared="controlRef"></select></label><label>轮速上限 <select data-shared="wheelCap"></select></label><label>车速 <select data-shared="speed"></select></label><label>起步横偏 <select data-shared="startOffset"></select></label><label>起步偏航 <select data-shared="startYaw"></select></label></div></details>
-</div><div id="raceStartFields" class="controls" hidden><label>试跑范围 <select id="raceStart"></select></label><small id="courseLength"></small><details><summary>赛道工况</summary><p class="foot">1 起步　2 强光、6 mm 断线与 4 mm 接缝　3 双向 R50 交错弯　4 每 50 mm 最多折转 45°　5 上坡 17.9°　6 双侧距线 140 mm、挡墙高 50 mm、隧道高 200 mm　7 下坡 17.9°　8 两个 R50 直角弯　9 单次 BLE 掉头。线宽分段取 14、17、20 mm。可输入材料反射标定；台阶冲击与制动距离待实测。决赛可能出现更急弯道和其他障碍，课程未公布尺寸。</p></details></div><div class="twins" id="races"></div><div class="controls"><button class="primary" id="play">▶ 运行</button><button id="rewind">回起点</button><select id="rate" aria-label="回放倍率"><option value=".25">¼×</option><option selected value=".5">½×</option><option value="1">1×</option></select><input id="time" class="grow" type="range" min="0" step="1" aria-label="回放时间"><output id="clock"></output></div>
-<div class="dock-tabs" role="group" aria-label="读数区"><button data-target="scopeDock" aria-pressed="true">传感器响应</button><button data-target="runData" aria-pressed="false">测量结果</button></div><div id="scopeDock"><div id="scopes" class="twins"></div></div><div id="runData" hidden><div id="raceMetrics"></div><div class="controls" id="events"></div><p class="foot">每 5 ms 检查一次。主组和备用组均未达阈值时维持上次曲率，连续盲行满 20 mm 判为失线；重新触发会清零。记录通道只计入波形和总命中数。短赛道在控制探头越过线尾时完成。综合赛道返程越过线尾后按同一盲行距离发停车指令。</p></div></div>
+<details class="setup"><summary>运行设置</summary><div class="controls"><label>光学模型 <select data-shared="spatial"></select></label><label>照明 <select data-shared="light"></select></label><label>白线 <input type="number" step="any" data-shared="line"> mm</label><label class="boxField">均匀核宽 <select data-shared="spot"></select></label><label>阈值 <select data-shared="threshold"></select></label><label>纵向核倍率 <select data-shared="aspect"></select></label><label>P / PD 参考距离 <select data-shared="controlRef"></select></label><label>轮速上限 <select data-shared="wheelCap"></select></label><label>车速 <select data-shared="speed"></select></label><label>起步横偏 <select data-shared="startOffset"></select></label><label>起步偏航 <select data-shared="startYaw"></select></label></div></details>
+</div><div id="raceStartFields" class="controls" hidden><label>试跑范围 <select id="raceStart"></select></label><small id="courseLength"></small><details><summary>赛道工况</summary><p class="foot">1 起步　2 强光、6 mm 断线与 4 mm 接缝　3 双向 R50 交错弯　4 每 50 mm 最多折转 45°　5 上坡 17.9°　6 双侧距线 140 mm、挡墙高 50 mm、隧道高 200 mm　7 下坡 17.9°　8 两个 R50 直角弯　9 单次 BLE 掉头。线宽分段取 14、17、20 mm。可输入材料反射标定；台阶冲击与制动距离待实测。决赛可能出现更急弯道和其他障碍，课程未公布尺寸。</p></details></div><div class="controls"><button id="sameCar">用 A 的硬件并排比较算法</button><details><summary>自定义算法接口</summary><p>下载模板，将循迹逻辑写入 step，每 5 ms 读取探头并用 wheels 输出左右轮速度（m/s）。可用静态变量保存跨帧状态，每次试跑重新初始化。首次导入 C/C++ 源码需联网加载 Clang，编译在浏览器内完成。也可导入使用同一接口的 .wasm 文件。</p><button id="controllerTemplate">下载 C/C++ 模板</button></details></div><div class="twins" id="races"></div><div class="controls"><button class="primary" id="play">▶ 运行</button><button id="rewind">回起点</button><select id="rate" aria-label="回放倍率"><option value=".25">¼×</option><option selected value=".5">½×</option><option value="1">1×</option></select><input id="time" class="grow" type="range" min="0" step="1" aria-label="回放时间"><output id="clock"></output></div>
+<div class="dock-tabs" role="group" aria-label="读数区"><button data-target="scopeDock" aria-pressed="true">传感器响应</button><button data-target="runData" aria-pressed="false">测量结果</button></div><div id="scopeDock"><div id="scopes" class="twins"></div></div><div id="runData" hidden><div id="raceMetrics"></div><div class="controls" id="events"></div><p class="foot">每 5 ms 读取探头。原模型 PD 和比例 P 在失线时保持上次曲率，Group 48 按记忆方向寻线。自定义程序决定轮速，可自行报告判线状态。连续盲行 20 mm 时中止，重新检测到线后清零。波形虚线表示单路触发阈值。短赛道在控制探头越过线尾时完成，综合赛道返程越过线尾后按盲行距离发停车指令。</p></div></div>
 <div id="sweepView" hidden><div class="bar"><h2>参数扫描</h2><button id="scanCSV" disabled>导出扫描 CSV</button></div>
-<div class="controls"><label>方案 <select id="scanDesign"><option>A</option><option>B</option></select></label><label>路段 <select id="scanScenario"><option value="s">S 弯 / 窄道</option><option value="left">左弯 / 窄道</option><option value="right">右弯 / 窄道</option><option value="gap">直道 / 断线</option><option value="extreme">综合极限赛道</option></select></label></div>
+<div class="controls"><label>方案 <select id="scanDesign"><option>A</option><option>B</option></select></label><label>循迹算法 <select id="scanAlgorithm"></select></label><label>路段 <select id="scanScenario"><option value="s">S 弯 / 窄道</option><option value="left">左弯 / 窄道</option><option value="right">右弯 / 窄道</option><option value="gap">直道 / 断线</option><option value="extreme">综合极限赛道</option></select></label></div>
 <div id="sweepStartFields" class="controls" hidden><label>试跑范围 <select id="sweepStart"></select></label></div><div id="scanAxes"></div><div class="controls"><button class="primary" id="scanRun">运行扫描</button><output id="scanStatus"></output></div>
 <div style="overflow:auto"><table class="metrics"><thead><tr><th>变量 1</th><th>变量 2</th><th>路段结果</th><th>控制失线 ms</th><th>横向捕获区间 mm</th><th>内部盲区 mm</th><th>当前姿态净空 mm</th><th>行驶最小净空 mm</th><th>峰值轮速 rpm</th><th>稳态需求 A / V</th><th>供电</th><th>隧道余量 mm</th><th>找回次数</th><th>最长找回 mm</th><th>封装</th></tr></thead><tbody id="scanBody"></tbody></table></div>
 <p class="foot">静态净空采用 CAD 页的后轴位置与偏航角。行驶净空取回放经过窄道时的上下界。稳态需求取直行参考值（综合赛道用上坡）；供电超限终止时取当帧首个超限电机的需求。</p></div>
@@ -44,7 +44,7 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 <tr data-fields="axle tyre driveDiameter maxRPM wheelCap"><th scope="row">轮距、胎宽、轮径与轮速限幅<br><code>W_wheels = b + t; v_rpm = π D n / 60</code></th><td>b 为轮心距，t 为单条胎宽。轮径 D 用 mm 时，转速 n 给出 mm/s。各轮分别取线速度上限和 rpm 换算上限中的较小值。0 表示关闭相应限幅。轮径还影响电机转矩和转速。</td></tr>
 <tr data-fields="rearInset casterInset housingLength housingWidth ballDiameter"><th scope="row">后轴位置、万向轮座与球径<br><code>X_front = L − a; X_ball = X_front − d_castor; v_side = ω X_ball</code></th><td>球心距前缘决定轴距与转向时球心侧向速度。轮座长宽进入二维外廓；球突出轮座时也计入净空。自由滚动、无侧滑是模型假设。</td></tr>
 <tr data-fields="sensorInset boardRight boardWidth boardDepth hole"><th scope="row">PCB 安装、板宽深与端孔<br><code>X_PCB = L − a − d_PCB; Y_PCB = y₀; W_min = 2 (max |Yᵢ − y₀| + 2.9 + d_hole)</code></th><td>移动 PCB 会带动板上探头。板宽深影响封装边距和整车净空。端孔直径只用于两侧各布一个裸孔的最小居中板宽估算，螺头和制造余量需另计。</td></tr>
-<tr data-fields="layout pitch right forward mount role"><th scope="row">布局、探头坐标与职责<br><code>Yᵢ = (i − 2.5) p  (i = 0…5); e = Σ(nᵢYᵢ) / Σnᵢ</code></th><td>间距 p 作用于等距预设；双排每排三颗，分体预设按车身尺寸定位。板上探头随 PCB，独立探头固定于后轴坐标。每个周期选已触发的主组，其次选备用组。记录组只进波形。</td></tr>
+<tr data-fields="layout pitch right forward mount role"><th scope="row">布局、探头坐标与职责<br><code>Yᵢ = (i − 2.5) p  (i = 0…5); e = Σ(nᵢYᵢ) / Σnᵢ</code></th><td>间距 p 作用于等距预设；双排每排三颗，分体预设按车身尺寸定位。板上探头随 PCB，独立探头固定于后轴坐标。内置算法优先使用主组，其次使用备用组。记录组只进波形。</td></tr>
 <tr data-fields="sensorHeight spatial spot aspect line"><th scope="row">离地高度、白线与光斑<br><code>f = ∫white K(x,y) dA; n_opt = fᵞ</code></th><td>横向响应来自 13.3 和 28.3 mm 两档横移实测。默认高度为 13.3 mm，两档间插值，低于 13.3 mm 外推。黑白电压另按高度扫描插值，8 mm 使用 3.3 和 8.1 mm 的电压数据。纵向核倍率为试算值。均匀核按白线覆盖面积计算。</td></tr>
 <tr data-fields="ledR load rxV light threshold surfaceBlack surfaceWhite"><th scope="row">LED、电路、照明、材料与阈值<br><code>I_LED ≈ (5 − 1.25) / R_LED; V ≈ I_rx R₂; n = clip((ADC − B) / (W − B), 0, 1)</code></th><td>实验基准负载 2.7 kΩ。接收级按供电减 0.2 V 限幅，ADC 为 3.3 V、12 位。各路 n 达到阈值即报白。环境光改变背景；自定义黑白材料作用于综合赛道第 2 段接缝后。LED 电阻 180 Ω 对应高度表是参考假设。接收电阻下限 1 kΩ 取自 Handbook §11.2.3。LED 压降取 Vishay 在 60 mA 下的典型值 1.25 V，其他电流下按固定压降近似。</td></tr>
 <tr data-fields="speed controlRef startOffset startYaw"><th scope="row">速度、PD 参考距离与起步姿态<br><code>κ = clip(2e / Lref² + 0.008 d e/ds, ±0.035); vL,R = v (1 ± κ b/2)</code></th><td>导数按行程估算并作 20 ms 滤波。正向右转时左轮更快；车轴速度为两轮平均，角速度为 (vL − vR)/b。后轴从输入横偏与偏航起步，每 5 ms 按轮速积分。参考距离是独立控制参数。</td></tr>
@@ -71,8 +71,8 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 <p>TCRT5000 台架反馈电阻为 2.7 kΩ（B3）。高度扫描未标注 LED 电流，模型把默认 180 Ω 作为参考工况。其他 LED 电阻按 (5 − 1.25) / R 计算电流，用两组电流扫描（A62:G71）的相对变化修正黑白电平。低于 13.3 mm 时沿用最近一组相对增益。</p>
 <p>LED 关闭时室内和强光的实测中位数分别为 0.203 和 4.345 mV（B7:D7、B9:D9）。按候选负载换算电压，接收级预留 0.2 V，ADC 为 3.3 V、12 位；判线沿用室内黑白标定。</p>
 <p>CAD 以自定义或矩形 Acetal 底板、两个后驱动轮、前万向轮座矩形外廓、PCB 和各探头封装计算净空。图上显示进入窄道的部分到侧界的横向距离。包络给出选定姿态的几何余量，未计螺头、线束、制造误差与结构变形。</p>
-<p>回放每 5 ms 更新，按当前控制组内触发探头的横向坐标与归一化输出求加权平均，用于 PD 转向。两车用相同控制律，Kp = 2/L²，其中 L 为回放中的 PD 参考距离（mm），两车共用、Kd = 0.008/mm、20 ms 微分滤波、曲率限幅 ±0.035/mm。默认起步时轴心位于直线中心，失线后维持方向，盲行 20 mm 结束。每步按通过供电检查的左右轮速积分圆弧，短赛道时限 15 s；综合赛道按线长和设定速度计算时限，最多 180 s。连续净空下界按车轴速度与最大角点速度扩张窄道入口，递归细分可能更危险的帧间区段；上界取实际检查姿态中的最小值，目标上下界差 0.1 mm。</p><h2>往届对照 · 2023/24 Group 48</h2><p>该组公开的 KiCad 板上 U1–U6 单排，中心距 20 mm，首末中心相距 100 mm。他们的算法逐路归一化，用最大与最小读数之差判线，丢线后按最近一次转向的符号寻线。对照实验可在参数扫描中改变间距，观察捕获区间和内部盲区。<a href="https://www.linkedin.com/pulse/2nd-year-embedded-systems-project-final-race-winner-hakeem-jfuzf/">比赛复盘</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/tree/master/hardware/Sensor%20PCB">PCB 原文件</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/blob/master/src/sensor_array.cpp">传感器程序</a></p></section>
-</main><script>
+<p>回放每 5 ms 更新。原模型按触发探头的横向坐标与归一化输出求加权平均，用于 PD 转向。Kp = 2/L²，其中 L 为回放中的 PD 参考距离（mm），两车共用、Kd = 0.008/mm、20 ms 微分滤波、曲率限幅 ±0.035/mm。默认起步时轴心位于直线中心，原模型失线后保持上次曲率，盲行 20 mm 结束。每步按通过供电检查的左右轮速积分圆弧，短赛道时限 15 s；综合赛道按线长和设定速度计算时限，最多 180 s。连续净空下界按车轴速度与最大角点速度扩张窄道入口，递归细分可能更危险的帧间区段；上界取实际检查姿态中的最小值，目标上下界差 0.1 mm。</p><p>Handbook 比例 P 使用同一线位和比例增益。Group 48 预设将每组探头从左至右排序，六路权重为 5、3、1、−1、−3、−5。组内极差超过 0.4 时判线，失线后按上一次的方向寻线。滤波与 PD 按公开程序的 0.4 ms 周期更新，两次光学采样之间保持读数。转弯时外轮保持设定车速，内轮减速。预设共用当前车身、光学模型、供电检查和赛道裁判。实车轮速 PI、加速过程与比赛成绩需分别验证。</p><h2>往届对照 · 2023/24 Group 48</h2><p>该组公开的 KiCad 板上 U1–U6 单排，中心距 20 mm，首末中心相距 100 mm。他们的算法逐路归一化，用最大与最小读数之差判线，丢线后按最近一次转向的符号寻线。对照实验可在参数扫描中改变间距，观察捕获区间和内部盲区。<a href="https://www.linkedin.com/pulse/2nd-year-embedded-systems-project-final-race-winner-hakeem-jfuzf/">比赛复盘</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/tree/master/hardware/Sensor%20PCB">PCB 原文件</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/blob/e5f88ff091e61738208cddde94bf5245f0a4c1ef/src/sensor_array.cpp">传感器程序</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/blob/e5f88ff091e61738208cddde94bf5245f0a4c1ef/main.cpp#L582-L592">轮速分配</a></p></section>
+</main><script id="simModel">
 'use strict';
 const dt = 0.005;
 const blindLimit = 20; // mm of axle travel after losing the last control channel
@@ -602,9 +602,56 @@ function wheelSpeedLimit(c){
   const rpmLimit=c.maxRPM?Math.PI*c.driveDiameter*c.maxRPM/60:Infinity;
   return Math.min(c.wheelCap?1000*c.wheelCap:Infinity,rpmLimit); // mm/s at the tyre
 }
-function simulate(c,kind,startId='full'){
+const controllerLabels={idealPD:'理想 PD（原模型）',proportional:'比例 P（Handbook）',group48:'Group 48 冠军车（2023/24）',custom:'自定义 C/C++'};
+function makeController(c,customStep){
+  const speed=c.speed;
+  if(c.algorithm==='custom')return customStep;
+  if(c.algorithm==='group48'){
+    // Firmware channels are ordered left to right. Map each active role group to that span.
+    const groups=['steer','backup'].map(role=>c.positions.map((p,i)=>({...p,i})).filter(p=>p.role===role).sort((a,b)=>a.right-b.right));
+    let previous=0,filtered=0,differential=0,search=-10,ticks=0;
+    return sensor=>{
+      let input=search;
+      sensor.source='none';sensor.e=null;
+      for(const group of groups){
+        const levels=group.map(p=>sensor.ns[p.i]);
+        if(group.length<2||Math.max(...levels)-Math.min(...levels)<=.4)continue;
+        input=group.reduce((sum,p,i)=>sum+levels[i]*(5-10*i/(group.length-1)),0);
+        search=input>0?10:-10;
+        sensor.source=group[0].role;
+        sensor.e=group.reduce((sum,p,i)=>sum+levels[i]*p.right,0)/levels.reduce((a,b)=>a+b,0);
+        break;
+      }
+      // The published interrupt period is 0.4 ms. Hold the sampled optics over each 5 ms model step.
+      ticks+=25;
+      while(ticks>=2){
+        ticks-=2;
+        const next=.63946321*filtered+.1802684*(input+previous);
+        differential=-(.16*(next-filtered)+.0016*differential)/.0024;
+        filtered=next;previous=input;
+      }
+      const trim=clamp(-.30*filtered+differential,-1.5,1.5);
+      return [speed+2*Math.min(0,trim),speed-2*Math.max(0,trim)];
+    };
+  }
+  let lastE=null,deriv=0,k=0,source='none';
+  return (sensor,ds)=>{
+    if(sensor.source!==source){lastE=null;deriv=0;}
+    source=sensor.source;
+    if(source==='none'){lastE=null;deriv=0;}
+    else{
+      const slope=lastE===null||ds<1e-9?0:(sensor.e-lastE)/ds;
+      deriv+=(slope-deriv)*dt/(.020+dt);
+      k=clamp(2*sensor.e/c.controlRef**2+(c.algorithm==='proportional'?0:.008*deriv),-.035,.035);
+      lastE=sensor.e;
+    }
+    return [speed*(1+k*c.axle/2),speed*(1-k*c.axle/2)];
+  };
+}
+function simulate(c,kind,startId='full',customStep=null){
+  let controller=makeController(c,customStep),controllerError=null;
   const track=course(kind,c),parts=footprint(c),frames=[];track.paint=paintTrack(track,c.line);
-  let p={x:90,y:c.startOffset,a:rad(c.startYaw)},distance=0,k=0,deriv=0,lastE=null,blind=0;
+  let p={x:90,y:c.startOffset,a:rad(c.startYaw)},distance=0,blind=0;
   const extreme=!!track.sections,parking=extreme&&startId==='parking',single=track.sections?.find(section=>section.id===startId);
   let station=extreme?(parking?260:single?.start??90):null;
   const start=extreme?stationPose(track,station):null;
@@ -615,7 +662,7 @@ function simulate(c,kind,startId='full'){
   const gate=sweptGate(parts,track.gate,c.axle);
   let driveFailure=null;
   let clearFrame=null,lossFrame=null,lossStart=null,reason='timeout';
-  let hadPrimary=false,lostPrimaryAt=null,reacquired=0,maxRecovery=null,previousSource='none';
+  let hadPrimary=false,lostPrimaryAt=null,reacquired=0,maxRecovery=null;
   const vmax=wheelSpeedLimit(c),velocity=c.speed*1000;let ds=velocity*dt,blindOrigin=0;
   const maxFrames=extreme?Math.ceil(Math.min(180,Math.max(30,3*track.end.s/Math.max(1,velocity)+10))/dt):3000;
   for(let i=0;i<=maxFrames;i++){
@@ -625,29 +672,28 @@ function simulate(c,kind,startId='full'){
     if(extreme && (!single||single.id==='return') && phase==='out' && station>=track.bleStation){
       phase='pivot';pivotEnd=p.a+Math.PI;bleEvents++;
     }
-    if(phase==='pivot' && p.a>=pivotEnd-1e-9){phase='home';lastE=null;deriv=0;blind=0;lossStart=null;blindOrigin=distance;hadPrimary=false;lostPrimaryAt=null;}
+    if(phase==='pivot' && p.a>=pivotEnd-1e-9){phase='home';controller=makeController(c,customStep);blind=0;lossStart=null;blindOrigin=distance;hadPrimary=false;lostPrimaryAt=null;}
     const grade=!zone?c.grade:(zone.id==='climb'?track.uphillGrade:zone.id==='descent'?-track.uphillGrade:0)*(phase==='home'?-1:1);
     const sensor=sense(p,c,track);
-    if(phase!=='pivot' && sensor.primary){
-      if(lostPrimaryAt!==null){reacquired++;maxRecovery=Math.max(maxRecovery??0,distance-lostPrimaryAt);lostPrimaryAt=null;}
-      hadPrimary=true;
-    }else if(phase!=='pivot' && hadPrimary && lostPrimaryAt===null)lostPrimaryAt=distance;
-    if(previousSource!==sensor.source){lastE=null;deriv=0;}
-    previousSource=sensor.source;
-    if(sensor.source!=='none'){
-      const slope=lastE===null||ds<1e-9?0:(sensor.e-lastE)/ds;
-      deriv+=(slope-deriv)*dt/(.020+dt);
-      k=clamp(2*sensor.e/c.controlRef**2+.008*deriv,-.035,.035);
-      lastE=sensor.e; blind=0;lossStart=null;
-    }else{
-      if(lossStart===null){lossStart=i;blindOrigin=distance;}
-      blind=distance-blindOrigin;
-      lastE=null; deriv=0;
-    }
-    let cmdLeft=velocity*(1+k*c.axle/2),cmdRight=velocity*(1-k*c.axle/2);
+    let cmdLeft=0,cmdRight=0;
     if(phase==='pivot'){
       cmdLeft=Math.min(velocity,(pivotEnd-p.a)*c.axle/(2*dt));cmdRight=-cmdLeft;
       lossStart=null;blind=0;blindOrigin=distance;
+    }else{
+      try{
+        const [leftMps,rightMps]=controller(sensor,ds,frames.at(-1));
+        cmdLeft=leftMps*1000;cmdRight=rightMps*1000;
+        if(!Number.isFinite(cmdLeft)||!Number.isFinite(cmdRight))throw Error('Invalid wheel speed');
+      }catch(error){controllerError=String(error.message||error);cmdLeft=cmdRight=0;}
+      if(sensor.source==='steer'){
+        if(lostPrimaryAt!==null){reacquired++;maxRecovery=Math.max(maxRecovery??0,distance-lostPrimaryAt);lostPrimaryAt=null;}
+        hadPrimary=true;
+      }else if(hadPrimary && lostPrimaryAt===null)lostPrimaryAt=distance;
+      if(sensor.source!=='none'){blind=0;lossStart=null;}
+      else{
+        if(lossStart===null){lossStart=i;blindOrigin=distance;}
+        blind=distance-blindOrigin;
+      }
     }
     const left=clamp(cmdLeft,-vmax,vmax),right=clamp(cmdRight,-vmax,vmax);
     const v=(left+right)/2,omega=(left-right)/c.axle;
@@ -659,6 +705,7 @@ function simulate(c,kind,startId='full'){
     const wall=gate.add(frames[i-1],f);
     if(f.clear!==null&&(clearFrame===null||f.clear<frames[clearFrame].clear))clearFrame=i;
     if(!c.sensor.valid){reason='calibration';break;}
+    if(controllerError){reason='controllerError';break;}
     if(wall){reason='wall';break;}
     if(extreme){
       if(nearBridge && c.height>200 && clearance(p,parts,track.tunnel)!==null){reason='roof';break;}
@@ -681,7 +728,7 @@ function simulate(c,kind,startId='full'){
       driveFailure=!f.leftDrive.ok?f.leftDrive:f.rightDrive;
       reason='supply';break;
     }
-    p=advance(p,v,omega,dt);ds=v*dt;distance+=ds;
+    p=advance(p,v,omega,dt);ds=Math.abs(v)*dt;distance+=ds;
   }
   for(let i=0;i<frames.length;i++){
     const f=frames[i];
@@ -695,7 +742,7 @@ function simulate(c,kind,startId='full'){
   }
   const swept=gate.result();
   if(swept&&Number.isFinite(swept.high))clearFrame=clamp(Math.round(swept.time/dt),0,frames.length-1);
-  return {track,frames,clearFrame,lossFrame,reason,swept,reacquired,maxRecovery,bleEvents,stopDistance,uphill,driveFailure,startId};
+  return {track,frames,clearFrame,lossFrame,reason,controllerError,swept,reacquired,maxRecovery,bleEvents,stopDistance,uphill,driveFailure,startId};
 }
 function canvasFrame(canvas){
   const w=canvas.clientWidth||320,h=canvas.clientHeight||200,dpr=Math.min(2,window.devicePixelRatio||1);
@@ -764,7 +811,7 @@ function positionsForLayout(c){
     return {right,forward};
   });
 }
-const base={outline:null,roles:null,mass:.92,gear:15,efficiency:.722,rolling:.0865,supplyV:9,height:100,driveDiameter:76,ballDiameter:19.05,maxRPM:0,layout:'row',customPositions:null,sensorHeight:13.3,ledR:180,load:2700,rxV:5,pitch:8,boardWidth:56,boardDepth:24,hole:2.7,boardRight:0,length:140,width:100,axle:130,tyre:26,rearInset:28,casterInset:30,sensorInset:8,housingLength:30,housingWidth:26};
+const base={algorithm:'idealPD',controllerId:null,outline:null,roles:null,mass:.92,gear:15,efficiency:.722,rolling:.0865,supplyV:9,height:100,driveDiameter:76,ballDiameter:19.05,maxRPM:0,layout:'row',customPositions:null,sensorHeight:13.3,ledR:180,load:2700,rxV:5,pitch:8,boardWidth:56,boardDepth:24,hole:2.7,boardRight:0,length:140,width:100,axle:130,tyre:26,rearInset:28,casterInset:30,sensorInset:8,housingLength:30,housingWidth:26};
 const designs={A:{...base},B:{...base,layout:'distributed'}};
 function straightGate(c){return {x:0,y:0,a:0,length:c.gateLength,half:c.gateWidth/2};}
 const pose={depth:35,offset:25,yaw:18};
@@ -1229,8 +1276,33 @@ function updateCAD(){
     ['当前偏航的无越界横偏区间¹',...st.map(s=>!s.limits?'未入道':s.limits.low>s.limits.high?'无可行横偏':s.limits.low.toFixed(1)+' 至 '+format(s.limits.high))]]);
   byId('cadMetrics').insertAdjacentHTML('beforeend','<p class="foot">¹ 区间端点为刚好接触；浅棕色为越界，灰色为未入道。</p>');
 }
+let pendingRace=null;
+async function runSelected(c,kind,startId,signal){
+  if(c.algorithm!=='custom')return simulate(c,kind,startId);
+  try{return await ControllerFiles.run(c,kind,startId,signal);}
+  catch(error){
+    if(signal.aborted)throw error;
+    return simulate(c,kind,startId,()=>{throw error;});
+  }
+}
 function buildRace(){
-  const runs=Object.fromEntries(names.map(n=>[n,simulate(conf(n),byId('scenario').value,byId('raceStart').value)]));
+  const kind=byId('scenario').value,start=byId('raceStart').value;
+  if(names.every(n=>designs[n].algorithm!=='custom')){
+    finishRace(names.map(n=>simulate(conf(n),kind,start)));
+    return;
+  }
+  const job=new AbortController();pendingRace=job;
+  byId('raceMetrics').replaceChildren();byId('events').replaceChildren();byId('clock').textContent='正在计算回放';
+  for(const n of names){
+    byId('racesLabel'+n).textContent='正在计算回放';byId('raceRead'+n).textContent='';
+    canvasFrame(byId('race'+n));canvasFrame(byId('scope'+n));
+  }
+  Promise.all(names.map(n=>runSelected(conf(n),kind,start,job.signal))).then(results=>{
+    if(!job.signal.aborted){pendingRace=null;finishRace(results);render();}
+  }).catch(error=>{if(!job.signal.aborted){pendingRace=null;byId('clock').textContent=error.message;}});
+}
+function finishRace(results){
+  const runs=Object.fromEntries(names.map((n,i)=>[n,results[i]]));
   let lx=Infinity,rx=-Infinity,ty=Infinity,by=-Infinity;
   function include(p){lx=Math.min(lx,p.x);rx=Math.max(rx,p.x);ty=Math.min(ty,p.y);by=Math.max(by,p.y);}
   const t=runs.A.track;t.points.forEach(include);
@@ -1238,7 +1310,7 @@ function buildRace(){
   if(t.gate)for(const x of [0,t.gate.length])for(const y of [-t.gate.half,t.gate.half])include(at(t.gate,x,y));
   names.forEach(n=>{const pts=footprint(conf(n)).flat();for(const f of runs[n].frames)for(const [x,y] of pts)include(at(f,x,y));});
   race={runs,bounds:{lx:lx-20,rx:rx+20,ty:ty-25,by:by+25},last:Math.max(...names.map(n=>runs[n].frames.length-1))};
-  byId('time').max=race.last;
+  byId('time').max=race.last;raceSummary();
 }
 function drawRun(n){
   const {ctx,w,h}=canvasFrame(byId('race'+n)),{runs,bounds:b}=race,r=runs[n],c=conf(n);
@@ -1290,12 +1362,13 @@ function drawRun(n){
   line(cx,[{x:X(frame),y:y0},{x:X(frame),y:y1}],'#313b40',1);
   cx.fillStyle='#525e64';cx.fillText('0 s',x0,sc.h-3);cx.textAlign='right';cx.fillText((race.last*dt).toFixed(2)+' s',x1,sc.h-3);
 }
-const reasonLabel={wall:'侧墙接触',roof:'超过隧道限高',supply:'电机稳态需求超限',sectionEnd:'分段完成',stopInside:'停车指令位置合格',stopOutside:'停车指令位置超界',calibration:'标定无有效跨度',end:'探头到达线末端',lost:'盲行中止',timeout:'达到时限'};
+const reasonLabel={controllerError:'控制程序出错',wall:'侧墙接触',roof:'超过隧道限高',supply:'电机稳态需求超限',sectionEnd:'分段完成',stopInside:'停车指令位置合格',stopOutside:'停车指令位置超界',calibration:'标定无有效跨度',end:'探头到达线末端',lost:'盲行中止',timeout:'达到时限'};
 function raceSummary(){
   const track=race.runs.A.track;
   if(track.sections)byId('courseLength').textContent=(track.end.s/1000).toFixed(2)+' m · 9 段';
   const both=names.map(n=>race.runs[n]),last=both.map(r=>r.frames.at(-1));
   metrics('raceMetrics',[
+    ['循迹算法',...names.map(n=>controllerLabels[designs[n].algorithm]+(designs[n].algorithm==='custom'?' · '+designs[n].controllerId.slice(0,8):''))],
     ['路段结果',...both.map(r=>reasonLabel[r.reason])],
     ['结束时触发数（主 / 备）',...last.map(f=>f.primary+' / '+f.backup)],
     ['结束时控制通道峰值 / 阈值',...last.map((f,i)=>{
@@ -1330,6 +1403,9 @@ function raceSummary(){
     ['主循迹找回次数 / 最长找回路程',...both.map(r=>r.reacquired+' / '+format(r.maxRecovery))],
     ['最长连续控制失线',...both.map(r=>(r.lossFrame===null?0:Math.round(r.frames[r.lossFrame].lossTime*1000))+' ms')] ]);
   const el=byId('events');el.replaceChildren();
+  for(const [i,r] of both.entries())if(r.controllerError){
+    const message=document.createElement('p');message.textContent=names[i]+' · '+r.controllerError;el.append(message);
+  }
   for(const n of names)for(const [k,label] of [['clearFrame','最小净空附近'],['lossFrame','最长失线']]){
     const idx=race.runs[n][k],button=document.createElement('button');
     button.textContent=n+' · '+label;button.disabled=idx===null;button.onclick=()=>jump(idx);el.append(button);
@@ -1337,7 +1413,7 @@ function raceSummary(){
 }
 function drawRace(){names.forEach(drawRun);byId('time').value=frame;byId('clock').textContent=(frame*dt).toFixed(2)+' / '+(race.last*dt).toFixed(2)+' s';byId('play').textContent=playing?'Ⅱ 暂停':frame===race.last?'↺ 重播':'▶ 运行';}
 function stop(){playing=false;cancelAnimationFrame(raf);}
-function jump(i){stop();frame=i;drawRace();}
+function jump(i){if(!race)return;stop();frame=i;drawRace();}
 function tick(t){
   if(!playing)return;
   frame=Math.min(race.last,startFrame+Math.floor(Math.max(t-startTime,0)*Number(byId('rate').value)/(dt*1000)));
@@ -1354,9 +1430,13 @@ function render(){
   if(mode==='pcb')updatePCB();
   if(mode==='cad')updateCAD();
   if(mode==='source')Object.keys(scans).forEach(drawFit);
-  if(mode==='race'){if(!race){buildRace();raceSummary();}drawRace();}
+  if(mode==='race'){
+    if(!race&&!pendingRace)buildRace();
+    if(race)drawRace();
+  }
+  for(const id of ['play','rewind','time','export'])byId(id).disabled=mode==='race'&&!race;
 }
-function invalidate(){resetScan();if(mode==='sweep')refreshScanFields();stop();race=null;frame=0;render();}
+function invalidate(){pendingRace?.abort();pendingRace=null;resetScan();if(mode==='sweep')refreshScanFields();stop();race=null;frame=0;render();}
 function show(m){
   byId('viewportStrip').hidden=m==='sweep';byId('layout').dataset.mode=m;
   for(const group of document.querySelectorAll('.inspector-group')){
@@ -1399,9 +1479,9 @@ function csvExport(){
       for(let yaw=-60;yaw<=60;yaw+=2){const lim=sliceLimits(c,yaw);for(let e=-100;e<=100;e+=5)sample(yaw,e,0,lim);}
     }
   }else{
-    rows.push([...header,'scenario','speed_m_s','initial_offset_mm','initial_yaw_deg','sample_s','end_reason','swept_lower_mm','swept_upper_mm','min_witness_s','time_s','axle_x_mm','axle_y_mm','yaw_deg','distance_mm','left_m_s','right_m_s','left_cmd_m_s','right_cmd_m_s','left_rpm','right_rpm','caster_forward_m_s','caster_right_m_s','line_est_mm','active','steering_source','primary_hits','backup_hits','primary_recoveries','max_recovery_mm','clearance_mm','blind_mm','start_section','section','station_mm','leg','local_grade_deg','local_line_width_mm','patch_black_normalised','patch_white_normalised','ble_events_total','stop_radius_mm',...columns(i=>'S'+(i+1)+'_normalized'),...columns(i=>'S'+(i+1)+'_V'),...columns(i=>'S'+(i+1)+'_ADC12'),'left_required_A','left_required_V','right_required_A','right_required_V']);
+    rows.push([...header,'scenario','speed_m_s','initial_offset_mm','initial_yaw_deg','sample_s','end_reason','swept_lower_mm','swept_upper_mm','min_witness_s','time_s','axle_x_mm','axle_y_mm','yaw_deg','distance_mm','left_m_s','right_m_s','left_cmd_m_s','right_cmd_m_s','left_rpm','right_rpm','caster_forward_m_s','caster_right_m_s','line_est_mm','active','steering_source','primary_hits','backup_hits','primary_recoveries','max_recovery_mm','clearance_mm','blind_mm','start_section','section','station_mm','leg','local_grade_deg','local_line_width_mm','patch_black_normalised','patch_white_normalised','ble_events_total','stop_radius_mm',...columns(i=>'S'+(i+1)+'_normalized'),...columns(i=>'S'+(i+1)+'_V'),...columns(i=>'S'+(i+1)+'_ADC12'),'left_required_A','left_required_V','right_required_A','right_required_V','tracking_algorithm','controller_sha256']);
     for(const n of names){const r=race.runs[n],c=conf(n);
-      for(const f of r.frames)rows.push([...baseRow('race',n,c,r.track.uphillGrade),byId('scenario').value,c.speed,c.startOffset,c.startYaw,dt,r.reason,r.swept?.low,r.swept?.high,r.swept?.time,f.t,f.x,f.y,f.a*180/Math.PI,f.distance,f.left/1000,f.right/1000,f.cmdLeft/1000,f.cmdRight/1000,f.leftRPM,f.rightRPM,f.ball.forward/1000,f.ball.right/1000,f.e,f.hits,f.source,f.primary,f.backup,r.reacquired,r.maxRecovery,f.clear,f.blind,r.track.sections?r.startId:null,f.zone,f.station,f.phase,f.grade,f.lineWidth,c.surfaceBlack,c.surfaceWhite,r.bleEvents,r.stopDistance,...padded(f.ns),...padded(f.volts),...padded(f.adc),f.leftDrive?.current,f.leftDrive?.voltage,f.rightDrive?.current,f.rightDrive?.voltage]);}
+      for(const f of r.frames)rows.push([...baseRow('race',n,c,r.track.uphillGrade),byId('scenario').value,c.speed,c.startOffset,c.startYaw,dt,r.reason,r.swept?.low,r.swept?.high,r.swept?.time,f.t,f.x,f.y,f.a*180/Math.PI,f.distance,f.left/1000,f.right/1000,f.cmdLeft/1000,f.cmdRight/1000,f.leftRPM,f.rightRPM,f.ball.forward/1000,f.ball.right/1000,f.e,f.hits,f.source,f.primary,f.backup,r.reacquired,r.maxRecovery,f.clear,f.blind,r.track.sections?r.startId:null,f.zone,f.station,f.phase,f.grade,f.lineWidth,c.surfaceBlack,c.surfaceWhite,r.bleEvents,r.stopDistance,...padded(f.ns),...padded(f.volts),...padded(f.adc),f.leftDrive?.current,f.leftDrive?.voltage,f.rightDrive?.current,f.rightDrive?.voltage,c.algorithm,c.algorithm==='custom'?c.controllerId:'']);}
   }
   saveCSV(rows,mode);
 }
@@ -1415,7 +1495,57 @@ function saveCSV(rows,label){
   const url=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
   const a=document.createElement('a');a.href=url;a.download='G52-AB-'+label+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
+const controllerNotes={
+  idealPD:'用线位偏差和变化率修正曲率，失线时保持上次曲率。',
+  proportional:'仅用线位偏差修正曲率，与原模型使用相同比例增益。',
+  group48:'按探头对比度判线，丢线后按记忆方向寻线。转弯时降低内轮速度，沿用当前车辆和设定车速。',
+  custom:'每 5 ms 运行一次已导入的控制函数。'
+};
+const importJobs={};
+function syncControllers(){
+  for(const [id,n] of [['algorithmA','A'],['algorithmB','B'],['scanAlgorithm',byId('scanDesign').value]]){
+    const el=byId(id),c=designs[n];el.replaceChildren();
+    for(const [key,title] of Object.entries(controllerLabels)){
+      if(key!=='custom')el.add(new Option(title,key));
+    }
+    for(const [hash,name] of ControllerFiles.choices())el.add(new Option(controllerLabels.custom+' · '+name+' · '+hash.slice(0,8),'custom:'+hash));
+    el.value=c.algorithm==='custom'?'custom:'+c.controllerId:c.algorithm;
+    if(id!=='scanAlgorithm')byId('algoNote'+n).textContent=controllerNotes[c.algorithm];
+  }
+}
+function initControllers(){
+  syncControllers();
+  const select=(el,n)=>{
+    importJobs[n]?.abort();byId('importStatus'+n).textContent='';
+    const [algorithm,id]=el.value.split(':');
+    Object.assign(designs[n],{algorithm,controllerId:id??null});syncControllers();invalidate();
+  };
+  for(const n of names){
+    const el=byId('algorithm'+n),file=byId('file'+n),status=byId('importStatus'+n);
+    el.onchange=()=>select(el,n);
+    byId('import'+n).onclick=()=>file.click();
+    file.onchange=async()=>{
+      const item=file.files[0];file.value='';if(!item)return;
+      importJobs[n]?.abort();const job=new AbortController();importJobs[n]=job;
+      status.textContent='正在加载控制程序';
+      try{
+        const id=await ControllerFiles.add(item,job.signal);
+        if(job.signal.aborted)return;
+        Object.assign(designs[n],{algorithm:'custom',controllerId:id});status.textContent='';
+        syncControllers();invalidate();
+      }catch(error){if(!job.signal.aborted)status.textContent=error.message;}
+    };
+  }
+  byId('scanAlgorithm').onchange=e=>select(e.target,byId('scanDesign').value);
+  byId('controllerTemplate').onclick=ControllerFiles.download;
+  byId('sameCar').onclick=()=>{
+    const {algorithm,controllerId}=designs.B;
+    Object.assign(designs.B,structuredClone(designs.A),{algorithm,controllerId});
+    updateInputs();invalidate();document.querySelector('[data-design-mode="both"]').click();
+  };
+}
 function updateInputs(){
+  syncControllers();
   for(const [id] of designFields)for(const n of names)byId(id+n).value=designs[n][id];
   names.forEach(syncLayout);names.forEach(syncOutline);
 }
@@ -1615,18 +1745,18 @@ function scanCandidate(n,entries){
   }
   return conf(n,{...overrides,layout:'custom',roles:null,customPositions:points});
 }
-function evaluateCandidate(c,kind,startId='full'){
+function evaluateCandidate(c,kind,startId='full',run=null){
   const issue=designIssue(c)||courseIssue(c,c.positions.length);
   if(issue)return {issue};
-  const r=simulate(c,kind,startId),end=r.frames.at(-1),fit=assembly(c),cover=coverage(c);
+  const r=run??simulate(c,kind,startId),end=r.frames.at(-1),fit=assembly(c),cover=coverage(c);
   const staticClear=clearance({x:pose.depth,y:pose.offset,a:rad(pose.yaw)},footprint(c),straightGate(c));
   return {cover,zone:end.zone,station:end.station,leg:end.phase,ble:r.bleEvents,stopDistance:r.stopDistance,drive:r.driveFailure||r.uphill||driveLoad(c),headroom:200-c.height,reacquired:r.reacquired,maxRecovery:r.maxRecovery,reason:r.reason,time:end.t,blind:r.lossFrame===null?0:r.frames[r.lossFrame].lossTime*1000,
     staticClear,clearLow:r.swept?.low,clearHigh:r.swept?.high,rpm:r.frames.reduce((v,f)=>Math.max(v,Math.abs(f.leftRPM),Math.abs(f.rightRPM)),0),
     fit:fit.conflicts.size?'封装干涉或越板':'可布置'};
 }
-let scanToken=0,scanResults=[];
+let scanToken=0,scanResults=[],scanJob=null;
 function resetScan(){
-  scanToken++;scanResults=[];
+  scanJob?.abort();scanJob=null;scanToken++;scanResults=[];
   byId('scanBody').replaceChildren();byId('scanStatus').textContent='';
   byId('scanRun').disabled=false;byId('scanCSV').disabled=true;
 }
@@ -1647,7 +1777,7 @@ function axisValues(id){
     throw Error('每轴取 1–31 点。取 1 点时起止值须相同。');
   return Array.from({length:count},(_,i)=>({key,value:i===count-1?hi:lo+(hi-lo)*i/(count-1)}));
 }
-const scanHeader=['design','regime','scenario','parameter_1','value_1','parameter_2','value_2','result','time_s','max_blind_ms','static_clearance_mm','swept_lower_mm','swept_upper_mm','peak_wheel_rpm','package_fit','steady_motor_A','steady_motor_V','steady_supply_ok','tunnel_margin_mm','lateral_min_mm','lateral_max_mm','internal_blind_mm','primary_recoveries','max_recovery_mm','config_json','static_pose_json','start_section','last_section','centreline_station_mm','leg','ble_events','stop_radius_mm'];
+const scanHeader=['design','regime','scenario','parameter_1','value_1','parameter_2','value_2','result','time_s','max_blind_ms','static_clearance_mm','swept_lower_mm','swept_upper_mm','peak_wheel_rpm','package_fit','steady_motor_A','steady_motor_V','steady_supply_ok','tunnel_margin_mm','lateral_min_mm','lateral_max_mm','internal_blind_mm','primary_recoveries','max_recovery_mm','config_json','static_pose_json','start_section','last_section','centreline_station_mm','leg','ble_events','stop_radius_mm','tracking_algorithm','controller_sha256'];
 async function runScan(){
   resetScan();const token=scanToken,n=byId('scanDesign').value,kind=byId('scanScenario').value;
   let first,second;
@@ -1655,15 +1785,21 @@ async function runScan(){
     first=axisValues('1');second=axisValues('2');
     if(first[0].key===second[0].key)throw Error('请选择两个不同参数');
   }catch(e){byId('scanStatus').textContent=e.message;return;}
-  byId('scanRun').disabled=true;
+  byId('scanRun').disabled=true;const job=new AbortController();scanJob=job;
   const total=first.length*second.length;
   for(const a of first)for(const b of second){
     await new Promise(done=>setTimeout(done,0));
     if(token!==scanToken)return;
     const entries=[[a.key,a.value]];if(b.key)entries.push([b.key,b.value]);
-    const c=scanCandidate(n,entries),out=evaluateCandidate(c,kind,byId('sweepStart').value);
+    const c=scanCandidate(n,entries),start=byId('sweepStart').value;
+    let run=null;
+    if(c.algorithm==='custom'&&!designIssue(c)&&!courseIssue(c,c.positions.length)){
+      try{run=await runSelected(c,kind,start,job.signal);}catch(error){if(job.signal.aborted)return;throw error;}
+      if(token!==scanToken)return;
+    }
+    const out=evaluateCandidate(c,kind,start,run);
     const name=out.issue||reasonLabel[out.reason],{sensor,positions,plateCentre,casterX,look,hasBoard,...inputs}=c;
-    scanResults.push([n,c.regime,kind,a.key,a.value,b.key,b.value,name,out.time,out.blind,out.staticClear,out.clearLow,out.clearHigh,out.rpm,out.fit,out.drive?.current,out.drive?.voltage,out.drive?.ok,out.headroom,out.cover?.low,out.cover?.extent,out.cover&&!out.cover.invalid?out.cover.blind:null,out.reacquired,out.maxRecovery,JSON.stringify(inputs),JSON.stringify(pose),kind==='extreme'?byId('sweepStart').value:null,out.zone,out.station,out.leg,out.ble,out.stopDistance]);
+    scanResults.push([n,c.regime,kind,a.key,a.value,b.key,b.value,name,out.time,out.blind,out.staticClear,out.clearLow,out.clearHigh,out.rpm,out.fit,out.drive?.current,out.drive?.voltage,out.drive?.ok,out.headroom,out.cover?.low,out.cover?.extent,out.cover&&!out.cover.invalid?out.cover.blind:null,out.reacquired,out.maxRecovery,JSON.stringify(inputs),JSON.stringify(pose),kind==='extreme'?byId('sweepStart').value:null,out.zone,out.station,out.leg,out.ble,out.stopDistance,c.algorithm,c.algorithm==='custom'?c.controllerId:'']);
     const tr=byId('scanBody').insertRow();
     const num=(v,d=1)=>Number.isFinite(v)?v.toFixed(d):'—';
     const result=out.zone?name+' · '+stageName(out.zone)+' · '+format(out.station):name;
@@ -1680,7 +1816,7 @@ function initScan(){
     byId('scanAxes').append(row);
   }
   refreshScanFields();
-  byId('scanDesign').onchange=()=>{resetScan();refreshScanFields();};
+  byId('scanDesign').onchange=()=>{resetScan();syncControllers();refreshScanFields();};
   byId('scanAxes').onchange=resetScan;byId('scanScenario').onchange=resetScan;
   byId('scanRun').onclick=runScan;
   byId('scanCSV').onclick=()=>saveCSV([scanHeader,...scanResults],'sweep');
@@ -1713,7 +1849,7 @@ function init(){
   makeTwins('boards',n=>'<div class="board-toolbar"><select id="pattern'+n+'" aria-label="方案 '+n+' 布局"></select><select id="zoom'+n+'" aria-label="方案 '+n+' 视图"><option value="car">整车</option><option value="pcb">布局放大</option></select><button id="fitBoard'+n+'">适合整车</button><select id="pick'+n+'" aria-label="选中探头"></select><button id="add'+n+'">＋ 探头</button><details><summary>坐标与职责</summary><table class="coordinates" id="coordinates'+n+'"><thead><tr><th>通道</th><th>安装</th><th>职责</th><th>右 / mm</th><th>前 / mm</th><th></th></tr></thead><tbody></tbody></table></details></div><canvas tabindex="0" title="拖动探头；方向键微调 0.1 mm，Shift 加方向键调 1 mm。双击空白处添加。" class="boardplot" id="board'+n+'" aria-label="方案 '+n+' 传感器位置"></canvas><div class="read size-read" id="boardSize'+n+'"></div><div class="view-status"><output id="pointer'+n+'">X —　Y — mm</output><span class="read" id="boardRead'+n+'"></span></div>');
   makeTwins('poses',n=>'<canvas class="cadplot" id="pose'+n+'" aria-label="方案 '+n+' 当前姿态及净空"></canvas><div class="read" id="poseRead'+n+'"></div>');
   makeTwins('maps',n=>'<canvas class="heatplot" id="map'+n+'" aria-label="方案 '+n+' 可行横偏与偏航角，亦可用上方数值框选取"></canvas>');
-  makeTwins('races',n=>'<canvas class="raceplot" id="race'+n+'" aria-label="方案 '+n+' 轨迹"></canvas><div class="read" id="raceRead'+n+'"></div>');
+  makeTwins('races',n=>'<div class="controls controller-picker"><label>循迹算法 <select id="algorithm'+n+'"></select></label><button id="import'+n+'">导入算法</button><input hidden type="file" accept=".c,.cc,.cpp,.cxx,.wasm" id="file'+n+'"><output role="status" id="importStatus'+n+'"></output><small class="controller-note" id="algoNote'+n+'"></small></div><canvas class="raceplot" id="race'+n+'" aria-label="方案 '+n+' 轨迹"></canvas><div class="read" id="raceRead'+n+'"></div>');
   makeTwins('scopes',n=>'<canvas class="scopeplot" id="scope'+n+'" aria-label="方案 '+n+' 通道归一化波形"></canvas>');
   const fields=byId('fields');
   fields.innerHTML='<div class="field heading"><b>候选参数</b><strong class="ca">A</strong><strong class="cb">B</strong></div>';
@@ -1762,7 +1898,7 @@ function init(){
       el.onblur=()=>{if(el.value===''||el.valueAsNumber!==designs[n][id])commit();};
     }
   }
-  initCadDesign();names.forEach(layoutEditor);initCourse();initScan();
+  initCadDesign();names.forEach(layoutEditor);initCourse();initScan();initControllers();
   const labels={spatial:{lab:'Sensors Lab 高度模型',box:'均匀核假设'},light:{room:'室内标定 / 室内运行',bright:'室内标定 / 强光运行'},wheelCap:{0:'理想跟随',0.6:'±0.6 m/s',1:'±1 m/s'}};
   const units={controlRef:' mm',aspect:'×',line:' mm',spot:' mm',threshold:'',speed:' m/s',startOffset:' mm',startYaw:'°'};
   document.querySelectorAll('input[data-shared=line]').forEach(el=>el.onchange=()=>commitTrack('line',el.valueAsNumber));
@@ -1784,8 +1920,8 @@ function init(){
   };
   document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));
   byId('shift').oninput=()=>{names.forEach(drawBoard);drawCapture();byId('shiftValue').textContent=format(+byId('shift').value);};
-  byId('defaults').onclick=()=>{carViewBounds=null;Object.assign(designs.A,base);Object.assign(designs.B,base,{layout:'distributed'});byId('validation').textContent='';updateInputs();invalidate();};
-  byId('copyAB').onclick=()=>{Object.assign(designs.B,designs.A,{outline:designs.A.outline?.map(p=>[...p])??null,customPositions:designs.A.customPositions?.map(p=>({...p}))??null});updateInputs();invalidate();};
+  byId('defaults').onclick=()=>{for(const n of names){importJobs[n]?.abort();byId('importStatus'+n).textContent='';}carViewBounds=null;Object.assign(designs.A,base);Object.assign(designs.B,base,{layout:'distributed'});byId('validation').textContent='';updateInputs();invalidate();};
+  byId('copyAB').onclick=()=>{importJobs.B?.abort();byId('importStatusB').textContent='';Object.assign(designs.B,structuredClone(designs.A));updateInputs();invalidate();};
   for(const id of ['raceStart','sweepStart']){
     const el=byId(id);el.add(new Option('全程往返','full'));
     for(const [id,title] of stages)el.add(new Option(title,id));
@@ -1840,5 +1976,5 @@ function init(){
   SimLocale.start(render);
   let lastWidth=0;new ResizeObserver(entries=>{const w=entries[0].contentRect.width;if(w>0&&w!==lastWidth){lastWidth=w;render();}}).observe(document.querySelector('.work'));
 }
-init();
+if(typeof window!=='undefined')init();
 </script></body></html>

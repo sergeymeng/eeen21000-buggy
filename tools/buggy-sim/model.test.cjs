@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
-const script = html.split('<script>')[1].split('</script>')[0].replace(/init\(\);\s*$/, '');
+const script = html.split('<script id="simModel">')[1].split('</script>')[0];
 const context = vm.createContext({});
 vm.runInContext(script,context);
 const model = vm.runInContext('({conf,course,paintTrack,paintFraction,footprint,clearance,sweptMinimum,simulate,advance,normalized,readout,stripeResponse,assembly,coverage,scans,fitted,gate:straightGate(shared),dt,at,mountingIssue,partName,sense,casterVelocity,optical,crossesLineEnd,courseIssue,evaluateCandidate,scanCandidate,designIssue,driveLoad,straightGate,parseOutline,planBounds,scanResidual,turnEnvelope,plateVertices,stageAt,stationPose,locateStation,stopRadius})',context);
@@ -560,4 +560,50 @@ test('plan keeps the axle datum and mm scale during edits until Fit vehicle is r
   vm.runInContext('fitCarView()',session);
   assert.ok(frame().scale<initial.scale);
   assert.deepEqual(vm.runInContext("editorFrame('B',800,420,true)",session),frame());
+});
+
+test('original PD and handbook P respond to the same noisy position differently',()=>{
+  const make=vm.runInContext('makeController',context);
+  const sample=e=>({source:'steer',e});
+  const first=make(model.conf('A')),second=make(model.conf('A',{algorithm:'proportional'}));
+  for(const controller of [first,second])controller(sample(0),2.5);
+  const pd=first(sample(3),2.5),p=second(sample(3),2.5);
+  assert.ok(pd[0]>p[0]&&pd[1]<p[1]);
+  near((pd[0]+pd[1])/2,.5,1e-12);near((p[0]+p[1])/2,.5,1e-12);
+  assert.deepEqual(first({source:'none',e:null},2.5),pd);
+});
+
+test('Group 48 contrast, channel order, side memory and inside wheel braking',()=>{
+  const make=vm.runInContext('makeController',context);
+  const c=model.conf('A',{algorithm:'group48'});
+  for(const dir of [-1,1]){
+    const step=make(c);
+    const levels=dir===-1?[1,0,0,0,0,0]:[0,0,0,0,0,1];
+    const s={ns:levels};
+    const wheels=step(s);
+    assert.equal(s.source,'steer');assert.equal(Math.sign(s.e),dir);
+    assert.equal(wheels[dir===1?0:1],c.speed);
+    assert.ok(wheels[dir===1?1:0]<c.speed);
+    const dark={ns:[.8,.8,.8,.8,.8,.8]};
+    const search=step(dark);
+    assert.equal(dark.source,'none');assert.equal(dark.e,null);
+    assert.equal(Math.sign(search[0]-search[1]),dir);
+  }
+  const mixed=model.conf('A',{algorithm:'group48',roles:['log','steer','steer','backup','backup','log']});
+  const step=make(mixed),s={ns:[1,.4,.4,0,.45,1]};
+  step(s);assert.equal(s.source,'backup');
+  s.ns=[1,.4,.4,0,.4,1];step(s);assert.equal(s.source,'none');
+});
+
+test('custom wheel commands govern motion, observation, reverse blind distance and terminal faults',()=>{
+  const c=model.conf('A',{algorithm:'custom'});
+  const reverse=model.simulate(c,'gap','full',s=>{s.source='none';s.e=null;return [-.5,-.5];});
+  assert.equal(reverse.reason,'lost');near(reverse.frames.at(-1).blind,20,1e-8);
+  near(reverse.frames.at(-1).x,70,1e-8);
+  let calls=0;
+  const invalid=model.simulate(c,'right','full',()=>++calls===3?[NaN,0]:[.25,.25]);
+  assert.equal(invalid.reason,'controllerError');assert.equal(invalid.frames.length,3);
+  assert.equal(invalid.frames.at(-1).left,0);
+  const heavy=model.simulate({...c,mass:1000},'s','full',()=>[.5,.5]);
+  assert.equal(heavy.reason,'supply');near(heavy.frames.at(-1).distance,0,0);
 });

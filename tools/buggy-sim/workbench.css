@@ -63,3 +63,7 @@ aside .bar button{background:transparent;border:0;color:#465861;font-size:11px;t
 #parameterGuide>summary{cursor:pointer;font-weight:600;padding:8px 0}
 #parameterGuide th[scope=row]{width:40%;text-align:left}
 #parameterGuide code{white-space:normal;font:11px/1.5 var(--mono);overflow-wrap:anywhere}
+.controller-picker{align-items:center;flex-wrap:wrap}
+.controller-picker select{max-width:100%}
+.controller-picker output:not(:empty){flex-basis:100%;white-space:pre-wrap;overflow-wrap:anywhere}
+.controller-note{flex-basis:100%;color:#45545d;line-height:1.4}
