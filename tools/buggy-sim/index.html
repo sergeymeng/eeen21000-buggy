@@ -36,8 +36,8 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 <div id="sweepView" hidden><div class="bar"><h2>参数扫描</h2><button id="scanCSV" disabled>导出扫描 CSV</button></div>
 <div class="controls"><label>方案 <select id="scanDesign"><option>A</option><option>B</option></select></label><label>路段 <select id="scanScenario"><option value="s">S 弯 / 窄道</option><option value="left">左弯 / 窄道</option><option value="right">右弯 / 窄道</option><option value="gap">直道 / 断线</option><option value="extreme">综合极限赛道</option></select></label></div>
 <div id="sweepStartFields" class="controls" hidden><label>试跑范围 <select id="sweepStart"></select></label></div><div id="scanAxes"></div><div class="controls"><button class="primary" id="scanRun">运行扫描</button><output id="scanStatus"></output></div>
-<div style="overflow:auto"><table class="metrics"><thead><tr><th>变量 1</th><th>变量 2</th><th>路段结果</th><th>控制失线 ms</th><th>横向捕获区间 mm</th><th>内部盲区 mm</th><th>当前姿态净空 mm</th><th>行驶最小净空 mm</th><th>峰值轮速 rpm</th><th>直行需求 A / V</th><th>供电</th><th>隧道余量 mm</th><th>找回次数</th><th>最长找回 mm</th><th>封装</th></tr></thead><tbody id="scanBody"></tbody></table></div>
-<p class="foot">静态净空采用 CAD 页的后轴位置与偏航角。行驶净空取回放经过窄道时的上下界。</p></div>
+<div style="overflow:auto"><table class="metrics"><thead><tr><th>变量 1</th><th>变量 2</th><th>路段结果</th><th>控制失线 ms</th><th>横向捕获区间 mm</th><th>内部盲区 mm</th><th>当前姿态净空 mm</th><th>行驶最小净空 mm</th><th>峰值轮速 rpm</th><th>稳态需求 A / V</th><th>供电</th><th>隧道余量 mm</th><th>找回次数</th><th>最长找回 mm</th><th>封装</th></tr></thead><tbody id="scanBody"></tbody></table></div>
+<p class="foot">静态净空采用 CAD 页的后轴位置与偏航角。行驶净空取回放经过窄道时的上下界。稳态需求取直行参考值（综合赛道用上坡）；供电超限终止时取当帧首个超限电机的需求。</p></div>
 </section><aside id="properties"><div class="bar"><h2>设计参数</h2><button id="defaults">恢复示例</button></div><div class="property-units">尺寸单位 mm</div><div id="fields" class="fields"></div><div class="status" role="status" id="validation"></div><div class="controls"><button id="copyAB">复制 A 到 B</button></div></aside></div>
 <section id="sources" class="sources" hidden><details id="parameterGuide"><summary>参数公式与结果</summary><table class="metrics"><thead><tr><th>参数与公式</th><th>对结果的影响</th></tr></thead><tbody>
 <tr data-fields="length width outline"><th scope="row">底板长宽与轮廓<br><code>X = u L − a, Y = v W</code></th><td>L 为前后长，W 为左右宽，a 为后缘至后轴距离。自定义顶点分轴缩放。底板、轮胎、万向轮和探头的顶点共同决定外廓、扫掠净空与停车半径。</td></tr>
@@ -45,24 +45,24 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 <tr data-fields="rearInset casterInset housingLength housingWidth ballDiameter"><th scope="row">后轴位置、万向轮座与球径<br><code>X_front = L − a; X_ball = X_front − d_castor; v_side = ω X_ball</code></th><td>球心距前缘决定轴距与转向时球心侧向速度。轮座长宽进入二维外廓；球突出轮座时也计入净空。自由滚动、无侧滑是模型假设。</td></tr>
 <tr data-fields="sensorInset boardRight boardWidth boardDepth hole"><th scope="row">PCB 安装、板宽深与端孔<br><code>X_PCB = L − a − d_PCB; Y_PCB = y₀; W_min = 2 (max |Yᵢ − y₀| + 2.9 + d_hole)</code></th><td>移动 PCB 会带动板上探头。板宽深影响封装边距和整车净空。端孔直径只用于两侧各布一个裸孔的最小居中板宽估算，螺头和制造余量需另计。</td></tr>
 <tr data-fields="layout pitch right forward mount role"><th scope="row">布局、探头坐标与职责<br><code>Yᵢ = (i − 2.5) p  (i = 0…5); e = Σ(nᵢYᵢ) / Σnᵢ</code></th><td>间距 p 作用于等距预设；双排每排三颗，分体预设按车身尺寸定位。板上探头随 PCB，独立探头固定于后轴坐标。每个周期选已触发的主组，其次选备用组。记录组只进波形。</td></tr>
-<tr data-fields="sensorHeight spatial spot aspect line"><th scope="row">离地高度、白线与光斑<br><code>f = ∫white K(x,y) dA; n_opt = fᵞ</code></th><td>台架实测高度为 13.3 和 28.3 mm。横移结果决定横向响应，两档间插值、向下外推至 8 mm。纵向核倍率是试算值。均匀核改用白线覆盖面积占比。线宽改变触发范围与断线响应。</td></tr>
-<tr data-fields="ledR load rxV light threshold surfaceBlack surfaceWhite"><th scope="row">LED、电路、照明、材料与阈值<br><code>I_LED ≈ (5 − 1.25) / R_LED; V ≈ I_rx R₂; n = clip((ADC − B) / (W − B), 0, 1)</code></th><td>实验基准负载 2.7 kΩ。接收级按供电减 0.2 V 限幅，ADC 为 3.3 V、12 位。各路 n 达到阈值即报白。环境光改变背景；自定义黑白材料作用于综合赛道第 2 段接缝后。LED 电阻 180 Ω 对应高度表是参考假设。</td></tr>
+<tr data-fields="sensorHeight spatial spot aspect line"><th scope="row">离地高度、白线与光斑<br><code>f = ∫white K(x,y) dA; n_opt = fᵞ</code></th><td>横向响应来自 13.3 和 28.3 mm 两档横移实测。默认高度为 13.3 mm，两档间插值，低于 13.3 mm 外推。黑白电压另按高度扫描插值，8 mm 使用 3.3 和 8.1 mm 的电压数据。纵向核倍率为试算值。均匀核按白线覆盖面积计算。</td></tr>
+<tr data-fields="ledR load rxV light threshold surfaceBlack surfaceWhite"><th scope="row">LED、电路、照明、材料与阈值<br><code>I_LED ≈ (5 − 1.25) / R_LED; V ≈ I_rx R₂; n = clip((ADC − B) / (W − B), 0, 1)</code></th><td>实验基准负载 2.7 kΩ。接收级按供电减 0.2 V 限幅，ADC 为 3.3 V、12 位。各路 n 达到阈值即报白。环境光改变背景；自定义黑白材料作用于综合赛道第 2 段接缝后。LED 电阻 180 Ω 对应高度表是参考假设。接收电阻下限 1 kΩ 取自 Handbook §11.2.3。LED 压降取 Vishay 在 60 mA 下的典型值 1.25 V，其他电流下按固定压降近似。</td></tr>
 <tr data-fields="speed controlRef startOffset startYaw"><th scope="row">速度、PD 参考距离与起步姿态<br><code>κ = clip(2e / Lref² + 0.008 d e/ds, ±0.035); vL,R = v (1 ± κ b/2)</code></th><td>导数按行程估算并作 20 ms 滤波。正向右转时左轮更快；车轴速度为两轮平均，角速度为 (vL − vR)/b。后轴从输入横偏与偏航起步，每 5 ms 按轮速积分。参考距离是独立控制参数。</td></tr>
 <tr data-fields="mass rolling grade gear efficiency supplyV"><th scope="row">质量、坡度、滚阻、传动与供电<br><code>F = mg(sin θ + μ cos θ); T = Fr/(2Gη); ωₘ = vG/r</code></th><td>匀速直行时两轮均分牵引力，r 以 m 计，v 取轮速限幅后的直行速度。DR1 滚动拟合斜率为 0.0865。质量和坡度增加所需牵引力，齿比改变转矩和转速。</td></tr>
-<tr data-fields="motorLimits"><th scope="row">每台电机的稳态判据<br><code>I = (T + 0.00124)/0.00775; V = 1.7548 I − 0.0103 + 0.007259 ωₘ + 0.9310</code></th><td>系数取自组内 DR1 的运行与堵转拟合。按 Handbook §8.2 的每电机 1.4 A 计算限值及输入的可用电压判定。综合赛道上坡会因超限终止；短赛道报告供电余量，轨迹按轮速指令积分。</td></tr>
+<tr data-fields="motorLimits"><th scope="row">每台电机的稳态判据<br><code>I = (T + 0.00124)/0.00775; V = 1.7548 I − 0.0103 + 0.007259 ωₘ + 0.9310</code></th><td>所有路段每 5 ms 按当前坡度、限幅后的左右轮速分别估算稳态需求。两轮均分纵向载荷，反转轮按其转向计算，电流和电压沿轮的转向计符号。任一电机的电流幅值超过 1.4 A（Handbook §8.2）或电压幅值超过设定可用电压，该步即停止。系数来自 DR1 的运行与堵转拟合，静止时反电动势取零。转弯阻力、电机瞬态和实际制动性能需实测。</td></tr>
 <tr data-fields="height gateWidth gateLength bendRadius sRadius gapSize regime scenario"><th scope="row">整车高度、赛道与窄道<br><code>clearance = W_gate/2 − max |Y_part|; roof margin = 200 mm − H</code></th><td>只取与有限道长相交的部件。窄道宽长影响净空；半径决定赛道曲率，断线长度决定无漆区。课程模式限制输入，综合赛道使用固定分段尺寸。整车高度用于隧道检查。</td></tr>
 <tr data-fields="depth offset yaw radius angle"><th scope="row">CAD 姿态与转弯占地<br><code>P_world = P_axle + R(yaw) P_body</code></th><td>入道深度、横偏与偏航用于静态净空图。转弯半径与转角用于刚体扫掠，按各顶点在整个角度区间的极值取包络；零半径绕后轴转。</td></tr>
-<tr data-fields="scanAxes raceStart rate shift"><th scope="row">扫描、回放与横移<br><code>pᵢ = p₀ + i (p₁ − p₀)/(N − 1)</code></th><td>参数扫描逐点重跑所选方案，单点取指定值。分段起跑改变初始位置。回放倍率与时间条只改变观看进度；布局横移只移动静态白线。</td></tr>
+<tr data-fields="scanAxes raceStart rate shift"><th scope="row">扫描、回放与横移<br><code>pᵢ = p₀ + i (p₁ − p₀)/(N − 1)</code></th><td>参数扫描逐点重跑所选方案，单点取指定值。分段起跑改变初始位置。回放倍率与时间条只改变观看进度；布局横移只移动静态白线。回放 CSV 的 uphill_deg 为赛道上坡角度，local_grade_deg 为当前帧的有符号坡度。综合赛道从所选起点沿中心线跟踪后轴里程，每步里程修正最多取后轴步长的两倍，原地掉头时保持。盲行距离取帧起点，连续失线时长计入该帧实际执行的区间。</td></tr>
 </tbody></table><p>模型采用平面刚体与指令轮速。轮胎打滑、起步加速度、驱动器瞬态、制动距离及传感器个体差异需要实车数据；终点检查取发出停车指令时的车身位置。</p><p><a href="https://www.roboticsbook.org/S52_diffdrive_actions">差速运动学参考</a> · <a href="https://www.vishay.com/docs/83760/tcrt5000.pdf">TCRT5000 器件手册</a></p></details>
 <h2>Handbook 与 Canvas 规格</h2><p>Canvas §1.4、§1.6 给出白线 17 ± 3 mm、平滑弯最小半径 50 mm、最小窄点 280 mm、断线最长 6 mm、至多六个循迹传感器。回放使用组合弯道和直道窄点。<a href="https://canvas.manchester.ac.uk/courses/89030/pages/1-introduction#Specification">Canvas 原文</a></p>
 <p>Canvas §1.4 另列折角弯每 50 mm 最多改向 45°、高架段挡墙最高 50 mm、坡角小于 18°、接缝台阶最高 4 mm、隧道限高 200 mm，以及预赛终点整车 200 mm 停车范围。综合赛道将这些条件分段组合。</p>
 <p>Canvas §1.6 要求使用配发的两套电机减速箱、电机驱动板、BLE 模块和指定电池组，电源须有串联开关。额外零件预算 £40，禁止使用成品循迹阵列。</p>
-<h2>综合极限赛道</h2><p>路线、段长与掉头位置为试验设置。去程和返程共用白线，直线段覆盖 14、17、20 mm 线宽，光照切换采用 Lab 2 室内与强光背景。4 mm 台阶、材料变化与日照反射率需实测。高架段用 50 mm 侧墙的平面边界，窄道宽 280 mm，隧道限高 200 mm。坡度取 ±17.9°，匀速上坡检查 DR1 的电压和电流需求；坡道轨迹为俯视运动学。掉头由一个虚拟 BLE 事件触发，轮速限幅作用于原地转向。回程越过线尾并失线 20 mm 后发停车指令，以车身最远点检查 200 mm 范围；实际制动距离需实测。</p><h2>底盘依据</h2>
+<h2>综合极限赛道</h2><p>路线、段长与掉头位置为试验设置。去程和返程共用白线，直线段覆盖 14、17、20 mm 线宽，光照切换采用 Lab 2 室内与强光背景。4 mm 台阶、材料变化与日照反射率需实测。高架段用 50 mm 侧墙的平面边界，窄道宽 280 mm，隧道限高 200 mm。坡度取 ±17.9°，沿途按局部坡度和轮速检查 DR1 模型的电压、电流需求。坡道轨迹采用俯视运动学。掉头由一个虚拟 BLE 事件触发，轮速限幅作用于原地转向。回程越过线尾并失线 20 mm 后发停车指令，以车身最远点检查 200 mm 范围；实际制动距离需实测。</p><h2>底盘依据</h2>
 <p>Handbook 印刷页 28 指明两个驱动轮，第 42 页 §8.9 列出电机减速箱与车轮、Ball castor #955 及试验底盘（图未按比例绘制）。两个后轮差速驱动，前端由一只球形万向轮支承。后轴中心为平面运动基准，钢球随车体自由滚动。车体转动时，球心的侧向速度等于后轴角速度乘以后轴至球心距离。<cite>Handbook 第 42 页</cite></p>
 <p>OneDrive 的 DR1 记录驱动轮实测直径 76 mm。Management project / Productcost.docx 列一只 3/4 英寸金属球万向轮，球径换算为 19.05 mm。Handbook 第 90 页 §16.2 指定 Acetal；组内物料表列一张 250 × 250 × 3 mm 板材。轮径、球径和底板成品尺寸均可扫参。</p>
 <p>底板、轮距、胎宽、轮座外廓和安装坐标均为方案输入。窄道净空取有限道长内各部件最靠近侧壁的位置。转弯占地按刚体、车轮无侧滑计算整个转角内的外框，包含底板、驱动轮、万向轮、传感器板和探头。图上只绘出选定姿态；计算包含姿态之间的极值。实车装有外伸线束或支架时，还需核对其外廓。</p>
 <p>课程模型含万向轮总成、轮座、轮胎和电机组件。<a href="https://canvas.manchester.ac.uk/courses/89030/modules/items/4101721">Canvas 机械模型</a></p>
-<h2>驱动与供电</h2><p>Handbook §9.3.1 给出隔离电源 5 V / 400 mA、驱动板每通道约 10 V / 1.8 A。PCB 页的电流余额还需分配给 Nucleo、编码器与接收电路。</p><p>OneDrive · Group 52 DR1，第 2、4、6 页。匀速直行按两轮均分牵引力，使用滚阻拟合斜率 0.0865、电枢电阻 1.7548 Ω、转矩拟合 T = 0.00775 I − 0.00124、反电动势拟合 E = 0.007259 ω + 0.9310。质量 0.920 kg、减速比 15、齿轮总效率 0.722 是 DR1 的计算取值。扫描分别报告直行供电和循迹结果。回放按轮速指令运动，可设置轮端 rpm 限幅。</p>
+<h2>驱动与供电</h2><p>Handbook §9.3.1 给出 9 V 电池、车载隔离 5 V / 400 mA 电源及每通道约 10 V / 1.8 A 的驱动板上限。每台电机按 §8.2 的 1.4 A 运行限值检查。DR1 按 10 V 计算。PCB 页分别计算车载电源和 Sensors Lab 的 myDAQ 100 mA 电源轨在全部 LED 同时点亮后的余量（§11.2.2）。车载余量还需供 Nucleo、编码器与接收电路使用。</p><p>OneDrive · Group 52 DR1，第 2、4、6 页。匀速直行按两轮均分牵引力，使用滚阻拟合斜率 0.0865、电枢电阻 1.7548 Ω、转矩拟合 T = 0.00775 I − 0.00124、反电动势拟合 E = 0.007259 ω + 0.9310。DR1 预测整车约 0.912 kg，计算取 0.920 kg、减速比 15、齿轮总效率 0.722。整车质量待装车后称量。DR1 按静摩擦系数 0.111 估算起步需求。回放与扫描均在积分前检查左右轮的稳态需求，可另设轮端 rpm 限幅。</p>
 <h2>零件与测量</h2><p>ESP Technical Handbook 2026–27 印刷页 66 给出 TCRT5000 外形 10.2 × 5.8 × 7 mm；页 61–62 描述黑白反射测试，页 72 给出差速运动关系。OneDrive 中 Group 52 的 DR1 记录轮径 76 mm，Productcost.docx 列出六个 TCRT5000，第八周周报记录六路模拟输入。安装坐标以后轴中心为原点。板上通道随 PCB 移动，独立安装通道固定在车架坐标。封装长边沿车身纵向，探头朝地面。</p>
 <h3>Sensors Lab · lab data final.xlsx / Sheet1!A14:G24</h3><p>探头离地高度和横移位置均以 mm 记录。黑、白电压为每组 3 次读数的算术平均。<a href="https://livemanchesterac-my.sharepoint.com/shared?id=%2Fpersonal%2Fchenxi_shen_student_manchester_ac_uk%2FDocuments%2FApps%2FEEEN21000%20Embedded%20Systems%2Flab2%20sensor">OneDrive 实验目录</a></p><div id="raw"></div><h3>横移曲线拟合</h3><div id="fitData"></div><div class="twins"><div><h3>13.3 mm · 横移电压 V</h3><canvas class="heatplot" id="fitPlotlow" aria-label="13.3 mm 横移电压与模型"></canvas></div><div><h3>28.3 mm · 横移电压 V</h3><canvas class="heatplot" id="fitPlothigh" aria-label="28.3 mm 横移电压与模型"></canvas></div></div><p>橙点为每个位置的三次读数均值，蓝线为回放使用的对称响应模型。RMSE 为模型在同组 29 个位置的电压拟合误差，独立验证需要另一次横移实验。</p>
 <h2>试算模型</h2><p>TCRT5000 的 950 nm 发射管与光电三极管朝向同一面。黑面也会反光，白线边缘的响应由照明与接收视场共同决定。手册第 67 页图 3 区分封装表面工作距离与台架基准；图 8 的 CTR 随 LED 电流而变。电压标定采用组内黑白面实测值。</p>
@@ -71,7 +71,7 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 <p>TCRT5000 台架反馈电阻为 2.7 kΩ（B3）。高度扫描未标注 LED 电流，模型把默认 180 Ω 作为参考工况。其他 LED 电阻按 (5 − 1.25) / R 计算电流，用两组电流扫描（A62:G71）的相对变化修正黑白电平。低于 13.3 mm 时沿用最近一组相对增益。</p>
 <p>LED 关闭时室内和强光的实测中位数分别为 0.203 和 4.345 mV（B7:D7、B9:D9）。按候选负载换算电压，接收级预留 0.2 V，ADC 为 3.3 V、12 位；判线沿用室内黑白标定。</p>
 <p>CAD 以自定义或矩形 Acetal 底板、两个后驱动轮、前万向轮座矩形外廓、PCB 和各探头封装计算净空。图上显示进入窄道的部分到侧界的横向距离。包络给出选定姿态的几何余量，未计螺头、线束、制造误差与结构变形。</p>
-<p>回放每 5 ms 更新，按当前控制组内触发探头的横向坐标与归一化输出求加权平均，用于 PD 转向。两车用相同控制律，Kp = 2/L²，其中 L 为回放中的 PD 参考距离（mm），两车共用、Kd = 0.008/mm、20 ms 微分滤波、曲率限幅 ±0.035/mm。默认起步时轴心位于直线中心，失线后维持方向，盲行 20 mm 结束。每步按实际左右轮速积分圆弧，短赛道时限 15 s；综合赛道按线长和设定速度计算时限，最多 180 s。连续净空下界按车轴速度与最大角点速度扩张窄道入口，递归细分可能更危险的帧间区段；上界取实际检查姿态中的最小值，目标上下界差 0.1 mm。</p><h2>往届对照 · 2023/24 Group 48</h2><p>该组公开的 KiCad 板上 U1–U6 单排，中心距 20 mm，首末中心相距 100 mm。他们的算法逐路归一化，用最大与最小读数之差判线，丢线后按最近一次转向的符号寻线。对照实验可在参数扫描中改变间距，观察捕获区间和内部盲区。<a href="https://www.linkedin.com/pulse/2nd-year-embedded-systems-project-final-race-winner-hakeem-jfuzf/">比赛复盘</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/tree/master/hardware/Sensor%20PCB">PCB 原文件</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/blob/master/src/sensor_array.cpp">传感器程序</a></p></section>
+<p>回放每 5 ms 更新，按当前控制组内触发探头的横向坐标与归一化输出求加权平均，用于 PD 转向。两车用相同控制律，Kp = 2/L²，其中 L 为回放中的 PD 参考距离（mm），两车共用、Kd = 0.008/mm、20 ms 微分滤波、曲率限幅 ±0.035/mm。默认起步时轴心位于直线中心，失线后维持方向，盲行 20 mm 结束。每步按通过供电检查的左右轮速积分圆弧，短赛道时限 15 s；综合赛道按线长和设定速度计算时限，最多 180 s。连续净空下界按车轴速度与最大角点速度扩张窄道入口，递归细分可能更危险的帧间区段；上界取实际检查姿态中的最小值，目标上下界差 0.1 mm。</p><h2>往届对照 · 2023/24 Group 48</h2><p>该组公开的 KiCad 板上 U1–U6 单排，中心距 20 mm，首末中心相距 100 mm。他们的算法逐路归一化，用最大与最小读数之差判线，丢线后按最近一次转向的符号寻线。对照实验可在参数扫描中改变间距，观察捕获区间和内部盲区。<a href="https://www.linkedin.com/pulse/2nd-year-embedded-systems-project-final-race-winner-hakeem-jfuzf/">比赛复盘</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/tree/master/hardware/Sensor%20PCB">PCB 原文件</a> · <a href="https://github.com/Amrlxyz/esp-lfr-buggy/blob/master/src/sensor_array.cpp">传感器程序</a></p></section>
 </main><script>
 'use strict';
 const dt = 0.005;
@@ -118,7 +118,7 @@ function extremeCourse(){
   const gate={...bridgeStart,length:points.at(-1).s-bridgeStart.s,half:140};
   begin('hairpins',20);add(220);bend(90);add(330);bend(90);add(220);
   begin('return',17);add(480);
-  const track={points,edges,sections,gate,tunnel,end:points.at(-1),gap:null,widthAtFinish:17,
+  const track={points,edges,sections,gate,tunnel,end:points.at(-1),gap:null,uphillGrade:17.9,
     bleStation:points.at(-1).s-180,stepStation:sections[1].start+155};
   // At an angular join, both segments share the mitered cross-section.
   function side(p,a,b,offset){
@@ -133,15 +133,28 @@ function extremeCourse(){
   return track;
 }
 function stageName(id){return stages.find(stage=>stage[0]===id)?.[1]||'—';}
-function locateStation(p,track){
-  let best=Infinity,station=0;
+function locateStation(p,track,previous=null,travel=0){
+  if(previous!==null && travel===0)return previous;
+  let low=0,high=track.end.s;
+  if(previous!==null){
+    // The axle cuts inside tight turns. Widen the search as it departs from the previous
+    // centreline point, but limit the reported change to twice the actual axle travel.
+    const origin=stationPose(track,previous);
+    const reach=2*(travel+Math.hypot(p.x-origin.x,p.y-origin.y));
+    low=Math.max(0,previous-reach);high=Math.min(high,previous+reach);
+  }
+  let best=Infinity,station=previous??0;
   for(const e of track.edges){
+    if(e.end.s<low)continue;
+    if(e.start.s>high)break;
     const dx=e.end.x-e.start.x,dy=e.end.y-e.start.y;
-    const t=clamp(((p.x-e.start.x)*dx+(p.y-e.start.y)*dy)/(dx*dx+dy*dy),0,1);
+    const span=e.end.s-e.start.s;
+    const t=clamp(((p.x-e.start.x)*dx+(p.y-e.start.y)*dy)/(dx*dx+dy*dy),
+      Math.max(0,(low-e.start.s)/span),Math.min(1,(high-e.start.s)/span));
     const d=(p.x-e.start.x-t*dx)**2+(p.y-e.start.y-t*dy)**2;
     if(d<best){best=d;station=e.start.s+t*(e.end.s-e.start.s);}
   }
-  return station;
+  return previous===null?station:clamp(station,previous-2*travel,previous+2*travel);
 }
 function stationPose(track,s){
   const e=track.edges.find(edge=>edge.end.s>s)||track.edges.at(-1);
@@ -537,12 +550,10 @@ function advance(p,v,omega,t){
 }
 // Every material point over a half interval lies within 'pad' of its midpoint position.
 // Thus an expanded gate supplies a lower bound even when an edge enters between samples.
-function sweptMinimum(frames,parts,g,trackWidth){
-  if(!g||!frames.length)return null;
+function sweptGate(parts,g,trackWidth){
   const rho=Math.max(...parts.flat().map(([x,y])=>Math.hypot(x,y)));
   let upper=Infinity,lower=Infinity,time=0;
   function sample(value,t){if(value!==null&&value<upper){upper=value;time=t;}}
-  frames.forEach(f=>sample(f.clear,f.t));
   function visit(f,v,omega,lo,hi,depth){
     const mid=(lo+hi)/2,p=advance(f,v,omega,mid),pad=(Math.abs(v)+rho*Math.abs(omega))*(hi-lo)/2;
     const expanded=clearance(p,parts,g,false,pad);
@@ -552,12 +563,25 @@ function sweptMinimum(frames,parts,g,trackWidth){
     if(bound>=upper-.1||depth>=16){lower=Math.min(lower,bound);return;}
     visit(f,v,omega,lo,mid,depth+1);visit(f,v,omega,mid,hi,depth+1);
   }
-  for(let i=0;i<frames.length-1;i++){
-    const f=frames[i];if(f.nearBridge===false && frames[i+1].nearBridge===false)continue;
-    visit(f,(f.left+f.right)/2,(f.left-f.right)/trackWidth,0,dt,0);
-  }
-  if(!Number.isFinite(upper)&&!Number.isFinite(lower))return null;
-  return {low:Math.min(lower,upper),high:upper,time};
+  return {
+    add(previous,frame){
+      if(!g)return false;
+      sample(frame.clear,frame.t);
+      if(previous && (previous.nearBridge!==false||frame.nearBridge!==false)){
+        visit(previous,(previous.left+previous.right)/2,(previous.left-previous.right)/trackWidth,0,dt,0);
+      }
+      return upper<=0; // An actual sampled pose touched the wall.
+    },
+    result(){
+      if(!Number.isFinite(upper)&&!Number.isFinite(lower))return null;
+      return {low:Math.min(lower,upper),high:upper,time};
+    }
+  };
+}
+function sweptMinimum(frames,parts,g,trackWidth){
+  const gate=sweptGate(parts,g,trackWidth);
+  frames.forEach((f,i)=>gate.add(frames[i-1],f));
+  return gate.result();
 }
 
 // Interpolate each channel's crossing of the finite end of the painted stripe.
@@ -582,22 +606,27 @@ function simulate(c,kind,startId='full'){
   const track=course(kind,c),parts=footprint(c),frames=[];track.paint=paintTrack(track,c.line);
   let p={x:90,y:c.startOffset,a:rad(c.startYaw)},distance=0,k=0,deriv=0,lastE=null,blind=0;
   const extreme=!!track.sections,parking=extreme&&startId==='parking',single=track.sections?.find(section=>section.id===startId);
-  const start=extreme?stationPose(track,parking?260:single?single.start:90):null;
+  let station=extreme?(parking?260:single?.start??90):null;
+  const start=extreme?stationPose(track,station):null;
   if(start){const a=start.a+(parking?Math.PI:0);p={...at({...start,a},0,c.startOffset),a:a+rad(c.startYaw)};}
   let phase=parking?'home':'out',pivotEnd=0,bleEvents=0,homeCrossed=false,stopDistance=null;
   const bodyReach=extreme?Math.max(...parts.flat().map(([x,y])=>Math.hypot(x,y))):0;
-  const uphill=extreme?driveLoad({...c,grade:17.9}):null;
+  const uphill=extreme?driveLoad(c,track.uphillGrade):null;
+  const gate=sweptGate(parts,track.gate,c.axle);
+  let driveFailure=null;
   let clearFrame=null,lossFrame=null,lossStart=null,reason='timeout';
   let hadPrimary=false,lostPrimaryAt=null,reacquired=0,maxRecovery=null,previousSource='none';
   const vmax=wheelSpeedLimit(c),velocity=c.speed*1000;let ds=velocity*dt,blindOrigin=0;
   const maxFrames=extreme?Math.ceil(Math.min(180,Math.max(30,3*track.end.s/Math.max(1,velocity)+10))/dt):3000;
   for(let i=0;i<=maxFrames;i++){
-    const station=extreme?locateStation(p,track):null,zone=extreme?stageAt(track,station):null;
+    if(extreme && i)station=locateStation(p,track,station,Math.abs(ds));
+    const sectionEnd=single && single.id!=='return' && station>=single.end-1e-7;
+    const zone=extreme?stageAt(track,station):null;
     if(extreme && (!single||single.id==='return') && phase==='out' && station>=track.bleStation){
       phase='pivot';pivotEnd=p.a+Math.PI;bleEvents++;
     }
     if(phase==='pivot' && p.a>=pivotEnd-1e-9){phase='home';lastE=null;deriv=0;blind=0;lossStart=null;blindOrigin=distance;hadPrimary=false;lostPrimaryAt=null;}
-    const grade=!zone?c.grade:(zone.id==='climb'?17.9:zone.id==='descent'?-17.9:0)*(phase==='home'?-1:1);
+    const grade=!zone?c.grade:(zone.id==='climb'?track.uphillGrade:zone.id==='descent'?-track.uphillGrade:0)*(phase==='home'?-1:1);
     const sensor=sense(p,c,track);
     if(phase!=='pivot' && sensor.primary){
       if(lostPrimaryAt!==null){reacquired++;maxRecovery=Math.max(maxRecovery??0,distance-lostPrimaryAt);lostPrimaryAt=null;}
@@ -625,15 +654,15 @@ function simulate(c,kind,startId='full'){
     const ball=casterVelocity(v,omega,c);
     const nearBridge=!extreme || (station>=track.sections[4].start-bodyReach && station<=track.sections[6].end+bodyReach);
     const f={...p,...sensor,ball,nearBridge,station,lineWidth:zone?.width??c.line,zone:zone?.id,phase,grade,leftRPM:left*60/(Math.PI*c.driveDiameter),rightRPM:right*60/(Math.PI*c.driveDiameter),t:i*dt,distance,left,right,cmdLeft,cmdRight,blind,lossTime:lossStart===null?0:(i-lossStart)*dt,
-      clear:nearBridge?clearance(p,parts,track.gate):null};
+      clear:nearBridge?clearance(p,parts,track.gate):null,leftDrive:null,rightDrive:null,wheelLimited:cmdLeft!==left||cmdRight!==right};
     frames.push(f);
+    const wall=gate.add(frames[i-1],f);
     if(f.clear!==null&&(clearFrame===null||f.clear<frames[clearFrame].clear))clearFrame=i;
     if(!c.sensor.valid){reason='calibration';break;}
+    if(wall){reason='wall';break;}
     if(extreme){
-      if(f.clear!==null&&f.clear<=0){reason='wall';break;}
       if(nearBridge && c.height>200 && clearance(p,parts,track.tunnel)!==null){reason='roof';break;}
-      if(grade>0 && !uphill.ok){reason='supply';break;}
-      if(single && single.id!=='return' && station>=single.end-1e-7){f.zone=single.id;reason='sectionEnd';break;}
+      if(sectionEnd){reason='sectionEnd';break;}
       if(phase==='home' && single?.id==='return' && station<=single.start){reason='sectionEnd';break;}
       if(phase==='home' && i>0 && crossesLineEnd(frames[i-1],p,{...c,line:17},{x:0,y:0,a:Math.PI}))homeCrossed=true;
       if(homeCrossed && blind>=blindLimit-1e-8){
@@ -646,6 +675,12 @@ function simulate(c,kind,startId='full'){
       reason='end';break;
     }
     if(blind>=blindLimit-1e-8){reason='lost';break;}
+    f.leftDrive=driveLoad(c,grade,left/1000);
+    f.rightDrive=right===left?f.leftDrive:driveLoad(c,grade,right/1000);
+    if(!f.leftDrive.ok||!f.rightDrive.ok){
+      driveFailure=!f.leftDrive.ok?f.leftDrive:f.rightDrive;
+      reason='supply';break;
+    }
     p=advance(p,v,omega,dt);ds=v*dt;distance+=ds;
   }
   for(let i=0;i<frames.length;i++){
@@ -655,9 +690,12 @@ function simulate(c,kind,startId='full'){
     if(i+1<frames.length)f.lossTime+=dt;
     if(lossFrame===null||f.lossTime>frames[lossFrame].lossTime)lossFrame=i;
   }
-  const swept=sweptMinimum(frames,parts,track.gate,c.axle);
+  if(reason==='supply'||reason==='wall'){
+    Object.assign(frames.at(-1),{left:0,right:0,leftRPM:0,rightRPM:0,ball:casterVelocity(0,0,c)});
+  }
+  const swept=gate.result();
   if(swept&&Number.isFinite(swept.high))clearFrame=clamp(Math.round(swept.time/dt),0,frames.length-1);
-  return {track,frames,clearFrame,lossFrame,reason,swept,reacquired,maxRecovery,bleEvents,stopDistance,uphill,startId};
+  return {track,frames,clearFrame,lossFrame,reason,swept,reacquired,maxRecovery,bleEvents,stopDistance,uphill,driveFailure,startId};
 }
 function canvasFrame(canvas){
   const w=canvas.clientWidth||320,h=canvas.clientHeight||200,dpr=Math.min(2,window.devicePixelRatio||1);
@@ -669,10 +707,10 @@ function canvasFrame(canvas){
 }
 const names=['A','B'];
 const colour={A:'#236893',B:'#a25221'};
-const shared={surfaceBlack:null,surfaceWhite:null,grade:0,regime:'course',bendRadius:50,sRadius:125,gateWidth:280,gateLength:225,gapSize:6,controlRef:104,spatial:'lab',light:'room',aspect:1,wheelCap:0,line:17,spot:5,threshold:.5,speed:.5,startOffset:0,startYaw:0};
+const shared={surfaceBlack:null,surfaceWhite:null,grade:0,regime:'course',bendRadius:50,sRadius:125,gateWidth:280,gateLength:225,gapSize:6,controlRef:30,spatial:'lab',light:'room',aspect:1,wheelCap:0,line:17,spot:5,threshold:.5,speed:.5,startOffset:0,startYaw:0};
 const choices={controlRef:[30,50,75,104,150,200],spatial:['lab','box'],light:['room','bright'],aspect:[.5,1,2],wheelCap:[0,.6,1],line:[14,17,20],spot:[2,5,8],threshold:[.35,.5,.65],speed:[.2,.4,.5,.8],startOffset:[-35,-15,0,15,35],startYaw:[-20,-10,0,10,20]};
 const designFields=[
-  ['sensorHeight','探头离地高度 / mm',8,28.3,'any'],['ledR','LED 电阻 / Ω',100,700,.5],['load','接收 R2 / Ω',680,10000,10],['rxV','接收供电 / V',3,5,.1],
+  ['sensorHeight','探头离地高度 / mm',8,28.3,'any'],['ledR','LED 电阻 / Ω',100,700,.5],['load','接收 R2 / Ω',1000,10000,10],['rxV','接收供电 / V',3,5,.1],
   ['pitch','预设横向间距',0,null,'any'],['boardWidth','板宽',0,null,'any'],['boardDepth','板深',0,null,'any'],['hole','端孔直径',0,null,'any'],
   ['length','底板长',0,null,'any'],['width','底板宽',0,null,'any'],['axle','驱动轮中心距',0,null,'any'],
   ['driveDiameter','驱动轮直径',0,null,'any'],['tyre','轮胎宽度',0,null,'any'],['maxRPM','轮速上限 / rpm（0 关闭）',0,null,'any'],
@@ -687,12 +725,35 @@ const roleLabels={steer:'主循迹',backup:'失线接管',log:'仅记录'};
 function sensorPositions(c){
   return positionsForLayout(c).map((p,i)=>({...p,role:c.roles?.[i]??p.role??'steer'}));
 }
+// Intersect the outline at this row. A concave plate can have separate left and right strips.
+function distributedPair(vertices,forward,atSides){
+  const crossings=[];
+  for(let i=0;i<vertices.length;i++){
+    const [x1,y1]=vertices[i],[x2,y2]=vertices[(i+1)%vertices.length];
+    if((x1>forward)!==(x2>forward))crossings.push(y1+(y2-y1)*(forward-x1)/(x2-x1));
+  }
+  crossings.sort((a,b)=>a-b);
+  const spans=[];
+  for(let i=0;i+1<crossings.length;i+=2){
+    if(crossings[i+1]>crossings[i])spans.push([crossings[i],crossings[i+1]]);
+  }
+  if(!spans.length)return [];
+  const left=spans[0],right=spans.at(-1);
+  // Keep the fore/aft tracking pair astride the axle centreline wherever it fits.
+  const minCentre=left[0]+12,maxCentre=right[1]-12;
+  const centre=minCentre<=maxCentre?clamp(0,minCentre,maxCentre):(minCentre+maxCentre)/2;
+  const targets=atSides?[left[0],right[1]]:[centre-8,centre+8];
+  return [left,right].map(([lo,hi],i)=>{
+    const inset=Math.min(4,(hi-lo)/2);
+    return {forward,right:clamp(targets[i],lo+inset,hi-inset),mount:'body'};
+  });
+}
 function positionsForLayout(c){
   if(c.layout==='custom')return c.customPositions;
   if(c.layout==='distributed'){
-    const nose=c.length-c.rearInset,side=c.width/2-4;
-    return [[nose-8,-8],[nose-8,8],[nose-c.length/2,-side],[nose-c.length/2,side],[-c.rearInset+6,-8],[-c.rearInset+6,8]]
-      .map(([forward,right])=>({forward,right,mount:'body'}));
+    const plate=plateVertices(c),rear=-c.rearInset,half=c.length/2;
+    return [...distributedPair(plate,rear+c.length-Math.min(8,half),false),
+      ...distributedPair(plate,rear+half,true),...distributedPair(plate,rear+Math.min(6,half),false)];
   }
   return Array.from({length:6},(_,i)=>{
     const right=c.layout==='double'?(i%3-1)*c.pitch:(i-2.5)*c.pitch;
@@ -703,7 +764,7 @@ function positionsForLayout(c){
     return {right,forward};
   });
 }
-const base={outline:null,roles:null,mass:.92,gear:15,efficiency:.722,rolling:.0865,supplyV:9,height:100,driveDiameter:76,ballDiameter:19.05,maxRPM:0,layout:'row',customPositions:null,sensorHeight:8,ledR:180,load:2700,rxV:5,pitch:8,boardWidth:56,boardDepth:24,hole:2.7,boardRight:0,length:140,width:100,axle:130,tyre:26,rearInset:28,casterInset:30,sensorInset:8,housingLength:30,housingWidth:26};
+const base={outline:null,roles:null,mass:.92,gear:15,efficiency:.722,rolling:.0865,supplyV:9,height:100,driveDiameter:76,ballDiameter:19.05,maxRPM:0,layout:'row',customPositions:null,sensorHeight:13.3,ledR:180,load:2700,rxV:5,pitch:8,boardWidth:56,boardDepth:24,hole:2.7,boardRight:0,length:140,width:100,axle:130,tyre:26,rearInset:28,casterInset:30,sensorInset:8,housingLength:30,housingWidth:26};
 const designs={A:{...base},B:{...base,layout:'distributed'}};
 function straightGate(c){return {x:0,y:0,a:0,length:c.gateLength,half:c.gateWidth/2};}
 const pose={depth:35,offset:25,yaw:18};
@@ -724,11 +785,11 @@ function optical(c,pos){return fractions1D(c,pos).map(f=>normalized(c.sensor,f))
 function countOn(ns,t){return ns.filter(n=>n+1e-10>=t).length;}
 function coverage(c){
   const m=c.sensor;
-  if(!c.positions.length)return {bands:[],extent:null,one:0,multi:0,blind:0,invalid:'无传感器'};
+  if(!c.positions.length)return {bands:[],extent:null,one:0,multi:0,blind:null,invalid:'无传感器'};
   // Only compare meaningful detections when calibration and background discrimination hold.
-  if(!m.valid || normalized(m,0)>=c.threshold)return {bands:[],extent:null,one:0,multi:0,blind:140,invalid:!m.valid?'复标无跨度':'黑底已触发'};
+  if(!m.valid || normalized(m,0)>=c.threshold)return {bands:[],extent:null,one:0,multi:0,blind:null,invalid:!m.valid?'复标无跨度':'黑底已触发'};
   const active=x=>normalized(m,lateralSignal(c,x))>=c.threshold;
-  if(!active(0))return {bands:[],extent:null,one:0,multi:0,blind:140,invalid:'白线上未触发'};
+  if(!active(0))return {bands:[],extent:null,one:0,multi:0,blind:null,invalid:'白线上未触发'};
   let low=0,high=c.line/2+(m.sigma===null?c.spot:12*m.sigma);
   for(let i=0;i<45;i++){const mid=(low+high)/2;if(active(mid))low=mid;else high=mid;}
   const r=(low+high)/2,centres=c.positions.map(p=>p.right);
@@ -902,7 +963,7 @@ function scanLimit(){
 function drawCapture(){
   const {ctx,w,h}=canvasFrame(byId('capture'));
   const hi=scanLimit(),lo=-hi,left=30,right=w-22,X=e=>left+(right-left)*(e-lo)/(hi-lo);
-  ctx.font='11px monospace';
+  ctx.font='11px monospace';ctx.textAlign='left';
   names.forEach((n,i)=>{
     const y=12+i*32,stats=coverage(conf(n));ctx.fillStyle='#e1e4e6';ctx.fillRect(left,y,right-left,22);
     for(const b of stats.bands){ctx.fillStyle=b.hits>=2?'#416b83':b.hits?'#b7cbd7':'#e1e4e6';ctx.fillRect(X(b.lo),y,X(b.hi)-X(b.lo),22);}
@@ -934,7 +995,10 @@ byId('shift').min=-scanLimit();byId('shift').max=scanLimit();
   byId('physicsHint').textContent='Sensors Lab · 2026-11-23 · 探头高度在参数面板中设置。';
   const rule=f=>c.map((v,i)=>f(v,fit[i],stats[i]));
   metrics('pcbMetrics',[
-    ['5 V / 400 mA 供电 · 扣除各路 LED 后余额',...c.map(v=>format(400-v.positions.length*v.sensor.currentMA,' mA'))],
+    ['全部 LED 点亮后余量 · 车载 400 mA / myDAQ 100 mA',...c.map(v=>{
+      const leds=v.positions.length*v.sensor.currentMA;
+      return [400,100].map(limit=>limit<leds?'<strong class="alert">'+format(limit-leds,' mA')+'</strong>':format(limit-leds,' mA')).join(' / ');
+    })],
     ['探头高度 / 横向响应依据',...c.map(v=>format(v.sensorHeight)+' · '+heightBasis(v))],
     ['单颗探头触发总宽（当前白线与阈值）',...stats.map(v=>v.invalid||format(v.singleWidth))],
     ['LED 电流估算',...c.map(v=>format(v.sensor.currentMA,' mA'))],
@@ -947,11 +1011,11 @@ byId('shift').min=-scanLimit();byId('shift').max=scanLimit();
     ['最近封装净距 / 前后最小余量',...fit.map(v=>format(v.gap,'')+' / '+format(v.depth))],
     ['全探头横向捕获区间',...stats.map(v=>v.invalid||v.low.toFixed(1)+' 至 '+format(v.extent))],
     ['多路有效区总宽',...stats.map(v=>format(v.multi))],['单路有效区总宽',...stats.map(v=>format(v.one))],
-    ['捕获范围内部盲区总宽',...stats.map(v=>v.invalid||format(v.blind))],
+    ['捕获范围内部盲区总宽',...stats.map(v=>format(v.blind))],
     ['封装几何',...rule((c,f)=>f.edge<0||f.depth<0?'超出板边':f.gap<0?'封装相交':[f.edge,f.depth,f.gap].some(d=>d===0)?'接触':!c.positions.length?'无传感器':c.hasBoard?'可放入':'分体安装')]
   ]);
   const rows=sweepRows();
-  const blindCases=names.map((n,i)=>rows.filter(v=>v.stats[i].blind>1e-8).length);
+  const blindCases=names.map((n,i)=>rows.filter(v=>v.stats[i].invalid||v.stats[i].blind>1e-8).length);
   const pr=n=>Math.min(...rows.map(v=>v.stats[n].multi)).toFixed(1);
   byId('trade').textContent='共 '+rows.length+' 组　出现盲区或误判　A '+blindCases[0]+' 组 / B '+blindCases[1]+' 组　最小多路区宽　A '+pr(0)+' / B '+pr(1)+' mm';
   byId('sensitivity').innerHTML='<table class="metrics"><thead><tr><th>线宽 / 光学情形</th><th>A 多路区 / 盲区 (mm)</th><th>B 多路区 / 盲区 (mm)</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r.line+' / '+r.label+'</td>'+r.stats.map(s=>'<td>'+(s.invalid||s.multi.toFixed(1)+' / '+s.blind.toFixed(1))+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
@@ -1101,7 +1165,7 @@ function initCadDesign(){
         syncOutline(n);syncLayout(n);invalidate();
       }catch(err){byId('outlineNote'+n).textContent=err.message;}
     };
-    byId('rectOutline'+n).onclick=()=>{designs[n].outline=null;syncOutline(n);invalidate();};
+    byId('rectOutline'+n).onclick=()=>{designs[n].outline=null;syncOutline(n);syncLayout(n);invalidate();};
   }
   for(const k of ['radius','angle']){
     const el=byId('turnInput'+k);
@@ -1216,7 +1280,7 @@ function drawRun(n){
   byId('scope'+n).style.minHeight=Math.max(100,c.positions.length*17+22)+'px';
   const sc=canvasFrame(byId('scope'+n)),cx=sc.ctx,x0=24,x1=sc.w-8,y0=4,y1=sc.h-18;
   const X=i=>x0+i/Math.max(1,race.last)*(x1-x0);
-  cx.font='10px monospace';
+  cx.font='10px monospace';cx.textAlign='left';
   for(let ch=0;ch<c.positions.length;ch++){
     const top=y0+(y1-y0)*ch/c.positions.length,d=(y1-y0)/c.positions.length,Y=v=>top+d-2-v*(d-4);
     cx.fillStyle='#4c5961';cx.fillText('S'+(ch+1),2,top+d*.75);
@@ -1226,7 +1290,7 @@ function drawRun(n){
   line(cx,[{x:X(frame),y:y0},{x:X(frame),y:y1}],'#313b40',1);
   cx.fillStyle='#525e64';cx.fillText('0 s',x0,sc.h-3);cx.textAlign='right';cx.fillText((race.last*dt).toFixed(2)+' s',x1,sc.h-3);
 }
-const reasonLabel={wall:'侧墙接触',roof:'超过隧道限高',supply:'上坡稳态供电不足',sectionEnd:'分段完成',stopInside:'停车指令位置合格',stopOutside:'停车指令位置超界',calibration:'标定无有效跨度',end:'探头到达线末端',lost:'盲行中止',timeout:'达到时限'};
+const reasonLabel={wall:'侧墙接触',roof:'超过隧道限高',supply:'电机稳态需求超限',sectionEnd:'分段完成',stopInside:'停车指令位置合格',stopOutside:'停车指令位置超界',calibration:'标定无有效跨度',end:'探头到达线末端',lost:'盲行中止',timeout:'达到时限'};
 function raceSummary(){
   const track=race.runs.A.track;
   if(track.sections)byId('courseLength').textContent=(track.end.s/1000).toFixed(2)+' m · 9 段';
@@ -1242,6 +1306,7 @@ function raceSummary(){
       return peak.toFixed(5)+(f.primary||f.backup?' ≥ ':' < ')+shared.threshold;
     })],
     ['结束时连续盲行 / 限值',...last.map(f=>format(f.blind)+' / '+format(blindLimit))],
+    ['计算质量（DR1 预测取值 0.920 kg）',...names.map(n=>designs[n].mass.toFixed(3)+' kg')],
     ['限幅后直行速度',...names.map(n=>driveLoad(conf(n)).speed.toFixed(3)+' m/s')],
     ...(both[0].track.sections?[
       ['结束位置',...both.map(r=>stageName(r.frames.at(-1).zone)+' · '+format(r.frames.at(-1).station))],
@@ -1254,9 +1319,13 @@ function raceSummary(){
     ['匀速直行 · 每台电机所需电压',...names.map(n=>format((race.runs[n].uphill||driveLoad(conf(n))).voltage,' V'))],
     ['供电检查（限幅后直行）',...names.map(n=>(race.runs[n].uphill||driveLoad(conf(n))).ok?'可供给':'超出供电能力')]
     ]:[]),
+    ...(both.some(r=>r.driveFailure)?[
+      ['超限电机需求（电流 / 电压）',...both.map((r,i)=>r.driveFailure?
+        [last[i].leftDrive,last[i].rightDrive].map((d,j)=>d.ok?'':(j?'R ':'L ')+d.current.toFixed(3)+' A / '+d.voltage.toFixed(2)+' V').filter(Boolean).join(' · '):'—')]
+    ]:[]),
     ['结束时刻',...both.map(r=>r.frames.at(-1).t.toFixed(3)+' s')],
     ['连续运动的最小净空区间',...both.map(r=>!r.swept?(r.track.gate?'未入窄道':'无窄道'):Number.isFinite(r.swept.high)?(Math.floor(r.swept.low*100)/100).toFixed(2)+' 至 '+(Math.ceil(r.swept.high*100)/100).toFixed(2)+' mm':'入口边界待判')],
-    ['轮速指令触及限幅的帧数',...both.map(r=>r.frames.filter(f=>f.cmdLeft!==f.left||f.cmdRight!==f.right).length+' 帧')],
+    ['轮速指令触及限幅的帧数',...both.map(r=>r.frames.filter(f=>f.wheelLimited).length+' 帧')],
     ['备用接管时间',...both.map(r=>Math.round(r.frames.slice(0,-1).filter(f=>f.source==='backup'&&f.phase!=='pivot').length*dt*1000)+' ms')],
     ['主循迹找回次数 / 最长找回路程',...both.map(r=>r.reacquired+' / '+format(r.maxRecovery))],
     ['最长连续控制失线',...both.map(r=>(r.lossFrame===null?0:Math.round(r.frames[r.lossFrame].lossTime*1000))+' ms')] ]);
@@ -1304,7 +1373,7 @@ function csvExport(){
   const columns=fn=>Array.from({length:count},(_,i)=>fn(i));
   const padded=arr=>columns(i=>arr[i]??'');
   const header=['analysis','design','uphill_deg',...designFields.map(([id])=>id+'_candidate_'+({ledR:'ohm',load:'ohm',rxV:'V',supplyV:'V',mass:'kg',efficiency:'ratio',gear:'ratio',rolling:'ratio',maxRPM:'rpm'}[id]||'mm')),'plate_vertices_forward_from_rear_and_right_mm','layout','sensor_count','PD_reference_mm',...columns(i=>['S'+(i+1)+'_mount','S'+(i+1)+'_role','S'+(i+1)+'_right_mm','S'+(i+1)+'_forward_from_rear_axle_mm']).flat(),'regime','gate_width_mm','gate_length_mm','single_bend_radius_mm','s_radius_mm','gap_mm','rear_axle_to_caster_mm','rear_axle_to_array_mm','line_mm','box_width_mm_if_used','threshold_assumption','optics','mm_per_raw_position','longitudinal_scale','lighting','wheel_cap_m_s_0_ideal'];
-  const baseRow=(view,n,c)=>[view,n,c.grade,...designFields.map(([k])=>k==='pitch'&&['custom','distributed'].includes(c.layout)?'':c[k]),plateVertices(c).map(([x,y])=>[x+c.rearInset,y].join(' ')).join('|'),c.layout,c.positions.length,c.controlRef,...columns(i=>{const p=c.positions[i];return p?[p.mount||'pcb',p.role,p.right,c.look+p.forward]:['','','',''];}).flat(),c.regime,c.gateWidth,c.gateLength,c.bendRadius,c.sRadius,c.gapSize,c.casterX,c.look,c.line,c.spot,c.threshold,c.spatial,1,c.aspect,c.light,c.wheelCap];
+  const baseRow=(view,n,c,uphillGrade=c.grade)=>[view,n,uphillGrade,...designFields.map(([k])=>k==='pitch'&&['custom','distributed'].includes(c.layout)?'':c[k]),plateVertices(c).map(([x,y])=>[x+c.rearInset,y].join(' ')).join('|'),c.layout,c.positions.length,c.controlRef,...columns(i=>{const p=c.positions[i];return p?[p.mount||'pcb',p.role,p.right,c.look+p.forward]:['','','',''];}).flat(),c.regime,c.gateWidth,c.gateLength,c.bendRadius,c.sRadius,c.gapSize,c.casterX,c.look,c.line,c.spot,c.threshold,c.spatial,1,c.aspect,c.light,c.wheelCap];
   if(mode==='pcb'){
     rows.push([...header,'offset_mm','edge_mm','package_gap_mm','fore_aft_edge_mm','capture_min_mm','capture_max_mm','multi_total_mm','internal_blind_mm','single_sensor_trigger_width_mm','active',...columns(i=>'S'+(i+1)+'_normalized'),...columns(i=>'S'+(i+1)+'_V'),...columns(i=>'S'+(i+1)+'_ADC12')]);
     for(const n of names)for(const spec of sweepRows()){
@@ -1330,9 +1399,9 @@ function csvExport(){
       for(let yaw=-60;yaw<=60;yaw+=2){const lim=sliceLimits(c,yaw);for(let e=-100;e<=100;e+=5)sample(yaw,e,0,lim);}
     }
   }else{
-    rows.push([...header,'scenario','speed_m_s','initial_offset_mm','initial_yaw_deg','sample_s','end_reason','swept_lower_mm','swept_upper_mm','min_witness_s','time_s','axle_x_mm','axle_y_mm','yaw_deg','distance_mm','left_m_s','right_m_s','left_cmd_m_s','right_cmd_m_s','left_rpm','right_rpm','caster_forward_m_s','caster_right_m_s','line_est_mm','active','steering_source','primary_hits','backup_hits','primary_recoveries','max_recovery_mm','clearance_mm','blind_mm','start_section','section','station_mm','leg','local_grade_deg','local_line_width_mm','patch_black_normalised','patch_white_normalised','ble_events_total','stop_radius_mm',...columns(i=>'S'+(i+1)+'_normalized'),...columns(i=>'S'+(i+1)+'_V'),...columns(i=>'S'+(i+1)+'_ADC12')]);
+    rows.push([...header,'scenario','speed_m_s','initial_offset_mm','initial_yaw_deg','sample_s','end_reason','swept_lower_mm','swept_upper_mm','min_witness_s','time_s','axle_x_mm','axle_y_mm','yaw_deg','distance_mm','left_m_s','right_m_s','left_cmd_m_s','right_cmd_m_s','left_rpm','right_rpm','caster_forward_m_s','caster_right_m_s','line_est_mm','active','steering_source','primary_hits','backup_hits','primary_recoveries','max_recovery_mm','clearance_mm','blind_mm','start_section','section','station_mm','leg','local_grade_deg','local_line_width_mm','patch_black_normalised','patch_white_normalised','ble_events_total','stop_radius_mm',...columns(i=>'S'+(i+1)+'_normalized'),...columns(i=>'S'+(i+1)+'_V'),...columns(i=>'S'+(i+1)+'_ADC12'),'left_required_A','left_required_V','right_required_A','right_required_V']);
     for(const n of names){const r=race.runs[n],c=conf(n);
-      for(const f of r.frames)rows.push([...baseRow('race',n,c),byId('scenario').value,c.speed,c.startOffset,c.startYaw,dt,r.reason,r.swept?.low,r.swept?.high,r.swept?.time,f.t,f.x,f.y,f.a*180/Math.PI,f.distance,f.left/1000,f.right/1000,f.cmdLeft/1000,f.cmdRight/1000,f.leftRPM,f.rightRPM,f.ball.forward/1000,f.ball.right/1000,f.e,f.hits,f.source,f.primary,f.backup,r.reacquired,r.maxRecovery,f.clear,f.blind,r.track.sections?r.startId:null,f.zone,f.station,f.phase,f.grade,f.lineWidth,c.surfaceBlack,c.surfaceWhite,r.bleEvents,r.stopDistance,...padded(f.ns),...padded(f.volts),...padded(f.adc)]);}
+      for(const f of r.frames)rows.push([...baseRow('race',n,c,r.track.uphillGrade),byId('scenario').value,c.speed,c.startOffset,c.startYaw,dt,r.reason,r.swept?.low,r.swept?.high,r.swept?.time,f.t,f.x,f.y,f.a*180/Math.PI,f.distance,f.left/1000,f.right/1000,f.cmdLeft/1000,f.cmdRight/1000,f.leftRPM,f.rightRPM,f.ball.forward/1000,f.ball.right/1000,f.e,f.hits,f.source,f.primary,f.backup,r.reacquired,r.maxRecovery,f.clear,f.blind,r.track.sections?r.startId:null,f.zone,f.station,f.phase,f.grade,f.lineWidth,c.surfaceBlack,c.surfaceWhite,r.bleEvents,r.stopDistance,...padded(f.ns),...padded(f.volts),...padded(f.adc),f.leftDrive?.current,f.leftDrive?.voltage,f.rightDrive?.current,f.rightDrive?.voltage]);}
   }
   saveCSV(rows,mode);
 }
@@ -1516,16 +1585,16 @@ function initCourse(){
   syncCourse();
 }
 // DR1 motor and tow tests. Electrical constants are measured references.
-function driveLoad(c){
-  const angle=rad(c.grade),radius=c.driveDiameter/2000;
-  const force=c.mass*9.80665*(Math.sin(angle)+c.rolling*Math.cos(angle));
+function driveLoad(c,grade=c.grade,speed=Math.min(c.speed,wheelSpeedLimit(c)/1000)){
+  const angle=rad(grade),radius=c.driveDiameter/2000;
+  // Quantities along the wheel's direction of rotation. A descent can require braking.
+  const force=c.mass*9.80665*((speed<0?-1:1)*Math.sin(angle)+c.rolling*Math.cos(angle));
   const torque=force*radius/(2*c.gear*c.efficiency);
   const current=(torque+.00124)/.00775;
-  const speed=Math.min(c.speed,wheelSpeedLimit(c)/1000);
-  const omega=speed*c.gear/radius;
-  // Use the fitted running-load back-EMF line, including its reported intercept.
-  const voltage=1.7548*current-.0103+.007259*omega+.9310;
-  return {speed,current,voltage,ok:current<=1.4&&voltage<=c.supplyV}; // Handbook §8.2, per motor.
+  const omega=Math.abs(speed)*c.gear/radius;
+  const emf=omega>0?.007259*omega+.9310:0;
+  const voltage=1.7548*current-.0103+emf;
+  return {speed,current,voltage,ok:Math.abs(current)<=1.4&&Math.abs(voltage)<=c.supplyV};
 }
 function scanFields(n,extreme=false){
   const d=designs[n],fields=[...designFields.filter(([key])=>key!=='pitch'||!['custom','distributed'].includes(d.layout)).map(([key,title])=>[key,title]),...(extreme?[]:trackFields)];
@@ -1538,7 +1607,7 @@ function scanCandidate(n,entries){
   const overrides={};for(const [key,v] of entries)if(!key.includes(':'))overrides[key]=v;
   const initial=conf(n,overrides);
   const moved=entries.filter(([key])=>key.includes(':'));
-  if(!moved.length)return initial;
+  if(!moved.length||designIssue(initial))return initial;
   const points=sensorPositions(initial).map(p=>({...p}));
   for(const [key,v] of moved){
     const [axis,index]=key.split(':'),p=points[Number(index)];
@@ -1551,7 +1620,7 @@ function evaluateCandidate(c,kind,startId='full'){
   if(issue)return {issue};
   const r=simulate(c,kind,startId),end=r.frames.at(-1),fit=assembly(c),cover=coverage(c);
   const staticClear=clearance({x:pose.depth,y:pose.offset,a:rad(pose.yaw)},footprint(c),straightGate(c));
-  return {cover,zone:end.zone,station:end.station,leg:end.phase,ble:r.bleEvents,stopDistance:r.stopDistance,drive:r.uphill||driveLoad(c),headroom:200-c.height,reacquired:r.reacquired,maxRecovery:r.maxRecovery,reason:r.reason,time:end.t,blind:r.lossFrame===null?0:r.frames[r.lossFrame].lossTime*1000,
+  return {cover,zone:end.zone,station:end.station,leg:end.phase,ble:r.bleEvents,stopDistance:r.stopDistance,drive:r.driveFailure||r.uphill||driveLoad(c),headroom:200-c.height,reacquired:r.reacquired,maxRecovery:r.maxRecovery,reason:r.reason,time:end.t,blind:r.lossFrame===null?0:r.frames[r.lossFrame].lossTime*1000,
     staticClear,clearLow:r.swept?.low,clearHigh:r.swept?.high,rpm:r.frames.reduce((v,f)=>Math.max(v,Math.abs(f.leftRPM),Math.abs(f.rightRPM)),0),
     fit:fit.conflicts.size?'封装干涉或越板':'可布置'};
 }

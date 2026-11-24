@@ -28,6 +28,10 @@ test('new workbook endpoint means, 2.7 kΩ feedback, background and ADC clipping
   assert.ok(model.readout(dim.sensor,1,dim.sensor.bg).voltage<1);
   const washout=model.conf('A',{sensorHeight:28.3,ledR:700,light:'bright',threshold:.03});
   assert.equal(model.coverage(washout).invalid,'黑底已触发');
+  assert.equal(model.coverage(washout).blind,null);
+  const narrow=model.coverage(model.conf('A',{spatial:'box',line:1,spot:8,threshold:.65}));
+  assert.equal(narrow.invalid,'白线上未触发');assert.equal(narrow.blind,null);
+  assert.equal(model.coverage(model.conf('A')).blind,0);
 });
 
 test('measured stripe crossings and intermediate heights propagate to PCB and replay',()=>{
@@ -213,6 +217,7 @@ test('course boundaries, experimental mode, and the stock-sheet reference',()=>{
     assert.equal(model.courseIssue({...c,...change,regime:'free'},6),'');
   }
   assert.ok(model.courseIssue(c,7));assert.equal(model.designIssue({...c,width:280}),'');
+  assert.ok(model.designIssue({...c,load:990}));assert.equal(model.designIssue({...c,load:1000}),'');
   assert.equal(model.courseIssue({...c,line:14,gapSize:0,grade:17.999},6),'');
 });
 test('track and wheel parameters reach the actual paint, clearance and kinematics',()=>{
@@ -279,6 +284,18 @@ test('turn extremes at rest, half and full rotations',()=>{
   const orbit=model.turnEnvelope(parts,30,360);
   near(orbit.width,2*Math.hypot(3,34),1e-12);
 });
+test('distributed mounts follow the local plate edges and avoid a concave cutout',()=>{
+  const lateral=text=>Array.from(model.conf('B',model.parseOutline(text)).positions,p=>p.right);
+  assert.deepEqual(lateral('0 -30;140 -30;140 70;0 70'),[-8,8,-26,66,-8,8]);
+  // At the middle row the right edge sits 20 mm inside the bounding box.
+  assert.deepEqual(lateral('0 -30;140 -30;140 70;100 70;100 50;40 50;40 70;0 70'),
+    [-8,8,-26,46,-8,8]);
+  // The front two prongs have a gap between y=-20 and y=20.
+  assert.deepEqual(lateral('0 -50;140 -50;140 -20;40 -20;40 20;140 20;140 50;0 50'),
+    [-24,24,-46,46,-8,8]);
+  const invalid=model.scanCandidate('B',[['length',0],['right:2',20]]);
+  assert.ok(model.evaluateCandidate(invalid,'gap').issue);
+});
 let largestSamplingDifference=0;
 test.after(()=>console.log('Largest coordinate difference across 100 turn checks: '+largestSamplingDifference.toFixed(8)+' mm'));
 for(let round=0;round<100;round++){
@@ -319,7 +336,9 @@ for(let round=0;round<100;round++){
       largestSamplingDifference=Math.max(largestSamplingDifference,Math.abs(exact[key]-sampled[key]));
     }
     const run=model.simulate(c,kind);
-    assert.ok(run.frames.length>0 && ['lost','end','timeout'].includes(run.reason));
+    assert.ok(run.frames.length>0 && ['lost','end','timeout','wall','supply'].includes(run.reason));
+    if(run.reason==='wall')assert.ok(run.swept.high<=0);
+    if(run.reason==='supply')assert.equal(run.driveFailure.ok,false);
     let blindTime=0,worst=0,seen=false,lostAt=null,recovered=0,maxTravel=null;
     for(const [i,f] of run.frames.entries()){
       const on=Array.from(f.ns,n=>n+1e-10>=c.threshold);
@@ -404,6 +423,48 @@ test('full out-and-back, graded sections, finite tunnel, single BLE and independ
   assert.equal(model.simulate(model.conf('A',{axle:290}),'extreme','tunnel').reason,'wall');
   assert.equal(model.simulate(model.conf('A',{length:300,sensorInset:180}),'extreme','parking').reason,'stopOutside');
 });
+test('the default A demonstrator completes both R50 turns and parks after the return leg',()=>{
+  const c=model.conf('A');
+  assert.equal(c.sensorHeight,model.scans.low.height);
+  for(const bend of ['left','right'])assert.equal(model.simulate(c,bend).reason,'end');
+  const run=model.simulate(c,'extreme');
+  assert.equal(run.reason,'stopInside');assert.equal(run.bleEvents,1);
+  assert.ok(run.swept.low>0 && run.stopDistance<=200);
+  for(let i=1;i<run.frames.length;i++){
+    const f=run.frames[i],prev=run.frames[i-1];
+    assert.ok(Math.abs(f.station-prev.station)<=2*(f.distance-prev.distance)+1e-8);
+  }
+  const pivot=run.frames.find(f=>f.phase==='pivot'),marker=model.stationPose(run.track,run.track.bleStation);
+  assert.ok(Math.hypot(pivot.x-marker.x,pivot.y-marker.y)<=c.speed*1000*model.dt+.1);
+});
+test('each short corridor stops an oversized vehicle at the first witnessed contact',()=>{
+  const c=model.conf('A',{width:320});
+  for(const kind of ['s','left','right']){
+    const r=model.simulate(c,kind),end=r.frames.at(-1);
+    assert.equal(r.reason,'wall');assert.ok(r.swept.high<=0);
+    assert.ok(r.swept.time<=end.t && r.swept.time>=end.t-model.dt-1e-8);
+    assert.equal(end.left,0);assert.equal(end.right,0);
+  }
+  assert.equal(model.simulate(c,'gap').reason,'end');
+});
+test('replay enforces steady motor limits before moving, including turn and downhill demand',()=>{
+  const overloaded=model.conf('A',{mass:1000,gear:.1,efficiency:.001,supplyV:1});
+  for(const kind of ['s','left','right','gap','extreme']){
+    const r=model.simulate(overloaded,kind),end=r.frames.at(-1);
+    assert.equal(r.reason,'supply');assert.equal(r.frames.length,1);assert.equal(end.distance,0);
+    assert.equal(end.left,0);assert.equal(end.right,0);assert.ok(end.cmdLeft>0&&end.cmdRight>0);
+    assert.ok(end.leftDrive.current>1.4&&end.leftDrive.voltage>1);
+  }
+  const turning=model.conf('A',{supplyV:3.1});
+  assert.ok(model.driveLoad(turning).ok);
+  const failed=model.simulate(turning,'left'),end=failed.frames.at(-1);
+  assert.ok(end.t>0 && end.leftDrive.ok && !end.rightDrive.ok);
+  assert.equal(failed.reason,'supply');assert.ok(end.rightDrive.voltage>turning.supplyV);
+  const scan=model.evaluateCandidate(turning,'left');
+  assert.equal(scan.reason,'supply');near(scan.drive.voltage,end.rightDrive.voltage,1e-12);
+  const downhill=model.simulate(model.conf('A',{mass:10}),'extreme','descent');
+  assert.equal(downhill.reason,'supply');assert.ok(downhill.driveFailure.current < -1.4);
+});
 test('100 candidate configurations can start independently on the limits circuit',()=>{
   const sections=['launch','joint','chicane','corners','climb','tunnel','descent','hairpins','return','parking'];
   for(let i=0;i<100;i++){
@@ -454,6 +515,7 @@ test('blind stop follows axle distance at two speeds, even with an active log ch
     assert.equal(r.reason,'lost');assert.equal(end.hits,1);assert.equal(end.source,'none');
     near(end.blind,20,1e-8);near(end.t,.02/speed,1e-8);
     assert.ok(r.frames.at(-2).blind<20);
+    for(const f of r.frames)near(f.blind,f.t*speed*1000,1e-8);
   }
 });
 
@@ -468,7 +530,8 @@ test('input changes propagate to the physical output of their own subsystem',()=
   const base=model.conf('A');
   const optics=(args,level)=>{const s=model.conf('A',args).sensor;return model.readout(s,level,s.bg).voltage;};
   near(optics({load:1350},1),optics({},1)/2,1e-8);
-  near(optics({rxV:3},1),2.8,1e-8);
+  // At the measured 8.1 mm height the white reading exceeds the 2.8 V receiver ceiling.
+  near(optics({rxV:3,sensorHeight:8.1},1),2.8,1e-8);
   assert.ok(optics({ledR:360},1)<optics({},1));
   const a=model.assembly(base),holes=model.assembly(model.conf('A',{hole:4.7}));
   near(holes.minimumBoardWidth-a.minimumBoardWidth,4,1e-9);
