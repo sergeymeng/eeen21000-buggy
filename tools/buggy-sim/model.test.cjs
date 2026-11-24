@@ -9,7 +9,7 @@ const html = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
 const script = html.split('<script>')[1].split('</script>')[0].replace(/init\(\);\s*$/, '');
 const context = vm.createContext({});
 vm.runInContext(script,context);
-const model = vm.runInContext('({conf,course,paintTrack,paintFraction,footprint,clearance,sweptMinimum,simulate,advance,normalized,readout,stripeResponse,assembly,coverage,scans,fitted,gate:straightGate(shared),dt,at,mountingIssue,partName,sense,casterVelocity,optical,crossesLineEnd,courseIssue,evaluateCandidate,scanCandidate,designIssue,driveLoad,straightGate,parseOutline,turnEnvelope,plateVertices,stageAt,stationPose,locateStation,stopRadius})',context);
+const model = vm.runInContext('({conf,course,paintTrack,paintFraction,footprint,clearance,sweptMinimum,simulate,advance,normalized,readout,stripeResponse,assembly,coverage,scans,fitted,gate:straightGate(shared),dt,at,mountingIssue,partName,sense,casterVelocity,optical,crossesLineEnd,courseIssue,evaluateCandidate,scanCandidate,designIssue,driveLoad,straightGate,parseOutline,planBounds,scanResidual,turnEnvelope,plateVertices,stageAt,stationPose,locateStation,stopRadius})',context);
 function near(v, ref, tol){assert.ok(Math.abs(v-ref)<=tol,`${v} differs from ${ref} by more than ${tol}`);}
 
 test('new workbook endpoint means, 2.7 kΩ feedback, background and ADC clipping',()=>{
@@ -126,7 +126,10 @@ test('rear-axle datum drives the plate, wheel hubs, front ball support and PCB',
   const shifted=model.conf('A',{rearInset:c.rearInset+10});
   near(shifted.look,c.look-10,1e-12);near(shifted.casterX,c.casterX-10,1e-12);
   assert.equal(model.mountingIssue(c),'');
-  for(const invalid of [{rearInset:c.length/2},{casterInset:c.length/2}]){
+  for(const centred of [{rearInset:c.length/2},{casterInset:c.length/2}]){
+    assert.equal(model.mountingIssue({...c,...centred}),'');
+  }
+  for(const invalid of [{rearInset:c.length-c.casterInset},{casterInset:c.length-c.rearInset+1}]){
     assert.ok(model.mountingIssue({...c,...invalid}));
   }
   const rotated=model.advance({x:17,y:-11,a:0},0,Math.PI/2,1);
@@ -412,4 +415,86 @@ test('100 candidate configurations can start independently on the limits circuit
     assert.equal(r.frames[0].phase,start==='parking'?'home':'out');
     assert.ok(r.frames.every(f=>Number.isFinite(f.grade)&&f.ns.every(Number.isFinite)));
   }
+});
+
+test('plate edits preserve wheel datums and the assembly includes outboard components',()=>{
+  const measure=overrides=>{
+    const c=model.conf('A',overrides),parts=model.footprint(c);
+    return {plate:model.planBounds(parts[0]),assembly:model.planBounds(parts.flat()),c};
+  };
+  const narrow=measure({width:10}),wide=measure({width:200});
+  near(narrow.plate.width,10,1e-9);near(narrow.assembly.width,156,1e-9);
+  near(wide.plate.width,200,1e-9);near(wide.assembly.width,200,1e-9);
+  const custom=model.parseOutline('0 -40; 140 -30; 100 60; 0 30');
+  const shifted=measure({...custom,length:180,width:200,boardRight:150});
+  near(shifted.plate.back,-28,1e-9);near(shifted.plate.front,152,1e-9);
+  near(shifted.plate.left,-80,1e-9);near(shifted.plate.right,120,1e-9);
+  near(shifted.assembly.right,178,1e-9);near(shifted.assembly.width,258,1e-9);
+});
+
+test('steady drive checks use achievable tyre speed, DR1 fits and the per-motor limit',()=>{
+  const c=model.conf('A',{speed:.8,wheelCap:.4,maxRPM:60,grade:12,mass:1});
+  const drive=model.driveLoad(c),r=.038,G=15;
+  const speed=2*Math.PI*r,theta=12*Math.PI/180;
+  const torque=9.80665*(Math.sin(theta)+c.rolling*Math.cos(theta))*r/(2*G*c.efficiency);
+  const amps=(torque+.00124)/.00775;
+  near(drive.speed,speed,1e-9);near(drive.current,amps,1e-9);
+  near(drive.voltage,1.7548*amps-.0103+.007259*speed*G/r+.9310,1e-9);
+  const targetMass=(1.5*.00775-.00124)/torque;
+  const excess=model.driveLoad({...c,mass:targetMass,supplyV:10});
+  near(excess.current,1.5,1e-9);assert.ok(excess.voltage<10);assert.equal(excess.ok,false);
+  near(model.driveLoad({...c,maxRPM:0}).speed,.4,1e-9);
+  near(model.driveLoad({...c,maxRPM:0,wheelCap:0}).speed,.8,1e-9);
+});
+
+test('blind stop follows axle distance at two speeds, even with an active log channel',()=>{
+  for(const speed of [.2,.5]){
+    const c=model.conf('A',{speed,layout:'custom',customPositions:[{forward:0,right:0,role:'log'}]});
+    const r=model.simulate(c,'gap'),end=r.frames.at(-1);
+    assert.equal(r.reason,'lost');assert.equal(end.hits,1);assert.equal(end.source,'none');
+    near(end.blind,20,1e-8);near(end.t,.02/speed,1e-8);
+    assert.ok(r.frames.at(-2).blind<20);
+  }
+});
+
+test('every editable design and track input maps to a parameter formula',()=>{
+  const keys=new Set(Array.from(html.matchAll(/<tr data-fields="([^"]+)"/g),m=>m[1].split(' ')).flat());
+  const inputs=vm.runInContext('[...designFields,...trackFields].map(field=>field[0]).concat(Object.keys(choices))',context);
+  for(const key of inputs)assert.ok(keys.has(key),'Missing parameter guide entry for '+key);
+  near(model.scanResidual('low'),.042797,.00001);near(model.scanResidual('high'),.009547,.00001);
+});
+
+test('input changes propagate to the physical output of their own subsystem',()=>{
+  const base=model.conf('A');
+  const optics=(args,level)=>{const s=model.conf('A',args).sensor;return model.readout(s,level,s.bg).voltage;};
+  near(optics({load:1350},1),optics({},1)/2,1e-8);
+  near(optics({rxV:3},1),2.8,1e-8);
+  assert.ok(optics({ledR:360},1)<optics({},1));
+  const a=model.assembly(base),holes=model.assembly(model.conf('A',{hole:4.7}));
+  near(holes.minimumBoardWidth-a.minimumBoardWidth,4,1e-9);
+  near(holes.edge,a.edge,1e-9);
+  near(model.assembly(model.conf('A',{boardWidth:76})).edge-a.edge,10,1e-9);
+  near(model.assembly(model.conf('A',{boardDepth:34})).depth-a.depth,5,1e-9);
+  const drive=model.driveLoad(base);
+  for(const change of [{mass:1.1},{rolling:.1},{grade:5},{efficiency:.65}]){
+    assert.ok(model.driveLoad({...base,...change}).current>drive.current);
+  }
+  const geared=model.driveLoad({...base,gear:30});assert.ok(geared.current<drive.current && geared.voltage>drive.voltage);
+  const gap=model.course('gap');gap.paint=model.paintTrack(gap,17);
+  const overGap=c=>model.sense({x:360-c.look,y:0,a:0},c,gap).volts[0];
+  const probe={layout:'custom',customPositions:[{right:0,forward:0}],spatial:'box',spot:8};
+  assert.ok(overGap(model.conf('A',{...probe,aspect:2}))>overGap(model.conf('A',{...probe,aspect:1})));
+});
+
+test('plan keeps the axle datum and mm scale during edits until Fit vehicle is requested',()=>{
+  const document={getElementById(id){return id==='layout'?{dataset:{design:'both'}}:{value:'car'};}};
+  const session=vm.createContext({document});vm.runInContext(script,session);
+  const frame=()=>vm.runInContext("editorFrame('A',800,420)",session);
+  const initial=frame();
+  vm.runInContext('designs.A.width=10;designs.B.length=275;',session);
+  assert.deepEqual(frame(),initial);
+  assert.deepEqual(vm.runInContext("editorFrame('B',800,420)",session),initial);
+  vm.runInContext('fitCarView()',session);
+  assert.ok(frame().scale<initial.scale);
+  assert.deepEqual(vm.runInContext("editorFrame('B',800,420,true)",session),frame());
 });

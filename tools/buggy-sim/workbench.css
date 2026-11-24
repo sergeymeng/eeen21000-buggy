@@ -58,3 +58,8 @@ aside .bar button{background:transparent;border:0;color:#465861;font-size:11px;t
 .instrument-bar{display:grid;grid-template-columns:minmax(0,1fr) auto;background:#edf0f1;border-bottom:1px solid var(--rule)}
 .instrument-bar>.bar{border:0;justify-content:flex-start}.instrument-bar .setup>summary{padding:7px 12px;border:0}
 .instrument-bar:has(.setup[open]){grid-template-columns:1fr}.instrument-bar .setup[open] summary{padding-block:4px}
+.size-read{background:#28343d;color:#e3ebef;border-top:1px solid #45535e}
+#parameterGuide{margin:0 0 12px}
+#parameterGuide>summary{cursor:pointer;font-weight:600;padding:8px 0}
+#parameterGuide th[scope=row]{width:40%;text-align:left}
+#parameterGuide code{white-space:normal;font:11px/1.5 var(--mono);overflow-wrap:anywhere}

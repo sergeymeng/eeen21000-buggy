@@ -26,20 +26,35 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 <div class="controls"><label for="shift">白线横移</label><input class="grow" id="shift" type="range" min="-70" max="70" step=".5" value="0"><output id="shiftValue"></output><small><i class="band" style="background:#e1e4e6"></i>0 路<i class="band" style="background:#b7cbd7"></i>1 路<i class="band" style="background:#416b83"></i>≥2 路</small></div>
 </div><div id="pcbData" hidden><div id="physicsHint" class="foot"></div><div id="pcbMetrics"></div><p class="foot">¹ 两侧孔均放在封装外侧，按裸孔直径计算。</p><div class="section">线宽与光斑扫描</div><p class="pad" id="trade"></p><details class="pad"><summary>各工况读数</summary><div id="sensitivity"></div></details></div>
 </div>
-<div id="cadView" hidden><div class="bar"><h2>窄道净空</h2><small><span id="gateLabel"></span></small></div>
-<div class="drawing-tabs" role="group" aria-label="CAD 视图"><button data-target="cadPose" aria-pressed="true">窄道净空</button><button data-target="cadTurn" aria-pressed="false">转弯占地</button></div><div id="cadPose"><div class="controls" id="poseFields"></div><div class="twins" id="poses"></div></div><div id="cadTurn" hidden><h3 class="section">转弯占地</h3><div class="controls"><label>后轴中心轨迹半径 <input id="turnInputradius" type="number" step="any" min="0" value="0"> mm</label><label>转角 <input id="turnInputangle" type="number" min="-360" max="360" step="any" value="180"> °</label></div><div class="twins" id="turns"></div><p class="foot">半径为零时绕后轴中心原地转向，负角左转。A、B 两图同一比例。虚线框给出整个转动过程在初始车头方向及其横向所需的空间，实色车身为终点姿态。</p></div>
+<div id="cadView" hidden><div class="bar"><h2>CAD 几何</h2><small><span id="gateLabel"></span></small></div>
+<div class="drawing-tabs" role="group" aria-label="CAD 视图"><button data-target="cadPlan" aria-pressed="true">整车尺寸图</button><button data-target="cadPose" aria-pressed="false">窄道净空</button><button data-target="cadTurn" aria-pressed="false">转弯占地</button></div><div id="cadPlan"><div class="controls"><button id="fitPlan">适合整车</button><small>后轴中心为原点，X 向前，Y 向右。尺寸单位 mm。</small></div><div class="twins" id="plans"></div></div><div id="cadPose" hidden><div class="controls" id="poseFields"></div><div class="twins" id="poses"></div></div><div id="cadTurn" hidden><h3 class="section">转弯占地</h3><div class="controls"><label>后轴中心轨迹半径 <input id="turnInputradius" type="number" step="any" min="0" value="0"> mm</label><label>转角 <input id="turnInputangle" type="number" min="-360" max="360" step="any" value="180"> °</label></div><div class="twins" id="turns"></div><p class="foot">半径为零时绕后轴中心原地转向，负角左转。A、B 两图同一比例。虚线框给出整个转动过程在初始车头方向及其横向所需的空间，实色车身为终点姿态。</p></div>
 <div class="dock-tabs" role="group" aria-label="读数区"><button data-target="cadData" aria-pressed="true">测量结果</button><button data-target="cadMap" aria-pressed="false">偏航范围</button><button data-target="cadOutline" aria-pressed="false">底板轮廓</button></div><div id="cadData"><div id="cadMetrics"></div></div><div id="cadMap" hidden><div class="twins" id="maps"></div><p class="foot">点图可选姿态，蓝灰色为有净空区域</p></div><div id="cadOutline" hidden><details open class="pad"><summary>底板轮廓</summary><p>沿底板边缘依次输入顶点，每行一组向前、向右坐标（mm）。最靠后的点定义后缘，向右为正，车身中心线为零。改底板长或宽时，顶点沿对应方向缩放。</p><div class="twins" id="outlines"></div></details><p class="foot">窄点下限 280 mm 来自 Canvas §1.4。轮径初值 76 mm 来自组内 DR1 实测。底板、轮距、轮座和安装坐标取当前 A/B 输入。</p></div></div>
 <div id="raceView" hidden><div class="instrument-bar"><div class="bar"><h2>整车回放</h2><label>路段 <select id="scenario"><option value="s">S 弯 / 窄道</option><option value="left">左弯 / 窄道</option><option value="right">右弯 / 窄道</option><option value="gap">直道 / 断线</option><option value="extreme">综合极限赛道</option></select></label></div>
 <details class="setup"><summary>运行设置</summary><div class="controls"><label>光学模型 <select data-shared="spatial"></select></label><label>照明 <select data-shared="light"></select></label><label>白线 <input type="number" step="any" data-shared="line"> mm</label><label class="boxField">均匀核宽 <select data-shared="spot"></select></label><label>阈值 <select data-shared="threshold"></select></label><label>纵向核倍率 <select data-shared="aspect"></select></label><label>PD 参考距离 <select data-shared="controlRef"></select></label><label>轮速上限 <select data-shared="wheelCap"></select></label><label>车速 <select data-shared="speed"></select></label><label>起步横偏 <select data-shared="startOffset"></select></label><label>起步偏航 <select data-shared="startYaw"></select></label></div></details>
 </div><div id="raceStartFields" class="controls" hidden><label>试跑范围 <select id="raceStart"></select></label><small id="courseLength"></small><details><summary>赛道工况</summary><p class="foot">1 起步　2 强光、6 mm 断线与 4 mm 接缝　3 双向 R50 交错弯　4 每 50 mm 最多折转 45°　5 上坡 17.9°　6 双侧距线 140 mm、挡墙高 50 mm、隧道高 200 mm　7 下坡 17.9°　8 两个 R50 直角弯　9 单次 BLE 掉头。线宽分段取 14、17、20 mm。可输入材料反射标定；台阶冲击与制动距离待实测。决赛可能出现更急弯道和其他障碍，课程未公布尺寸。</p></details></div><div class="twins" id="races"></div><div class="controls"><button class="primary" id="play">▶ 运行</button><button id="rewind">回起点</button><select id="rate" aria-label="回放倍率"><option value=".25">¼×</option><option selected value=".5">½×</option><option value="1">1×</option></select><input id="time" class="grow" type="range" min="0" step="1" aria-label="回放时间"><output id="clock"></output></div>
-<div class="dock-tabs" role="group" aria-label="读数区"><button data-target="scopeDock" aria-pressed="true">传感器响应</button><button data-target="runData" aria-pressed="false">测量结果</button></div><div id="scopeDock"><div id="scopes" class="twins"></div></div><div id="runData" hidden><div id="raceMetrics"></div><div class="controls" id="events"></div><p class="foot">主循迹有信号时负责转向，失线后备用探头接管。记录通道只输出波形。终点按首个控制探头中心越过白线端面计时。</p></div></div>
+<div class="dock-tabs" role="group" aria-label="读数区"><button data-target="scopeDock" aria-pressed="true">传感器响应</button><button data-target="runData" aria-pressed="false">测量结果</button></div><div id="scopeDock"><div id="scopes" class="twins"></div></div><div id="runData" hidden><div id="raceMetrics"></div><div class="controls" id="events"></div><p class="foot">每 5 ms 检查一次。主组和备用组均未达阈值时维持上次曲率，连续盲行满 20 mm 判为失线；重新触发会清零。记录通道只计入波形和总命中数。短赛道在控制探头越过线尾时完成。综合赛道返程越过线尾后按同一盲行距离发停车指令。</p></div></div>
 <div id="sweepView" hidden><div class="bar"><h2>参数扫描</h2><button id="scanCSV" disabled>导出扫描 CSV</button></div>
 <div class="controls"><label>方案 <select id="scanDesign"><option>A</option><option>B</option></select></label><label>路段 <select id="scanScenario"><option value="s">S 弯 / 窄道</option><option value="left">左弯 / 窄道</option><option value="right">右弯 / 窄道</option><option value="gap">直道 / 断线</option><option value="extreme">综合极限赛道</option></select></label></div>
 <div id="sweepStartFields" class="controls" hidden><label>试跑范围 <select id="sweepStart"></select></label></div><div id="scanAxes"></div><div class="controls"><button class="primary" id="scanRun">运行扫描</button><output id="scanStatus"></output></div>
 <div style="overflow:auto"><table class="metrics"><thead><tr><th>变量 1</th><th>变量 2</th><th>路段结果</th><th>控制失线 ms</th><th>横向捕获区间 mm</th><th>内部盲区 mm</th><th>当前姿态净空 mm</th><th>行驶最小净空 mm</th><th>峰值轮速 rpm</th><th>直行需求 A / V</th><th>供电</th><th>隧道余量 mm</th><th>找回次数</th><th>最长找回 mm</th><th>封装</th></tr></thead><tbody id="scanBody"></tbody></table></div>
 <p class="foot">静态净空采用 CAD 页的后轴位置与偏航角。行驶净空取回放经过窄道时的上下界。</p></div>
 </section><aside id="properties"><div class="bar"><h2>设计参数</h2><button id="defaults">恢复示例</button></div><div class="property-units">尺寸单位 mm</div><div id="fields" class="fields"></div><div class="status" role="status" id="validation"></div><div class="controls"><button id="copyAB">复制 A 到 B</button></div></aside></div>
-<section id="sources" class="sources" hidden><h2>Handbook 与 Canvas 规格</h2><p>Canvas §1.4、§1.6 给出白线 17 ± 3 mm、平滑弯最小半径 50 mm、最小窄点 280 mm、断线最长 6 mm、至多六个循迹传感器。回放使用组合弯道和直道窄点。<a href="https://canvas.manchester.ac.uk/courses/89030/pages/1-introduction#Specification">Canvas 原文</a></p>
+<section id="sources" class="sources" hidden><details id="parameterGuide"><summary>参数公式与结果</summary><table class="metrics"><thead><tr><th>参数与公式</th><th>对结果的影响</th></tr></thead><tbody>
+<tr data-fields="length width outline"><th scope="row">底板长宽与轮廓<br><code>X = u L − a, Y = v W</code></th><td>L 为前后长，W 为左右宽，a 为后缘至后轴距离。自定义顶点分轴缩放。底板、轮胎、万向轮和探头的顶点共同决定外廓、扫掠净空与停车半径。</td></tr>
+<tr data-fields="axle tyre driveDiameter maxRPM wheelCap"><th scope="row">轮距、胎宽、轮径与轮速限幅<br><code>W_wheels = b + t; v_rpm = π D n / 60</code></th><td>b 为轮心距，t 为单条胎宽。轮径 D 用 mm 时，转速 n 给出 mm/s。各轮分别取线速度上限和 rpm 换算上限中的较小值。0 表示关闭相应限幅。轮径还影响电机转矩和转速。</td></tr>
+<tr data-fields="rearInset casterInset housingLength housingWidth ballDiameter"><th scope="row">后轴位置、万向轮座与球径<br><code>X_front = L − a; X_ball = X_front − d_castor; v_side = ω X_ball</code></th><td>球心距前缘决定轴距与转向时球心侧向速度。轮座长宽进入二维外廓；球突出轮座时也计入净空。自由滚动、无侧滑是模型假设。</td></tr>
+<tr data-fields="sensorInset boardRight boardWidth boardDepth hole"><th scope="row">PCB 安装、板宽深与端孔<br><code>X_PCB = L − a − d_PCB; Y_PCB = y₀; W_min = 2 (max |Yᵢ − y₀| + 2.9 + d_hole)</code></th><td>移动 PCB 会带动板上探头。板宽深影响封装边距和整车净空。端孔直径只用于两侧各布一个裸孔的最小居中板宽估算，螺头和制造余量需另计。</td></tr>
+<tr data-fields="layout pitch right forward mount role"><th scope="row">布局、探头坐标与职责<br><code>Yᵢ = (i − 2.5) p  (i = 0…5); e = Σ(nᵢYᵢ) / Σnᵢ</code></th><td>间距 p 作用于等距预设；双排每排三颗，分体预设按车身尺寸定位。板上探头随 PCB，独立探头固定于后轴坐标。每个周期选已触发的主组，其次选备用组。记录组只进波形。</td></tr>
+<tr data-fields="sensorHeight spatial spot aspect line"><th scope="row">离地高度、白线与光斑<br><code>f = ∫white K(x,y) dA; n_opt = fᵞ</code></th><td>台架实测高度为 13.3 和 28.3 mm。横移结果决定横向响应，两档间插值、向下外推至 8 mm。纵向核倍率是试算值。均匀核改用白线覆盖面积占比。线宽改变触发范围与断线响应。</td></tr>
+<tr data-fields="ledR load rxV light threshold surfaceBlack surfaceWhite"><th scope="row">LED、电路、照明、材料与阈值<br><code>I_LED ≈ (5 − 1.25) / R_LED; V ≈ I_rx R₂; n = clip((ADC − B) / (W − B), 0, 1)</code></th><td>实验基准负载 2.7 kΩ。接收级按供电减 0.2 V 限幅，ADC 为 3.3 V、12 位。各路 n 达到阈值即报白。环境光改变背景；自定义黑白材料作用于综合赛道第 2 段接缝后。LED 电阻 180 Ω 对应高度表是参考假设。</td></tr>
+<tr data-fields="speed controlRef startOffset startYaw"><th scope="row">速度、PD 参考距离与起步姿态<br><code>κ = clip(2e / Lref² + 0.008 d e/ds, ±0.035); vL,R = v (1 ± κ b/2)</code></th><td>导数按行程估算并作 20 ms 滤波。正向右转时左轮更快；车轴速度为两轮平均，角速度为 (vL − vR)/b。后轴从输入横偏与偏航起步，每 5 ms 按轮速积分。参考距离是独立控制参数。</td></tr>
+<tr data-fields="mass rolling grade gear efficiency supplyV"><th scope="row">质量、坡度、滚阻、传动与供电<br><code>F = mg(sin θ + μ cos θ); T = Fr/(2Gη); ωₘ = vG/r</code></th><td>匀速直行时两轮均分牵引力，r 以 m 计，v 取轮速限幅后的直行速度。DR1 滚动拟合斜率为 0.0865。质量和坡度增加所需牵引力，齿比改变转矩和转速。</td></tr>
+<tr data-fields="motorLimits"><th scope="row">每台电机的稳态判据<br><code>I = (T + 0.00124)/0.00775; V = 1.7548 I − 0.0103 + 0.007259 ωₘ + 0.9310</code></th><td>系数取自组内 DR1 的运行与堵转拟合。按 Handbook §8.2 的每电机 1.4 A 计算限值及输入的可用电压判定。综合赛道上坡会因超限终止；短赛道报告供电余量，轨迹按轮速指令积分。</td></tr>
+<tr data-fields="height gateWidth gateLength bendRadius sRadius gapSize regime scenario"><th scope="row">整车高度、赛道与窄道<br><code>clearance = W_gate/2 − max |Y_part|; roof margin = 200 mm − H</code></th><td>只取与有限道长相交的部件。窄道宽长影响净空；半径决定赛道曲率，断线长度决定无漆区。课程模式限制输入，综合赛道使用固定分段尺寸。整车高度用于隧道检查。</td></tr>
+<tr data-fields="depth offset yaw radius angle"><th scope="row">CAD 姿态与转弯占地<br><code>P_world = P_axle + R(yaw) P_body</code></th><td>入道深度、横偏与偏航用于静态净空图。转弯半径与转角用于刚体扫掠，按各顶点在整个角度区间的极值取包络；零半径绕后轴转。</td></tr>
+<tr data-fields="scanAxes raceStart rate shift"><th scope="row">扫描、回放与横移<br><code>pᵢ = p₀ + i (p₁ − p₀)/(N − 1)</code></th><td>参数扫描逐点重跑所选方案，单点取指定值。分段起跑改变初始位置。回放倍率与时间条只改变观看进度；布局横移只移动静态白线。</td></tr>
+</tbody></table><p>模型采用平面刚体与指令轮速。轮胎打滑、起步加速度、驱动器瞬态、制动距离及传感器个体差异需要实车数据；终点检查取发出停车指令时的车身位置。</p><p><a href="https://www.roboticsbook.org/S52_diffdrive_actions">差速运动学参考</a> · <a href="https://www.vishay.com/docs/83760/tcrt5000.pdf">TCRT5000 器件手册</a></p></details>
+<h2>Handbook 与 Canvas 规格</h2><p>Canvas §1.4、§1.6 给出白线 17 ± 3 mm、平滑弯最小半径 50 mm、最小窄点 280 mm、断线最长 6 mm、至多六个循迹传感器。回放使用组合弯道和直道窄点。<a href="https://canvas.manchester.ac.uk/courses/89030/pages/1-introduction#Specification">Canvas 原文</a></p>
 <p>Canvas §1.4 另列折角弯每 50 mm 最多改向 45°、高架段挡墙最高 50 mm、坡角小于 18°、接缝台阶最高 4 mm、隧道限高 200 mm，以及预赛终点整车 200 mm 停车范围。综合赛道将这些条件分段组合。</p>
 <p>Canvas §1.6 要求使用配发的两套电机减速箱、电机驱动板、BLE 模块和指定电池组，电源须有串联开关。额外零件预算 £40，禁止使用成品循迹阵列。</p>
 <h2>综合极限赛道</h2><p>路线、段长与掉头位置为试验设置。去程和返程共用白线，直线段覆盖 14、17、20 mm 线宽，光照切换采用 Lab 2 室内与强光背景。4 mm 台阶、材料变化与日照反射率需实测。高架段用 50 mm 侧墙的平面边界，窄道宽 280 mm，隧道限高 200 mm。坡度取 ±17.9°，匀速上坡检查 DR1 的电压和电流需求；坡道轨迹为俯视运动学。掉头由一个虚拟 BLE 事件触发，轮速限幅作用于原地转向。回程越过线尾并失线 20 mm 后发停车指令，以车身最远点检查 200 mm 范围；实际制动距离需实测。</p><h2>底盘依据</h2>
@@ -49,7 +64,7 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 <p>课程模型含万向轮总成、轮座、轮胎和电机组件。<a href="https://canvas.manchester.ac.uk/courses/89030/modules/items/4101721">Canvas 机械模型</a></p>
 <h2>驱动与供电</h2><p>Handbook §9.3.1 给出隔离电源 5 V / 400 mA、驱动板每通道约 10 V / 1.8 A。PCB 页的电流余额还需分配给 Nucleo、编码器与接收电路。</p><p>OneDrive · Group 52 DR1，第 2、4、6 页。匀速直行按两轮均分牵引力，使用滚阻拟合斜率 0.0865、电枢电阻 1.7548 Ω、转矩拟合 T = 0.00775 I − 0.00124、反电动势拟合 E = 0.007259 ω + 0.9310。质量 0.920 kg、减速比 15、齿轮总效率 0.722 是 DR1 的计算取值。扫描分别报告直行供电和循迹结果。回放按轮速指令运动，可设置轮端 rpm 限幅。</p>
 <h2>零件与测量</h2><p>ESP Technical Handbook 2026–27 印刷页 66 给出 TCRT5000 外形 10.2 × 5.8 × 7 mm；页 61–62 描述黑白反射测试，页 72 给出差速运动关系。OneDrive 中 Group 52 的 DR1 记录轮径 76 mm，Productcost.docx 列出六个 TCRT5000，第八周周报记录六路模拟输入。安装坐标以后轴中心为原点。板上通道随 PCB 移动，独立安装通道固定在车架坐标。封装长边沿车身纵向，探头朝地面。</p>
-<h3>Sensors Lab · lab data final.xlsx / Sheet1!A14:G24</h3><p>探头离地高度和横移位置均以 mm 记录。黑、白电压为每组 3 次读数的算术平均。<a href="https://livemanchesterac-my.sharepoint.com/shared?id=%2Fpersonal%2Fchenxi_shen_student_manchester_ac_uk%2FDocuments%2FApps%2FEEEN21000%20Embedded%20Systems%2Flab2%20sensor">OneDrive 实验目录</a></p><div id="raw"></div><h3>横移曲线拟合</h3><div id="fitData"></div><div class="twins"><div><h3>13.3 mm · 横移电压 V</h3><canvas class="heatplot" id="fitPlotlow" aria-label="13.3 mm 横移电压与模型"></canvas></div><div><h3>28.3 mm · 横移电压 V</h3><canvas class="heatplot" id="fitPlothigh" aria-label="28.3 mm 横移电压与模型"></canvas></div></div><p>橙点为每个位置的三次读数均值，蓝线为回放使用的对称响应模型。</p>
+<h3>Sensors Lab · lab data final.xlsx / Sheet1!A14:G24</h3><p>探头离地高度和横移位置均以 mm 记录。黑、白电压为每组 3 次读数的算术平均。<a href="https://livemanchesterac-my.sharepoint.com/shared?id=%2Fpersonal%2Fchenxi_shen_student_manchester_ac_uk%2FDocuments%2FApps%2FEEEN21000%20Embedded%20Systems%2Flab2%20sensor">OneDrive 实验目录</a></p><div id="raw"></div><h3>横移曲线拟合</h3><div id="fitData"></div><div class="twins"><div><h3>13.3 mm · 横移电压 V</h3><canvas class="heatplot" id="fitPlotlow" aria-label="13.3 mm 横移电压与模型"></canvas></div><div><h3>28.3 mm · 横移电压 V</h3><canvas class="heatplot" id="fitPlothigh" aria-label="28.3 mm 横移电压与模型"></canvas></div></div><p>橙点为每个位置的三次读数均值，蓝线为回放使用的对称响应模型。RMSE 为模型在同组 29 个位置的电压拟合误差，独立验证需要另一次横移实验。</p>
 <h2>试算模型</h2><p>TCRT5000 的 950 nm 发射管与光电三极管朝向同一面。黑面也会反光，白线边缘的响应由照明与接收视场共同决定。手册第 67 页图 3 区分封装表面工作距离与台架基准；图 8 的 CTR 随 LED 电流而变。电压标定采用组内黑白面实测值。</p>
 <p>Sheet1!A27:G56 给出 13.3 和 28.3 mm 的横移数据。按同高度黑白标定的 50% 阈值对两侧交点做线性插值，得到触发总宽。用两侧 25%–75% 过渡宽度估计高斯核 σ，再用幂函数使模型在参考白条（按 17 mm）上复现 50% 宽度。两个实测高度之间按线性插值，低于 13.3 mm 时外推至 8 mm。</p>
 <p>二维光学：拟合得到横向权重，纵向宽度是可调的试算假设。对随车旋转的响应核在实际白线区域积分；弯道用相邻的条带多边形，弧长步距最多 4 mm，R50 及 20 mm 线宽时外边弦误差小于 0.05 mm。断线直接挖空。高斯核在 ±4σ 截断并归一化，纵向用三点高斯积分，均匀核模式按相交面积计算。</p>
@@ -60,6 +75,7 @@ main{padding:9px 12px 25px}nav{gap:0;border-bottom:1px solid #98a5ae;margin-bott
 </main><script>
 'use strict';
 const dt = 0.005;
+const blindLimit = 20; // mm of axle travel after losing the last control channel
 const clamp = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
 const rad = deg => deg*Math.PI/180;
 const byId = id => document.getElementById(id);
@@ -417,8 +433,7 @@ function chassis(c){
   return {plateCentre:front-c.length/2, casterX:front-c.casterInset, look:front-c.sensorInset};
 }
 function mountingIssue(c){
-  if(c.rearInset>=c.length/2)return '后轴中心须位于底板后半段。';
-  if(c.casterInset>=c.length/2)return '前万向轮中心须位于底板前半段。';
+  if(chassis(c).casterX<=0)return '前万向轮球心必须位于驱动轴前方。';
   return '';
 }
 // A protruding ball is bounded by a circumscribed polygon, exact on the four axes.
@@ -559,6 +574,10 @@ function crossesLineEnd(previous,current,c,end){
     return Math.abs(across)<=c.line/2;
   });
 }
+function wheelSpeedLimit(c){
+  const rpmLimit=c.maxRPM?Math.PI*c.driveDiameter*c.maxRPM/60:Infinity;
+  return Math.min(c.wheelCap?1000*c.wheelCap:Infinity,rpmLimit); // mm/s at the tyre
+}
 function simulate(c,kind,startId='full'){
   const track=course(kind,c),parts=footprint(c),frames=[];track.paint=paintTrack(track,c.line);
   let p={x:90,y:c.startOffset,a:rad(c.startYaw)},distance=0,k=0,deriv=0,lastE=null,blind=0;
@@ -570,7 +589,7 @@ function simulate(c,kind,startId='full'){
   const uphill=extreme?driveLoad({...c,grade:17.9}):null;
   let clearFrame=null,lossFrame=null,lossStart=null,reason='timeout';
   let hadPrimary=false,lostPrimaryAt=null,reacquired=0,maxRecovery=null,previousSource='none';
-  const velocity=c.speed*1000;let ds=velocity*dt,blindOrigin=0;
+  const vmax=wheelSpeedLimit(c),velocity=c.speed*1000;let ds=velocity*dt,blindOrigin=0;
   const maxFrames=extreme?Math.ceil(Math.min(180,Math.max(30,3*track.end.s/Math.max(1,velocity)+10))/dt):3000;
   for(let i=0;i<=maxFrames;i++){
     const station=extreme?locateStation(p,track):null,zone=extreme?stageAt(track,station):null;
@@ -601,7 +620,6 @@ function simulate(c,kind,startId='full'){
       cmdLeft=Math.min(velocity,(pivotEnd-p.a)*c.axle/(2*dt));cmdRight=-cmdLeft;
       lossStart=null;blind=0;blindOrigin=distance;
     }
-    const vmax=Math.min(c.wheelCap?1000*c.wheelCap:Infinity,c.maxRPM?Math.PI*c.driveDiameter*c.maxRPM/60:Infinity);
     const left=clamp(cmdLeft,-vmax,vmax),right=clamp(cmdRight,-vmax,vmax);
     const v=(left+right)/2,omega=(left-right)/c.axle;
     const ball=casterVelocity(v,omega,c);
@@ -618,7 +636,7 @@ function simulate(c,kind,startId='full'){
       if(single && single.id!=='return' && station>=single.end-1e-7){f.zone=single.id;reason='sectionEnd';break;}
       if(phase==='home' && single?.id==='return' && station<=single.start){reason='sectionEnd';break;}
       if(phase==='home' && i>0 && crossesLineEnd(frames[i-1],p,{...c,line:17},{x:0,y:0,a:Math.PI}))homeCrossed=true;
-      if(homeCrossed && blind>=20-1e-8){
+      if(homeCrossed && blind>=blindLimit-1e-8){
         stopDistance=stopRadius(p,parts);reason=stopDistance<=200?'stopInside':'stopOutside';
         Object.assign(f,{left:0,right:0,leftRPM:0,rightRPM:0,cmdLeft:0,cmdRight:0,ball:casterVelocity(0,0,c)});
         break;
@@ -627,7 +645,7 @@ function simulate(c,kind,startId='full'){
     if(!extreme && i>0 && crossesLineEnd(frames[i-1],p,c,track.end)){
       reason='end';break;
     }
-    if(blind>=20-1e-8){reason='lost';break;}
+    if(blind>=blindLimit-1e-8){reason='lost';break;}
     p=advance(p,v,omega,dt);ds=v*dt;distance+=ds;
   }
   for(let i=0;i<frames.length;i++){
@@ -739,17 +757,33 @@ function assembly(c){
       if(d<0){conflicts.add(i);conflicts.add(j);}
     }
   });
-  return {span:ys.length?Math.max(...ys)-Math.min(...ys)+5.8:null,edge,depth,gap:Number.isFinite(gap)?gap:null,conflicts,halfSpan};
+  return {span:ys.length?Math.max(...ys)-Math.min(...ys)+5.8:null,edge,depth,gap:Number.isFinite(gap)?gap:null,conflicts,halfSpan,
+    minimumBoardWidth:halfSpan===null?null:2*(halfSpan+c.hole)};
 }
-function editorFrame(n,w,h){
-  const c=conf(n),whole=byId('zoom'+n).value==='car';
-  const points=whole?footprint(c).flat():[
-    ...rectangle(c.look,c.boardRight,c.boardDepth,c.boardWidth),
-    ...c.positions.flatMap(p=>rectangle(p.forward+c.look,p.right,10.2,5.8))];
+function planBounds(points){
   const xs=points.map(p=>p[0]),ys=points.map(p=>p[1]);
-  const left=Math.min(0,...ys),right=Math.max(0,...ys),back=Math.min(...xs),front=Math.max(...xs);
-  const scale=Math.min((w-88)/Math.max(1,right-left),(h-90)/Math.max(1,front-back),7);
-  return {scale,cx:w/2-(right+left)*scale/2,cy:h/2+(front+back)*scale/2,whole};
+  const back=Math.min(...xs),front=Math.max(...xs),left=Math.min(...ys),right=Math.max(...ys);
+  return {back,front,left,right,length:front-back,width:right-left};
+}
+let carViewBounds;
+function fitCarView(){
+  const shown=byId('layout').dataset.design;
+  const visible=shown==='both'?names:[shown];
+  carViewBounds=planBounds(visible.flatMap(n=>footprint(conf(n)).flat()));
+}
+function editorFrame(n,w,h,whole=byId('zoom'+n).value==='car'){
+  let bounds;
+  if(whole){
+    if(!carViewBounds)fitCarView();
+    bounds=carViewBounds;
+  }else{
+    const c=conf(n);
+    bounds=planBounds([...rectangle(c.look,c.boardRight,c.boardDepth,c.boardWidth),
+      ...c.positions.flatMap(p=>rectangle(p.forward+c.look,p.right,10.2,5.8))]);
+  }
+  const scale=Math.min(Math.max(1,w-108)/Math.max(1,bounds.width),
+    Math.max(1,h-104)/Math.max(1,bounds.length),7);
+  return {scale,cx:w/2-(bounds.right+bounds.left)*scale/2,cy:h/2+(bounds.front+bounds.back)*scale/2,whole};
 }
 let drag=null;
 const picked={A:0,B:0};
@@ -775,27 +809,48 @@ function drawingGrid(ctx,w,h,cx,cy,scale,downPositive=false){
 }
 function chassisDimensions(ctx,c,cx,cy,scale,w,h){
   const x=right=>cx+right*scale,y=forward=>cy-forward*scale;
-  const span=c.axle+c.tyre;
-  const left=x(-span/2),right=x(span/2),bottom=Math.min(h-22,y(-c.driveDiameter/2)+20);
-  const top=y(c.length-c.rearInset),rear=y(-c.rearInset);
-  const edge=Math.max(...plateVertices(c).map(p=>p[1])),dim=Math.min(w-33,x(Math.max(edge,span/2))+22);
-  ctx.save();ctx.lineWidth=1;ctx.strokeStyle='#b6c6ce';ctx.fillStyle='#dae3e7';
+  const vertices=plateVertices(c),plate=planBounds(vertices),body=planBounds(footprint(c).flat());
+  const bottom=Math.min(h-24,y(body.back)+21),side=Math.min(w-20,x(body.right)+23);
+  ctx.save();ctx.lineWidth=1;ctx.strokeStyle='#b6c6ce';
   function segment(x1,y1,x2,y2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
-  segment(left,bottom,right,bottom);
-  for(const end of [left,right]){
-    segment(end,y(-c.driveDiameter/2)+2,end,bottom+4);segment(end-3,bottom+3,end+3,bottom-3);
-  }
-  segment(dim,top,dim,rear);
-  for(const ordinate of [top,rear]){segment(dim-5,ordinate,dim+5,ordinate);segment(dim-2,ordinate+3,dim+2,ordinate-3);}
-  function label(text,x0,y0){
+  function label(name,value,ax,ay,rotate){
+    const text=SimLocale.translate(name)+' '+Number(value.toFixed(2));
+    ctx.save();ctx.translate(ax,ay);if(rotate)ctx.rotate(-Math.PI/2);
     ctx.font='11px ui-monospace,Menlo,monospace';ctx.textAlign='center';
     const width=ctx.measureText(text).width+8;
-    ctx.fillStyle='#202730';ctx.fillRect(x0-width/2,y0-11,width,14);
-    ctx.fillStyle='#e2ebee';ctx.fillText(text,x0,y0);
+    ctx.fillStyle='#202730';ctx.fillRect(-width/2,-8,width,16);
+    ctx.fillStyle='#ecf3f6';ctx.fillText(text,0,4);ctx.restore();
   }
-  label(String(+span.toFixed(2)),(left+right)/2,bottom+4);
-  ctx.translate(dim,(top+rear)/2);ctx.rotate(-Math.PI/2);label(String(+c.length.toFixed(2)),0,4);
+  segment(x(plate.left),bottom,x(plate.right),bottom);
+  for(const lateral of [plate.left,plate.right]){
+    const edge=Math.min(...vertices.filter(p=>p[1]===lateral).map(p=>p[0]));
+    segment(x(lateral),y(edge)+2,x(lateral),bottom+4);
+    segment(x(lateral)-3,bottom+3,x(lateral)+3,bottom-3);
+  }
+  // Put the width text below the dimension line so even a 10 mm plate keeps both ticks visible.
+  label('底板宽',plate.width,x((plate.left+plate.right)/2),bottom+10,false);
+  segment(side,y(plate.front),side,y(plate.back));
+  for(const longitudinal of [plate.front,plate.back]){
+    const edge=Math.max(...vertices.filter(p=>p[0]===longitudinal).map(p=>p[1]));
+    segment(x(edge)+2,y(longitudinal),side+4,y(longitudinal));
+    segment(side-3,y(longitudinal)+3,side+3,y(longitudinal)-3);
+  }
+  label('底板长',plate.length,side,y((plate.front+plate.back)/2),true);
   ctx.restore();
+}
+const sizePair=(length,width)=>[length,width].map(v=>Number(v.toFixed(2))).join(' × ')+' mm';
+function outsidePlan(c,frame,w,h){
+  const b=planBounds(footprint(c).flat()),{cx,cy,scale}=frame;
+  return cx+b.left*scale<12 || cx+b.right*scale>w-28 || cy-b.front*scale<12 || cy-b.back*scale>h-40;
+}
+function planReadout(c){
+  const body=planBounds(footprint(c).flat());
+  return '底板长 × 宽 '+sizePair(c.length,c.width)+'　轮距 '+format(c.axle)+
+    '　两后轮外侧间距 '+format(c.axle+c.tyre)+'　整车外廓长 × 宽 '+sizePair(body.length,body.width);
+}
+function drawPlanVehicle(ctx,c,cx,cy,scale,n,ns){
+  ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);
+  vehicle(ctx,c,{x:0,y:0,a:-Math.PI/2},scale,n,ns,null);ctx.restore();
 }
 function drawBoard(n){
   const c=conf(n),shift=+byId('shift').value,ns=optical(c,shift),{ctx,w,h}=canvasFrame(byId('board'+n));
@@ -804,8 +859,7 @@ function drawBoard(n){
   ctx.textAlign='left';
   drawingGrid(ctx,w,h,cx,cy,scale);
   if(whole){
-    ctx.save();ctx.translate(cx,cy);ctx.scale(scale,scale);vehicle(ctx,c,{x:0,y:0,a:-Math.PI/2},scale,n,ns,null);ctx.restore();
-    chassisDimensions(ctx,c,cx,cy,scale,w,h);
+    drawPlanVehicle(ctx,c,cx,cy,scale,n,ns);
   }else if(c.hasBoard){
     ctx.fillStyle='#315347';ctx.fillRect(cx+(c.boardRight-c.boardWidth/2)*scale,cy-(c.look+c.boardDepth/2)*scale,c.boardWidth*scale,c.boardDepth*scale);
   }
@@ -832,6 +886,10 @@ function drawBoard(n){
     ctx.fillStyle='#ffda91';ctx.fillText(text,labelX+4,labelY);
   }
   ctx.textAlign='left';ctx.font='11px monospace';ctx.fillStyle='#d9e2e6';ctx.fillText('X ↑',8,16);ctx.textAlign='right';ctx.fillText('Y →',w-8,h-18);
+  if(whole)chassisDimensions(ctx,c,cx,cy,scale,w,h);
+  byId('fitBoard'+n).hidden=!whole;
+  byId('boardSize'+n).hidden=!whole;
+  if(whole)byId('boardSize'+n).textContent=planReadout(c)+(outsidePlan(c,{cx,cy,scale},w,h)?'　超出画布，请点适合整车。':'');
   byId('boardsLabel'+n).textContent=c.positions.length+' 路'+(c.positions.length>courseLimits.maxSensors?' · 超出课程六路上限':'');
   byId('boardRead'+n).textContent='探头高度 '+format(c.sensorHeight)+' · '+heightBasis(c)+'　'+countOn(ns,c.threshold)+' 路触发　'+fractions1D(c,shift).map(f=>readout(c.sensor,f,c.sensor.bg).voltage.toFixed(2)).join(' / ')+(ns.length?' V':'');
 }
@@ -885,7 +943,7 @@ byId('shift').min=-scanLimit();byId('shift').max=scanLimit();
     ['标定黑 / 白 ADC 码',...c.map(v=>v.sensor.blackCode+' / '+v.sensor.whiteCode)],
     ['接收级 / ADC',...c.map(v=>{const w=readout(v.sensor,1,v.sensor.bg);return [w.rail?'接收级限幅':'未触及接收上限',w.over?'ADC 超量程':'ADC 范围内'].join(' / ');})],
     ['封装总占宽',...fit.map(v=>format(v.span))],['最小侧边余量',...fit.map(v=>format(v.edge))],
-    ['含两侧裸孔的居中板宽¹',...rule((c,f)=>f.halfSpan===null?'—':format(2*(f.halfSpan+c.hole)))],
+    ['含两侧裸孔的居中板宽¹',...rule((c,f)=>format(f.minimumBoardWidth))],
     ['最近封装净距 / 前后最小余量',...fit.map(v=>format(v.gap,'')+' / '+format(v.depth))],
     ['全探头横向捕获区间',...stats.map(v=>v.invalid||v.low.toFixed(1)+' 至 '+format(v.extent))],
     ['多路有效区总宽',...stats.map(v=>format(v.multi))],['单路有效区总宽',...stats.map(v=>format(v.one))],
@@ -947,8 +1005,17 @@ function vehicle(ctx,c,p,scale,n,signal,hit){
   line(ctx,[{x:tip-5,y:-4},{x:tip,y:0},{x:tip-5,y:4}],'#19333b',1.5/scale);
   ctx.restore();
 }
+function scanPrediction(key,x){
+  const scan=scans[key],fit=fitted[key],optics=opticalCalibration(scan.height);
+  const f=stripeResponse(x-fit.centre,labStripe,optics.sigma);
+  return scan.black+(scan.white-scan.black)*opticalSignal(optics,f);
+}
+function scanResidual(key){
+  const points=scans[key].points;
+  return Math.sqrt(points.reduce((sum,[x,v])=>sum+(scanPrediction(key,x)-v)**2,0)/points.length);
+}
 function drawFit(name){
-  const scan=scans[name],fit=fitted[name],{black,white}=scan,optics=opticalCalibration(scan.height);
+  const scan=scans[name],{white}=scan;
   const {ctx,w,h}=canvasFrame(byId('fitPlot'+name));
   const left=39,right=w-14,top=11,bottom=h-27;
   const x0=scan.points[0][0],x1=scan.points.at(-1)[0],maxV=Math.ceil(Math.max(white,...scan.points.map(p=>p[1]))*2)/2;
@@ -962,7 +1029,7 @@ function drawFit(name){
   for(let x=50;x<=100;x+=10)ctx.fillText(String(x),X(x),bottom+12);
   ctx.fillText(SimLocale.translate('横移位置 / mm'),w/2,h-2);
   const points=Array.from({length:221},(_,i)=>{const x=x0+(x1-x0)*i/220;
-    return {x:X(x),y:Y(black+(white-black)*opticalSignal(optics,stripeResponse(x-fit.centre,labStripe,fit.sigma)))};});
+    return {x:X(x),y:Y(scanPrediction(name,x))};});
   line(ctx,points,'#29678b',1.6);
   ctx.fillStyle='#a24d22';for(const [x,v] of scan.points){ctx.beginPath();ctx.arc(X(x),Y(v),2.4,0,2*Math.PI);ctx.fill();}
 }
@@ -992,11 +1059,12 @@ function drawPose(n){
 }
 function mapArea(w,h){return {l:38,r:w-14,t:11,b:h-32};}
 function drawMap(n){
+  const c=conf(n);
   const {ctx,w,h}=canvasFrame(byId('map'+n)),a=mapArea(w,h);
   const X=v=>a.l+(v+60)/120*(a.r-a.l),Y=v=>a.b-(v+100)/200*(a.b-a.t);
   ctx.fillStyle='#efe2d9';ctx.fillRect(a.l,a.t,a.r-a.l,a.b-a.t);
   for(let ix=a.l;ix<a.r;ix++){
-    const lim=sliceLimits(conf(n),-60+120*(ix+.5-a.l)/(a.r-a.l));
+    const lim=sliceLimits(c,-60+120*(ix+.5-a.l)/(a.r-a.l));
     if(!lim){ctx.fillStyle='#e0e4e5';ctx.fillRect(ix,a.t,1,a.b-a.t);continue;}
     const y0=Y(clamp(lim.high,-100,100)),y1=Y(clamp(lim.low,-100,100));
     if(y1>y0){ctx.fillStyle='#b7ccd4';ctx.fillRect(ix,y0,1,y1-y0);}
@@ -1018,6 +1086,8 @@ function syncOutline(n){
   byId('outlineNote'+n).textContent=d.outline?points.length+' 个顶点':'矩形';
 }
 function initCadDesign(){
+  makeTwins('plans',n=>'<canvas class="cadplot" id="plan'+n+'" aria-label="整车尺寸图"></canvas><div class="read size-read" id="planRead'+n+'"></div>');
+  byId('fitPlan').onclick=()=>{fitCarView();updateCAD();};
   makeTwins('turns',n=>'<canvas class="cadplot" id="turn'+n+'" aria-label="方案 '+n+' 整车转弯占地"></canvas><div class="read" id="turnRead'+n+'"></div>');
   makeTwins('outlines',n=>'<div class="pad"><textarea rows="5" style="width:100%;box-sizing:border-box" id="outline'+n+'" aria-label="方案 '+n+' 底板顶点，向前和向右毫米"></textarea><button id="applyOutline'+n+'">应用顶点</button> <button id="rectOutline'+n+'">用矩形</button> <span id="outlineNote'+n+'" role="status"></span></div>');
   for(const n of names){
@@ -1068,11 +1138,26 @@ function drawTurn({n,c,parts,bounds,ctx,w,h},scale){
 }
 function updateCAD(){
   byId('gateLabel').textContent=shared.gateWidth+' × '+shared.gateLength+' mm';
-  names.forEach(n=>{drawPose(n);drawMap(n);});drawTurns();
+  for(const n of names){
+    if(!byId('cadPlan').hidden){
+      const c=conf(n),{ctx,w,h}=canvasFrame(byId('plan'+n)),{cx,cy,scale}=editorFrame(n,w,h,true);
+      drawingGrid(ctx,w,h,cx,cy,scale);
+      drawPlanVehicle(ctx,c,cx,cy,scale,n,null);
+      chassisDimensions(ctx,c,cx,cy,scale,w,h);
+      byId('planRead'+n).textContent=planReadout(c)+(outsidePlan(c,{cx,cy,scale},w,h)?'　超出画布，请点适合整车。':'');
+    }
+    if(!byId('cadPose').hidden)drawPose(n);
+    if(!byId('cadMap').hidden)drawMap(n);
+  }
+  if(!byId('cadTurn').hidden)drawTurns();
   const st=names.map(cadState);
   metrics('cadMetrics',[
+    ['底板长 × 宽',...st.map(({c})=>sizePair(c.length,c.width))],
+    ['整车外廓长 × 宽',...st.map(({parts})=>{const b=planBounds(parts.flat());return sizePair(b.length,b.width);})],
+    ['驱动轮中心距',...st.map(({c})=>format(c.axle))],
     ['后轴 → 前万向轮球心',...st.map(s=>format(s.c.casterX))],
     ['后轴 → PCB 中心',...st.map(s=>s.c.hasBoard?format(s.c.look):'分体安装')],
+    ['两后轮内侧间距',...st.map(s=>format(s.c.axle-s.c.tyre))],
     ['两后轮外侧间距',...st.map(s=>format(s.c.axle+s.c.tyre))],
     ['隧道高度余量（200 mm）',...st.map(s=>format(200-s.c.height))],
     ['当前净空',...st.map(s=>s.hit?format(s.margin)+' · '+sem(s.margin):'未入道')],
@@ -1127,7 +1212,7 @@ function drawRun(n){
   vehicle(ctx,c,f,scale,n,f.ns,null);
   const ended=localFrame===r.frames.length-1;
   byId('racesLabel'+n).textContent=(ended?reasonLabel[r.reason]:f.source==='none'?'控制失线':f.source==='backup'?'备用接管':playing?'运行中':frame?'已暂停':'起点')+' · '+f.hits+'/'+c.positions.length+' 路';
-  byId('raceRead'+n).textContent=(f.zone?stageName(f.zone)+' · '+({out:'去程',pivot:'原地掉头',home:'返程'})[f.phase]+' · '+format(f.station)+' · '+f.grade.toFixed(1)+'°　':'')+(roleLabels[f.source]||'控制失线')+'　L/R '+[f.left,f.right].map(v=>(v/1000).toFixed(2)).join('/')+' m/s　前球侧向 '+(f.ball.right/1000).toFixed(2)+' m/s　净空 '+format(f.clear)+'　线位 '+format(f.e);
+  byId('raceRead'+n).textContent=(f.zone?stageName(f.zone)+' · '+({out:'去程',pivot:'原地掉头',home:'返程'})[f.phase]+' · '+format(f.station)+' · '+f.grade.toFixed(1)+'°　':'')+(roleLabels[f.source]||'控制失线')+'　L/R '+[f.left,f.right].map(v=>(v/1000).toFixed(2)).join('/')+' m/s　前球侧向 '+(f.ball.right/1000).toFixed(2)+' m/s　净空 '+format(f.clear)+'　线位 '+format(f.e)+(f.source==='none'&&f.phase!=='pivot'?'　连续盲行 '+format(f.blind)+' / '+format(blindLimit):'');
   byId('scope'+n).style.minHeight=Math.max(100,c.positions.length*17+22)+'px';
   const sc=canvasFrame(byId('scope'+n)),cx=sc.ctx,x0=24,x1=sc.w-8,y0=4,y1=sc.h-18;
   const X=i=>x0+i/Math.max(1,race.last)*(x1-x0);
@@ -1145,9 +1230,19 @@ const reasonLabel={wall:'侧墙接触',roof:'超过隧道限高',supply:'上坡�
 function raceSummary(){
   const track=race.runs.A.track;
   if(track.sections)byId('courseLength').textContent=(track.end.s/1000).toFixed(2)+' m · 9 段';
-  const both=names.map(n=>race.runs[n]);
+  const both=names.map(n=>race.runs[n]),last=both.map(r=>r.frames.at(-1));
   metrics('raceMetrics',[
     ['路段结果',...both.map(r=>reasonLabel[r.reason])],
+    ['结束时触发数（主 / 备）',...last.map(f=>f.primary+' / '+f.backup)],
+    ['结束时控制通道峰值 / 阈值',...last.map((f,i)=>{
+      const positions=conf(names[i]).positions;
+      const levels=f.ns.filter((_,j)=>positions[j].role!=='log');
+      if(!levels.length)return '—';
+      const peak=Math.max(...levels);
+      return peak.toFixed(5)+(f.primary||f.backup?' ≥ ':' < ')+shared.threshold;
+    })],
+    ['结束时连续盲行 / 限值',...last.map(f=>format(f.blind)+' / '+format(blindLimit))],
+    ['限幅后直行速度',...names.map(n=>driveLoad(conf(n)).speed.toFixed(3)+' m/s')],
     ...(both[0].track.sections?[
       ['结束位置',...both.map(r=>stageName(r.frames.at(-1).zone)+' · '+format(r.frames.at(-1).station))],
       ['单次掉头指令',...both.map(r=>String(r.bleEvents))],
@@ -1157,7 +1252,7 @@ function raceSummary(){
     ...(!track.sections?[
     ['匀速直行 · 每台电机所需电流',...names.map(n=>format((race.runs[n].uphill||driveLoad(conf(n))).current,' A'))],
     ['匀速直行 · 每台电机所需电压',...names.map(n=>format((race.runs[n].uphill||driveLoad(conf(n))).voltage,' V'))],
-    ['供电检查（设定车速与坡度）',...names.map(n=>(race.runs[n].uphill||driveLoad(conf(n))).ok?'可供给':'超出供电能力')]
+    ['供电检查（限幅后直行）',...names.map(n=>(race.runs[n].uphill||driveLoad(conf(n))).ok?'可供给':'超出供电能力')]
     ]:[]),
     ['结束时刻',...both.map(r=>r.frames.at(-1).t.toFixed(3)+' s')],
     ['连续运动的最小净空区间',...both.map(r=>!r.swept?(r.track.gate?'未入窄道':'无窄道'):Number.isFinite(r.swept.high)?(Math.floor(r.swept.low*100)/100).toFixed(2)+' 至 '+(Math.ceil(r.swept.high*100)/100).toFixed(2)+' mm':'入口边界待判')],
@@ -1222,14 +1317,14 @@ function csvExport(){
       }
     }
   }else if(mode==='cad'){
-    rows.push([...header,'corridor_width_mm','corridor_length_mm','axle_depth_mm','yaw_deg','offset_mm','clearance_mm','limiting_part','safe_offset_min_mm','safe_offset_max_mm','selected_pose','axle_turn_radius_mm','turn_deg','turn_width_mm','turn_depth_mm']);
+    rows.push([...header,'corridor_width_mm','corridor_length_mm','axle_depth_mm','yaw_deg','offset_mm','clearance_mm','limiting_part','safe_offset_min_mm','safe_offset_max_mm','selected_pose','axle_turn_radius_mm','turn_deg','turn_width_mm','turn_depth_mm','assembly_length_mm','assembly_width_mm','wheel_outside_width_mm']);
     for(const n of names){
-      const c=conf(n),parts=footprint(c),gate=straightGate(c),bounds=turnEnvelope(parts,turn.radius,turn.angle);
+      const c=conf(n),parts=footprint(c),gate=straightGate(c),bounds=turnEnvelope(parts,turn.radius,turn.angle),body=planBounds(parts.flat());
       // Export the exact selected pose plus a regular grid through the displayed envelope.
       const sample=(yaw,offset,selected,lim)=>{
         const p={x:pose.depth,y:offset,a:rad(yaw)},hit=clearance(p,parts,gate,true);
         const margin=hit?(gate.half-Math.abs(hit.point.y)):null;
-        rows.push([...baseRow('cad',n,c),c.gateWidth,c.gateLength,pose.depth,yaw,offset,margin,hit?partName(hit.partIndex,c.positions.length):'',lim?.low,lim?.high,selected,turn.radius,turn.angle,bounds.width,bounds.depth]);
+        rows.push([...baseRow('cad',n,c),c.gateWidth,c.gateLength,pose.depth,yaw,offset,margin,hit?partName(hit.partIndex,c.positions.length):'',lim?.low,lim?.high,selected,turn.radius,turn.angle,bounds.width,bounds.depth,body.length,body.width,c.axle+c.tyre]);
       };
       sample(pose.yaw,pose.offset,1,sliceLimits(c,pose.yaw));
       for(let yaw=-60;yaw<=60;yaw+=2){const lim=sliceLimits(c,yaw);for(let e=-100;e<=100;e+=5)sample(yaw,e,0,lim);}
@@ -1307,6 +1402,7 @@ function layoutEditor(n){
     if(select.value==='custom')d.customPositions=sensorPositions(d).map(p=>({...p}));
     d.layout=select.value;syncLayout(n);invalidate();
   };
+  byId('fitBoard'+n).onclick=()=>{fitCarView();names.forEach(drawBoard);};
   byId('zoom'+n).onchange=()=>drawBoard(n);
   byId('add'+n).onclick=()=>{
     if(preventExtra(n))return;
@@ -1425,10 +1521,11 @@ function driveLoad(c){
   const force=c.mass*9.80665*(Math.sin(angle)+c.rolling*Math.cos(angle));
   const torque=force*radius/(2*c.gear*c.efficiency);
   const current=(torque+.00124)/.00775;
-  const omega=c.speed*c.gear/radius;
+  const speed=Math.min(c.speed,wheelSpeedLimit(c)/1000);
+  const omega=speed*c.gear/radius;
   // Use the fitted running-load back-EMF line, including its reported intercept.
   const voltage=1.7548*current-.0103+.007259*omega+.9310;
-  return {current,voltage,ok:current<=1.8&&voltage<=c.supplyV};
+  return {speed,current,voltage,ok:current<=1.4&&voltage<=c.supplyV}; // Handbook §8.2, per motor.
 }
 function scanFields(n,extreme=false){
   const d=designs[n],fields=[...designFields.filter(([key])=>key!=='pitch'||!['custom','distributed'].includes(d.layout)).map(([key,title])=>[key,title]),...(extreme?[]:trackFields)];
@@ -1544,7 +1641,7 @@ function initWorkbench(){
   }
 }
 function init(){
-  makeTwins('boards',n=>'<div class="board-toolbar"><select id="pattern'+n+'" aria-label="方案 '+n+' 布局"></select><select id="zoom'+n+'" aria-label="方案 '+n+' 视图"><option value="car">整车</option><option value="pcb">布局放大</option></select><select id="pick'+n+'" aria-label="选中探头"></select><button id="add'+n+'">＋ 探头</button><details><summary>坐标与职责</summary><table class="coordinates" id="coordinates'+n+'"><thead><tr><th>通道</th><th>安装</th><th>职责</th><th>右 / mm</th><th>前 / mm</th><th></th></tr></thead><tbody></tbody></table></details></div><canvas tabindex="0" title="拖动探头；方向键微调 0.1 mm，Shift 加方向键调 1 mm。双击空白处添加。" class="boardplot" id="board'+n+'" aria-label="方案 '+n+' 传感器位置"></canvas><div class="view-status"><output id="pointer'+n+'">X —　Y — mm</output><span class="read" id="boardRead'+n+'"></span></div>');
+  makeTwins('boards',n=>'<div class="board-toolbar"><select id="pattern'+n+'" aria-label="方案 '+n+' 布局"></select><select id="zoom'+n+'" aria-label="方案 '+n+' 视图"><option value="car">整车</option><option value="pcb">布局放大</option></select><button id="fitBoard'+n+'">适合整车</button><select id="pick'+n+'" aria-label="选中探头"></select><button id="add'+n+'">＋ 探头</button><details><summary>坐标与职责</summary><table class="coordinates" id="coordinates'+n+'"><thead><tr><th>通道</th><th>安装</th><th>职责</th><th>右 / mm</th><th>前 / mm</th><th></th></tr></thead><tbody></tbody></table></details></div><canvas tabindex="0" title="拖动探头；方向键微调 0.1 mm，Shift 加方向键调 1 mm。双击空白处添加。" class="boardplot" id="board'+n+'" aria-label="方案 '+n+' 传感器位置"></canvas><div class="read size-read" id="boardSize'+n+'"></div><div class="view-status"><output id="pointer'+n+'">X —　Y — mm</output><span class="read" id="boardRead'+n+'"></span></div>');
   makeTwins('poses',n=>'<canvas class="cadplot" id="pose'+n+'" aria-label="方案 '+n+' 当前姿态及净空"></canvas><div class="read" id="poseRead'+n+'"></div>');
   makeTwins('maps',n=>'<canvas class="heatplot" id="map'+n+'" aria-label="方案 '+n+' 可行横偏与偏航角，亦可用上方数值框选取"></canvas>');
   makeTwins('races',n=>'<canvas class="raceplot" id="race'+n+'" aria-label="方案 '+n+' 轨迹"></canvas><div class="read" id="raceRead'+n+'"></div>');
@@ -1564,12 +1661,37 @@ function init(){
       ['mass','gear','efficiency','rolling','supplyV','maxRPM'].includes(id)?'drive':'chassis';
     inspectorGroups[group].append(row);
     for(const n of names){const el=byId(id+n);if(id==='sensorInset')el.title='¹ 负值表示板中心伸出车头。';Object.assign(el,{step,value:designs[n][id]});if(min!==null)el.min=min;if(max!==null)el.max=max;
-      el.onchange=()=>{
-        if(el.value===''||!el.validity.valid){el.value=designs[n][id];byId('validation').textContent=title+(min===null?'，步长 '+step:'范围 '+min+'–'+max+'，步长 '+step);return;}
-        const issue=designIssue({...designs[n],[id]:el.valueAsNumber});
-        if(issue){el.value=designs[n][id];byId('validation').textContent=issue;return;}
-        byId('validation').textContent='';designs[n][id]=el.valueAsNumber;if(id==="length"||id==="width")syncOutline(n);syncLayout(n);invalidate();
-      };}
+      const liveGeometry=group==='chassis'&&id!=='height'||['boardWidth','boardDepth','pitch','sensorInset','boardRight'].includes(id);
+      let original;
+      el.onfocus=()=>{original=designs[n][id];};
+      function updateValue(value){
+        if(value===designs[n][id])return;
+        designs[n][id]=value;
+        if(id==='length'||id==='width')syncOutline(n);
+        syncLayout(n);invalidate();
+      }
+      function issue(){
+        if(el.value===''||!el.validity.valid)return title+'超出输入范围';
+        return designIssue({...designs[n],[id]:el.valueAsNumber});
+      }
+      if(liveGeometry)el.oninput=()=>{
+        if(mode!=='pcb'&&mode!=='cad')return;
+        const message=issue();
+        byId('validation').textContent=el.value===''?'':message;
+        if(!message)updateValue(el.valueAsNumber);
+      };
+      function commit(){
+        const message=issue();
+        if(message){
+          updateValue(original??designs[n][id]);el.value=designs[n][id];
+        }else updateValue(el.valueAsNumber);
+        byId('validation').textContent=message;
+        original=designs[n][id];
+      }
+      el.onchange=commit;
+      // Some browsers fire no change when a temporary numeric edit ends at the starting value.
+      el.onblur=()=>{if(el.value===''||el.valueAsNumber!==designs[n][id])commit();};
+    }
   }
   initCadDesign();names.forEach(layoutEditor);initCourse();initScan();
   const labels={spatial:{lab:'Sensors Lab 高度模型',box:'均匀核假设'},light:{room:'室内标定 / 室内运行',bright:'室内标定 / 强光运行'},wheelCap:{0:'理想跟随',0.6:'±0.6 m/s',1:'±1 m/s'}};
@@ -1593,7 +1715,7 @@ function init(){
   };
   document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.view));
   byId('shift').oninput=()=>{names.forEach(drawBoard);drawCapture();byId('shiftValue').textContent=format(+byId('shift').value);};
-  byId('defaults').onclick=()=>{Object.assign(designs.A,base);Object.assign(designs.B,base,{layout:'distributed'});byId('validation').textContent='';updateInputs();invalidate();};
+  byId('defaults').onclick=()=>{carViewBounds=null;Object.assign(designs.A,base);Object.assign(designs.B,base,{layout:'distributed'});byId('validation').textContent='';updateInputs();invalidate();};
   byId('copyAB').onclick=()=>{Object.assign(designs.B,designs.A,{outline:designs.A.outline?.map(p=>[...p])??null,customPositions:designs.A.customPositions?.map(p=>({...p}))??null});updateInputs();invalidate();};
   for(const id of ['raceStart','sweepStart']){
     const el=byId(id);el.add(new Option('全程往返','full'));
@@ -1628,8 +1750,19 @@ function init(){
   byId('rate').onchange=()=>{startFrame=frame;startTime=performance.now();};
   byId('export').onclick=csvExport;
   byId('raw').innerHTML='<table class="metrics"><thead><tr><th>原表行</th><th>探头高度 mm</th><th>黑面 V</th><th>白线 V</th></tr></thead><tbody>'+rawHeight.map(([height,b,w],i)=>'<tr><td>'+(14+i)+'</td><td>'+height.toFixed(2)+'</td><td>'+b.toFixed(4)+'</td><td>'+w.toFixed(4)+'</td></tr>').join('')+'</tbody></table>';
-  byId('fitData').innerHTML='<table class="metrics"><tr><th>探头高度 mm</th><th>横移位置数</th><th>50% 触发总宽 / mm</th><th>横向 σ / mm</th></tr>'+Object.entries(scans).map(([k,v])=>'<tr><td>'+v.height+'</td><td>'+v.points.length+'</td><td>'+fitted[k].width.toFixed(2)+'</td><td>'+fitted[k].sigma.toFixed(2)+'</td></tr>').join('')+'</table>';
+  byId('fitData').innerHTML='<table class="metrics"><tr><th>探头高度 mm</th><th>横移位置数</th><th>50% 触发总宽 / mm</th><th>横向 σ / mm</th><th>横移拟合 RMSE / V</th></tr>'+Object.entries(scans).map(([k,v])=>'<tr><td>'+v.height+'</td><td>'+v.points.length+'</td><td>'+fitted[k].width.toFixed(2)+'</td><td>'+fitted[k].sigma.toFixed(2)+'</td><td>'+scanResidual(k).toFixed(3)+'</td></tr>').join('')+'</table>';
   new ResizeObserver(()=>{if(mode==='source')Object.keys(scans).forEach(drawFit);}).observe(byId('sources'));
+  for(const row of document.querySelectorAll('#parameterGuide [data-fields]')){
+    const description=row.cells[1];
+    description.id='formula-'+row.dataset.fields.split(' ')[0];
+    for(const field of row.dataset.fields.split(' ')){
+      const controls=[...names.map(n=>byId(field+n)),byId('track'+field),...document.querySelectorAll('[data-shared="'+field+'"]')];
+      for(const el of controls.filter(Boolean)){
+        el.setAttribute('aria-describedby',description.id);
+        el.title=[el.title,description.textContent].filter(Boolean).join(' ');
+      }
+    }
+  }
   initWorkbench();
   if(new URLSearchParams(location.search).get('scenario')==='extreme'){
     byId('scenario').value=byId('scanScenario').value='extreme';
